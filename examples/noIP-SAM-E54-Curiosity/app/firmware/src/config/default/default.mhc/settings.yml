@@ -1,0 +1,14 @@
+configName: default
+folderName: ''
+format_version: v1.0
+frameworkPath: ../../../../../Programme/Harmony3
+processor: ATSAME54P20A
+projectName: ''
+settings:
+  PackageFilter: audio;bsp;core;core_apps_sam_d20;core_apps_sam_d21_da1;core_apps_sam_d5x_e5x;core_apps_sam_e70_s70_v70_v71;crypto;cryptoauthlib;csp;csp_apps_sam_d20;csp_apps_sam_d21_da1;csp_apps_sam_e70_s70_v70_v71;Devices;dev_packs;gfx;harmony-services;mc_apps_pic32cm_mc;mc_apps_pic32mk;mc_apps_sam_c2x;mc_apps_sam_d5x_e5x;mc_apps_sam_e7x_s7x_v7x;mc_apps_sam_rh707;mc_apps_sam_rh71;motor_control;net;net_10base_t1s;quick_docs;usb;wireless_wifi;x2c
+  FORCE_OPTIMIZATION: 'false'
+  GENERATE_BACKUP: 'true'
+  TRUSTZONE: 'false'
+  CMSISPath: .\dev_packs\arm\CMSIS\5.8.0
+  MERGE_STRATEGY: USER_RECENT
+  DFPPath: .\dev_packs\Microchip\SAME54_DFP\3.7.122\atdf\ATSAME54P20A.atdf

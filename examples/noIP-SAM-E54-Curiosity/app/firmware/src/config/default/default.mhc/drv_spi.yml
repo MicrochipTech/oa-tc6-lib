@@ -1,0 +1,127 @@
+format_version: v1.0
+type: GeneratorComponent
+attributes: {id: drv_spi}
+children:
+- type: Symbols
+  children:
+  - type: Combo
+    attributes: {id: DRV_SPI_COMMON_MODE}
+    children:
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: drv_spi, value: Asynchronous}
+  - type: Boolean
+    attributes: {id: DRV_SPI_SYS_DMA_CODE_ENABLE}
+    children:
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: drv_spi, value: 'true'}
+  - type: Boolean
+    attributes: {id: DRV_SPI_SYS_DMA_ENABLE}
+    children:
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: drv_spi, value: 'true'}
+  - type: Integer
+    attributes: {id: DRV_SPI_SYS_DMA_ENABLE_CNTR}
+    children:
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: drv_spi, value: '1'}
+- type: Instances
+  children:
+  - type: InstanceComponent
+    attributes: {instance: '0', id: drv_spi}
+    children:
+    - type: Symbols
+      children:
+      - type: Comment
+        attributes: {id: DRV_SPI_DEPENDENCY_DMA_COMMENT}
+        children:
+        - type: Attributes
+          children:
+          - type: Boolean
+            attributes: {id: visible}
+            children:
+            - {type: Value, value: 'false'}
+      - type: String
+        attributes: {id: DRV_SPI_MODE}
+        children:
+        - type: Values
+          children:
+          - type: Dynamic
+            attributes: {id: drv_spi_0, value: Asynchronous}
+      - type: String
+        attributes: {id: DRV_SPI_PLIB}
+        children:
+        - type: Values
+          children:
+          - type: Dynamic
+            attributes: {id: drv_spi_0, value: SERCOM0}
+      - type: Integer
+        attributes: {id: DRV_SPI_RX_DMA_CHANNEL}
+        children:
+        - type: Attributes
+          children:
+          - type: Boolean
+            attributes: {id: visible}
+            children:
+            - {type: Value, value: 'true'}
+        - type: Values
+          children:
+          - type: Dynamic
+            attributes: {id: drv_spi_0, value: '1'}
+      - type: Integer
+        attributes: {id: DRV_SPI_TX_DMA_CHANNEL}
+        children:
+        - type: Attributes
+          children:
+          - type: Boolean
+            attributes: {id: visible}
+            children:
+            - {type: Value, value: 'true'}
+        - type: Values
+          children:
+          - type: Dynamic
+            attributes: {id: drv_spi_0, value: '0'}
+      - type: Boolean
+        attributes: {id: DRV_SPI_TX_RX_DMA}
+        children:
+        - type: Attributes
+          children:
+          - type: Boolean
+            attributes: {id: readOnly}
+            children:
+            - {type: Value, value: 'false'}
+        - type: Values
+          children:
+          - type: User
+            attributes: {value: 'true'}
+      - type: Boolean
+        attributes: {id: DRV_SPI_TX_RX_DMA_EN}
+        children:
+        - type: Values
+          children:
+          - type: Dynamic
+            attributes: {id: drv_spi_0, value: 'true'}
+    - type: Attachments
+      children:
+      - type: DirectDependency
+        attributes: {id: drv_spi_SPI_dependency}
+        children:
+        - type: Attributes
+          children:
+          - type: String
+            attributes: {id: targetComponentID}
+            children:
+            - {type: Value, value: sercom0}
+          - type: String
+            attributes: {id: targetAttachmentID}
+            children:
+            - {type: Value, value: SERCOM0_SPI}
+- type: ElementPosition
+  attributes: {x: '340', y: '401', id: drv_spi}
