@@ -33,7 +33,7 @@ The following applications are provided to demonstrate the typical or interestin
 |[lwIP TCP/IP example running on SAM E54 Xplained Pro evaluation kit](examples/lwIP-SAM-E54-xplained-pro/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
 |[lwIP TCP/IP example running on SAM V71 Xplained Ultra evaluation kit](examples/lwIP-SAM-V71-xplained-pro/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
 |[RAW Ethernet example running on PIC18F57Q43 Curiosity Nano Evaluation Kit](examples/noIP-PIC18-Curiosity-Nano/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
-|[RAW Ethernet example running on SAM E54 Curiosity Ultra Development Board](examples/noIP-PIC18-Curiosity-Nano/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
+|[RAW Ethernet example running on SAM E54 Curiosity Ultra Development Board](examples/noIP-SAM-E54-Curiosity/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
 |[RAW Ethernet example running on SAM E70 Xplained Ultra Evaluation Kit](examples/noIP-SAM-E70-Xplained/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
 
 
