@@ -367,7 +367,7 @@ uint8_t TC6_GetRawSegments(TC6_t *g, TC6_RawTxSegment **pSegments)
 {
     bool success = false;
     TC6_ASSERT(g && (TC6_MAGIC == g->magic) && pSegments);
-    if (g->enableData && g->enableData) {
+    if (g->enableData) {
         struct qtxeth_queue *q = &g->eth_q;
         struct qtxeth *entry;
         if (qtxeth_stage1_enqueue_ready(q)) {
@@ -389,7 +389,7 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     TC6_ASSERT(segmentCount && pSegments && (segmentCount <= TC6_TX_ETH_MAX_SEGMENTS) && qtxeth_stage1_enqueue_ready(q));
     (void)pSegments;
-    if (g->enableData && g->enableData) {
+    if (g->enableData) {
         struct qtxeth *entry = qtxeth_stage1_enqueue_ptr(q);
 
         TC6_ASSERT(entry->ethSegs == pSegments);
