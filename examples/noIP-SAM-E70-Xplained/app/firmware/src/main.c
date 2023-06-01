@@ -54,7 +54,7 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.0.0"
+#define FIRMWARE_VERSION            "V3.0.1"
 
 #define MAC_SPI_FREQUENCY           (20000000)
 
