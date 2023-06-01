@@ -59,7 +59,7 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.0.0"
+#define FIRMWARE_VERSION            "V3.0.1"
 
 #define BOARD_INSTANCE              (0)
 #define T1S_PLCA_ENABLE             (true)
