@@ -78,7 +78,6 @@ static const MemoryMap_t TC6_MEMMAP[] = {
     {  .address=0x00040087,  .value=0x00000083,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  }, /* COL_DET_CTRL0 */
     {  .address=0x0000000C,  .value=0x00000100,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  }, /* IMASK0 */
     {  .address=0x00040081,  .value=0x000000E0,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  }, /* DEEP_SLEEP_CTRL_1 */
-    {  .address=0x00010000,  .value=0x0000000C,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  }, /* NETWORK_CONTROL */
 };
 
 const uint32_t TC6_MEMMAP_LENGTH = (sizeof(TC6_MEMMAP) / sizeof(MemoryMap_t));
@@ -344,7 +343,10 @@ static void DoInitialization(TC6Reg_t *pReg)
         if (pReg->rxCutThrough) {
             regVal |= 0x100u;
         }
-        while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x00000004 /* CONFIG0 */, regVal, CONTROL_PROTECTION, OnInitDone, NULL)) {
+        while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x00000004 /* CONFIG0 */, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+            TC6_Service(pReg->pTC6, true);
+        }
+        while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x00010000 /* NETWORK_CONTROL */, 0xCu, CONTROL_PROTECTION, OnInitDone, NULL)) {
             TC6_Service(pReg->pTC6, true);
         }
     }
