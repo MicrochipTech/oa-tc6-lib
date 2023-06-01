@@ -46,7 +46,7 @@ Microchip or any third party.
 static const MemoryMap_t TC6_MEMMAP[] = {
     {  .address=0x00000004,  .value=0x00000026,  .mask=0x00000000,  .op=MemOp_Write,            .secure=false }, /* CONFIG0 */
     {  .address=0x00040091,  .value=0x00009660,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x00040081,  .value=0x000000C0,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
+    {  .address=0x00040081,  .value=0x00000080,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
     {  .address=0x00010077,  .value=0x00000028,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
     {  .address=0x00040043,  .value=0x000000FF,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
     {  .address=0x00040044,  .value=0x0000FFFF,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
