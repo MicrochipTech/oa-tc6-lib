@@ -2,6 +2,9 @@
 *.elf
 *.map
 *.d
+*.log
+*.inx
+*.bak*
 **/nbproject/private
 **/nbproject/Makefile-*
 **/nbproject/Package-*

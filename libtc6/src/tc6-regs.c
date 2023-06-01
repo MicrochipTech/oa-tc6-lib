@@ -46,7 +46,7 @@ Microchip or any third party.
 static const MemoryMap_t TC6_MEMMAP[] = {
     {  .address=0x00000004,  .value=0x00000026,  .mask=0x00000000,  .op=MemOp_Write,            .secure=false }, /* CONFIG0 */
     {  .address=0x00040091,  .value=0x00009660,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x00040081,  .value=0x000000C0,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
+    {  .address=0x00040081,  .value=0x00000080,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
     {  .address=0x00010077,  .value=0x00000028,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
     {  .address=0x00040043,  .value=0x000000FF,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
     {  .address=0x00040044,  .value=0x0000FFFF,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
@@ -128,7 +128,7 @@ static void InitDelay(void);
 static void OnSoftResetCB(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *pTag, void *pGlobalTag);
 static void OnInitialRegCB(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *pTag, void *pGlobalTag);
 static void OnEFuseResult(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag);
-static bool ReadEFuseReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal);
+static bool ReadEFuseReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal, uint32_t mask);
 static int8_t GetSignedVal(uint32_t val);
 static uint32_t _CalculateValueAndMask(uint8_t start, uint8_t end, uint32_t newValue, uint32_t *mask);
 static void InitTrim(TC6_t *pInst);
@@ -396,7 +396,7 @@ static void OnEFuseResult(TC6_t *pInst, bool success, uint32_t addr, uint32_t va
     }
 }
 
-static bool ReadEFuseReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal)
+static bool ReadEFuseReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal, uint32_t mask)
 {
     TC6Reg_t *pReg = GetContext(pInst);
     uint32_t regVal = (addr & 0x000Fu);
@@ -414,7 +414,7 @@ static bool ReadEFuseReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal)
     while(0xFFFFFFFFu == pReg->efuseVal) {
         TC6_Service(pInst, true);
     }
-    *pVal = pReg->efuseVal;
+    *pVal = (pReg->efuseVal & mask);
     return (0xFFFFFFFEu != pReg->efuseVal);
 }
 
@@ -449,57 +449,57 @@ static void InitTrim(TC6_t *pInst)
     uint32_t mask;
     int8_t efuseA4 = 0;
     int8_t efuseA8 = 0;
-    if (ReadEFuseReg(pInst, 0x5, &val)) {
+    bool success = false;
+    if (ReadEFuseReg(pInst, 0x5, &val, 0x40)) {
         /* IsTimmed? */
         if (0u != (val & 0x40u)) {
-            if (ReadEFuseReg(pInst, 0x4, &val)) {
+            if (ReadEFuseReg(pInst, 0x4, &val, 0x1F)) {
                 efuseA4 = GetSignedVal(val);
-                if (ReadEFuseReg(pInst, 0x8, &val)) {
+                if (ReadEFuseReg(pInst, 0x8, &val, 0x1F)) {
                     efuseA8 = GetSignedVal(val);
-                    if ((efuseA4 < -5) || (efuseA8 < -5) || (efuseA4 > 5) || (efuseA8 > 5)) {
-                        /* Phy is trimmed, but out of range */
-                        efuseA4 = 0;
-                        efuseA8 = 0;
-                        TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_PHY_Not_Trimmed, pReg->pTag);
+                    if (efuseA4 >= -5) {
+                        success = true;
                     }
                 }
             }
-        } else {
-             TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_PHY_Not_Trimmed, pReg->pTag);
         }
     }
-    mask = 0u;
-    val = _CalculateValueAndMask(10, 15, (0x9 + efuseA4), &mask);
-    val |= _CalculateValueAndMask(4, 9, (0xE + efuseA4), &mask);
-    while (!TC6_ReadModifyWriteRegister(pInst, 0x00040084, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
-        TC6_Service(pInst, true);
-    }
+    if (success) {
+        mask = 0u;
+        val = _CalculateValueAndMask(10, 15, (0x9 + efuseA4), &mask);
+        val |= _CalculateValueAndMask(4, 9, (0xE + efuseA4), &mask);
+        while (!TC6_ReadModifyWriteRegister(pInst, 0x00040084, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
+            TC6_Service(pInst, true);
+        }
 
-    mask = 0u;
-    val = _CalculateValueAndMask(10, 15, (0x28 + efuseA8), &mask);
-    while (!TC6_ReadModifyWriteRegister(pInst, 0x0004008A, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
-        TC6_Service(pInst, true);
-    }
+        mask = 0u;
+        val = _CalculateValueAndMask(10, 15, (0x28 + efuseA8), &mask);
+        while (!TC6_ReadModifyWriteRegister(pInst, 0x0004008A, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
+            TC6_Service(pInst, true);
+        }
 
-    mask = 0u;
-    val = _CalculateValueAndMask(8, 13, (0x5 + efuseA4), &mask);
-    val |= _CalculateValueAndMask(0, 5, (0x9 + efuseA4), &mask);
-    while (!TC6_ReadModifyWriteRegister(pInst, 0x000400AD, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
-        TC6_Service(pInst, true);
-    }
+        mask = 0u;
+        val = _CalculateValueAndMask(8, 13, (0x5 + efuseA4), &mask);
+        val |= _CalculateValueAndMask(0, 5, (0x9 + efuseA4), &mask);
+        while (!TC6_ReadModifyWriteRegister(pInst, 0x000400AD, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
+            TC6_Service(pInst, true);
+        }
 
-    mask = 0u;
-    val = _CalculateValueAndMask(8, 13, (0x9 + efuseA4), &mask);
-    val |= _CalculateValueAndMask(0, 5, (0xE + efuseA4), &mask);
-    while (!TC6_ReadModifyWriteRegister(pInst, 0x000400AE, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
-        TC6_Service(pInst, true);
-    }
+        mask = 0u;
+        val = _CalculateValueAndMask(8, 13, (0x9 + efuseA4), &mask);
+        val |= _CalculateValueAndMask(0, 5, (0xE + efuseA4), &mask);
+        while (!TC6_ReadModifyWriteRegister(pInst, 0x000400AE, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
+            TC6_Service(pInst, true);
+        }
 
-    mask = 0u;
-    val = _CalculateValueAndMask(8, 13, (0x11 + efuseA4), &mask);
-    val |= _CalculateValueAndMask(0, 5, (0x16 + efuseA4), &mask);
-    while (!TC6_ReadModifyWriteRegister(pInst, 0x000400AF, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
-        TC6_Service(pInst, true);
+        mask = 0u;
+        val = _CalculateValueAndMask(8, 13, (0x11 + efuseA4), &mask);
+        val |= _CalculateValueAndMask(0, 5, (0x16 + efuseA4), &mask);
+        while (!TC6_ReadModifyWriteRegister(pInst, 0x000400AF, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
+            TC6_Service(pInst, true);
+        }
+    } else {
+         TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_PHY_Not_Trimmed, pReg->pTag);
     }
 }
 
