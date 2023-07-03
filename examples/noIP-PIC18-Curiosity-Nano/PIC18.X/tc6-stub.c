@@ -50,7 +50,6 @@ Microchip or any third party.
 #include "tc6-conf.h"
 #include "tc6.h"
 #include "systick.h"
-#include "DMASPItransfer.h"/*THW220107 add include file */
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                          USER ADJUSTABLE                             */
@@ -63,6 +62,9 @@ Microchip or any third party.
 #else
 #define ASSERT(x)
 #endif
+/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
+/*                          USER ADJUSTABLE                             */
+/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
 static const uint8_t FALLBACK_MAC[] = {0x00u, 0x80u, 0xC2u, 0x00u, 0x01u, 0xCCu};
 
@@ -106,15 +108,12 @@ bool TC6Stub_Init(uint8_t idx, uint8_t pMac[6])
         memcpy(pMac, FALLBACK_MAC, 5u);
         pMac[5] = idx;
 
-        IO_RST1_SetLow();
+        IO_RST3_SetLow();
         SysTick_DelayMS(10);
-        IO_RST1_SetHigh();
+        IO_RST3_SetHigh();
         SysTick_DelayMS(10);
 
         INT0_SetInterruptHandler(IntHandler);
-        SPI1_Open(SPI1_DEFAULT); /* open SPI instance */
-        vidInitDmaSpiTransfer();
-        DMA2_SetDCNTIInterruptHandler(&vidDma2DestCountISR);
         success = true;
     }
     return success;
@@ -142,17 +141,15 @@ uint32_t TC6Stub_GetTick(void)
 
 bool TC6Stub_SpiTransaction(uint8_t idx, uint8_t *pTx, uint8_t *pRx, uint16_t len)
 {
-    uint16_t i;
     if (idx > FIRST_TC6_INSTANCE) {
         TC6_ASSERT(false);
         return false;
     }
-    /*
-     * provide information to DMA to transfer data via DMA <-> SPI
-     */
-    (void)u8SpiStartTransaction(pTx, pRx, len);
-    /* wait until transfer finished */
-    while (DMA_TRANSFER_PROGRESS == u8GetProcessStatus());
+
+    IO_CS3_SetLow();
+    SPI1_ExchangeBlocks(pTx, pRx, len);
+    IO_CS3_SetHigh();
+    TC6_SpiBufferDone(idx, true);
     return true;
 }
 
@@ -160,33 +157,9 @@ bool TC6Stub_SpiTransaction(uint8_t idx, uint8_t *pTx, uint8_t *pRx, uint16_t le
 /*                  PRIVATE FUNCTION IMPLEMENTATIONS                    */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-
 static void IntHandler(void)
 {
     Stub_Local_t *ps = &d[0];
     ps->intIn++;
     EXT_INT0_InterruptFlagClear();
-}
-
-/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
-/*                     CALLBACK FROM DMA SPI DRIVER                     */
-/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
-
-void vidChipSelectHigh(void)
-{
-    IO_CS1_SetHigh();
-}
-
-void vidChipSelectLow(void)
-{
-    /* SPI Driver is sending corrupted data on the first transaction, silently drop it by not toggling the CS */
-    if (!d[0].firstTransaction) {
-        IO_CS1_SetLow();
-    }
-}
-
-void vidTransactionDone(void)
-{
-    d[0].firstTransaction = false;
-    TC6_SpiBufferDone(0, true);
 }

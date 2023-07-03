@@ -77,7 +77,8 @@ typedef enum
     TC6Regs_Event_MAC_BMGR_Int,
     TC6Regs_Event_MAC_Int,
     TC6Regs_Event_HMX_Int,
-    TC6Regs_Event_GINT_Mask
+    TC6Regs_Event_GINT_Mask,
+    TC6Regs_Event_PHY_Not_Trimmed
 } TC6Regs_Event_t;
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -87,16 +88,37 @@ typedef enum
 /** \brief Initializes the LAN865x with its default register settings
  *  \note Must be called before any other functions of this component.
  *  \param pInst - The pointer returned by TC6_Init.
+ *  \param pTag - This pointer will be returned back with any callback of this component. Maybe set to NULL.
  *  \param mac - The 6 Byte public visible MAC address of the TC6 MAC.
- *  \return True, if interface driver was created and registered to lwIP. false, otherwise.
+ *  \return True, if initial register settings and given parameters have been written into the LAN865x. false, initialization error, try again later with TC6Regs_Reinit().
  */
-bool TC6Regs_Init(TC6_t *pInst, const uint8_t mac[6], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough);
-
+bool TC6Regs_Init(TC6_t *pInst, void *pTag, const uint8_t mac[6], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough);
 
 /** \brief Checks internal timers and trigger corresponding actions
  *  \note Must be called cyclic (slow delay is fine (< 1 second))
  */
 void TC6Regs_CheckTimers(void);
+
+/** \brief Checks if the initial register settings are deployed yet.
+ *  \param pInst - The pointer returned by TC6_Init.
+ *  \return true, if the initialization is done. false, initialization is still ongoing.
+ */
+bool TC6Regs_GetInitDone(TC6_t *pInst);
+
+/** \brief Reinitializes the LAN865x with its default register settings and the stored values given by TC6Regs_Init()
+ *  \note Call this function after a serious error.
+ *  \param pInst - The pointer returned by TC6_Init.
+  */
+void TC6Regs_Reinit(TC6_t *pInst);
+
+/** \brief Sets the PLCA Node ID and the PLCA Node Count and can enable/disable PLCA.
+ *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
+ *  \param plcaEnable - true, if PLCA shall be enabled. false, if CSMA/CD mode shall be used.
+ *  \param nodeId - The new Node ID
+ *  \param nodeCount - The new Node Count
+ *  \return true, if request could be enqueued, the PLCA parameters will be changed soon. false, request failed, no change.
+ */
+bool TC6Regs_SetPlca(TC6_t *pTC6, bool plcaEnable, uint8_t nodeId, uint8_t nodeCount);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                   Implementation of TC6 Callback                     */
@@ -124,8 +146,10 @@ uint32_t TC6Regs_CB_GetTicksMs(void);
 /**
  * \brief Callback when ever an GMAC/PHY event occured
  * \note This function must be implemented by the integrator.
+ * \param pInst - The pointer returned by TC6_Init.
  * \param event - Enumeration matching to the occured event.
+ * \param pTag - The exact same pointer, which was given along with the TC6Regs_Init() function.
  */
- void TC6Regs_CB_OnEvent(TC6Regs_Event_t event);
+ void TC6Regs_CB_OnEvent(TC6_t *pInst, TC6Regs_Event_t event, void *pTag);
 
 #endif /* TC6_REGS_H_ */

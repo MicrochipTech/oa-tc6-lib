@@ -51,7 +51,6 @@ Microchip or any third party.
 #include "mcc_generated_files/mcc.h"
 #include "systick.h"
 #include "tc6-noip.h"
-#include "DMASPItransfer.h"
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                          USER ADJUSTABLE                             */
@@ -325,14 +324,15 @@ void main(void)
 {
     SYSTEM_Initialize();
     INTERRUPT_GlobalInterruptEnable();
-
     SysTick_Init();
 
-    memset(&m, 0, sizeof(m));
+    memset(&m, 0, sizeof (m));
 
     while (!IO_SW0_GetValue()) {
         /* Wait until button gets released */
     }
+
+    SPI1_Open(SPI1_DEFAULT); /* open SPI instance */
 
     PRINT(ESC_CLEAR_TERMINAL \
           ESC_CURSOR_X1Y1    \
@@ -342,51 +342,51 @@ void main(void)
           __DATE__ " " __TIME__ ") ===" ESC_RESETCOLOR "\r\n");
 
     m.idxNoIp = TC6NoIP_Init(T1S_PLCA_ENABLE, T1S_PLCA_NODE_ID, T1S_PLCA_NODE_COUNT,
-        T1S_PLCA_BURST_COUNT, T1S_PLCA_BURST_TIMER, MAC_PROMISCUOUS_MODE,
-        MAC_TX_CUT_THROUGH, MAC_RX_CUT_THROUGH);
+            T1S_PLCA_BURST_COUNT, T1S_PLCA_BURST_TIMER, MAC_PROMISCUOUS_MODE,
+            MAC_TX_CUT_THROUGH, MAC_RX_CUT_THROUGH);
 
     if (m.idxNoIp < 0) {
         PRINT("Failed to initialize TC6 noIP Driver\r\n");
-        while(true) {
-            IO_LED0_Toggle();
-            SysTick_DelayMS(100);
-            if (!IO_SW0_GetValue()) {
-                RESET();
+        goto error;
+    }
+    while (true) {
+        uint32_t now;
+        TC6NoIP_Service();
+        now = SysTick_GetMillis();
+        if ((now > 2000u) && (now - m.lastData) > DELAY_DATA) {
+            m.lastData = now;
+            SendIperfPacket();
+        }
+        if ((now - m.lastBeaconCheck) > DELAY_BEACON_CHECK) {
+            m.lastBeaconCheck = now;
+            if (!TC6NoIP_GetPlcaStatus(m.idxNoIp, OnPlcaStatus)) {
+                printf(ESC_RED "GetPlcaStatus failed" ESC_RESETCOLOR "\r\n");
             }
         }
-    } else {
-        while (true)
-        {
-            uint32_t now;
-            TC6NoIP_Service();
-            now = SysTick_GetMillis();
-            if ((now > 2000u) && (now - m.lastData) > DELAY_DATA) {
-                m.lastData = now;
-                SendIperfPacket();
+        if ((now - m.lastStat) > DELAY_STAT) {
+            m.lastStat = now;
+            if (m.txData || m.rxData || m.rxErrors) {
+                PRINT("TX=%ld RX=%ld Err=%ld ErrId=0x%lX\r\n", (m.txData * 8), (m.rxData * 8), m.rxErrors, m.rxFirstError);
             }
-            if ((now - m.lastBeaconCheck) > DELAY_BEACON_CHECK) {
-                m.lastBeaconCheck = now;
-                if (!TC6NoIP_GetPlcaStatus(m.idxNoIp, OnPlcaStatus)) {
-                    printf(ESC_RED "GetPlcaStatus failed" ESC_RESETCOLOR "\r\n");
-                }
-            }
-            if ((now - m.lastStat) > DELAY_STAT) {
-                m.lastStat = now;
-                if (m.txData || m.rxData || m.rxErrors) {
-                    PRINT("TX=%ld RX=%ld Err=%ld ErrId=0x%lX\r\n", (m.txData * 8), (m.rxData * 8), m.rxErrors, m.rxFirstError);
-                }
-                m.txData = 0;
-                m.rxData = 0;
-                m.rxErrors = 0;
-                m.rxFirstError = 0;
-            }
-            if ((now - m.lastLed) >= DELAY_LED) {
-                m.lastLed = now;
-                IO_LED0_Toggle();
-            }
-            if (!IO_SW0_GetValue()) {
-                RESET();
-            }
+            m.txData = 0;
+            m.rxData = 0;
+            m.rxErrors = 0;
+            m.rxFirstError = 0;
+        }
+        if ((now - m.lastLed) >= DELAY_LED) {
+            m.lastLed = now;
+            IO_LED0_Toggle();
+        }
+        if (!IO_SW0_GetValue()) {
+            RESET();
+        }
+    }
+error:
+    while (true) {
+        IO_LED0_Toggle();
+        SysTick_DelayMS(100);
+        if (!IO_SW0_GetValue()) {
+            RESET();
         }
     }
 }

@@ -53,7 +53,7 @@ extern "C" {
 /*                            PUBLIC API                                */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-/** \brief Initializes the noIP Interface Driver for TC6.F
+/** \brief Initializes the noIP Interface Driver for TC6.
  *  \note Must be called before any other functions of this component.
  *  \enablePlca - true, if PLCA shall be enabled. false, PLCA is off, then nodeId, NodeCount, burstCount and burstTimer are getting ignored.
  *  \nodeId - When PLCA is enabled, this variable sets the PLCA Node Id.
