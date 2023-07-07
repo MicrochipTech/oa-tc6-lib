@@ -217,6 +217,7 @@ TC6_t *TC6_Init(void *pGlobalTag)
 void TC6_Destroy(TC6_t *g)
 {
     uint8_t i;
+    TC6_Reset(g);
     for (i = 0; i < TC6_MAX_INSTANCES; i++) {
         if (g == &m_tc6[i]) {
             m_tc6Valid[i] = false;
@@ -227,7 +228,46 @@ void TC6_Destroy(TC6_t *g)
 
 void TC6_Reset(TC6_t *g)
 {
+    struct qtxeth_queue *qEth = &g->eth_q;
+    struct regop_queue *qReg = &g->regop_q;
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
+
+    /* Wait for pending SPI transactions */
+    while(SPI_OP_INVALID != g->currentOp) {};
+
+    /* Callback Ethernet Data Event listeners */
+    while (qtxeth_stage2_convert_ready(qEth)) {
+        struct qtxeth *entry = qtxeth_stage2_convert_ptr(qEth);
+        if (NULL != entry->txCallback) {
+            entry->txCallback(g, entry->ethSegs[0].pEth, entry->ethSegs[0].segLen, entry->priv, g->gTag);
+        }
+        qtxeth_stage2_convert_done(qEth);
+    }
+    while(regop_stage2_send_ready(qReg)) {
+        regop_stage2_send_done(qReg);
+    }
+    while(regop_stage3_int_ready(qReg)) {
+        regop_stage3_int_done(qReg);
+    }
+    while(regop_stage4_modify_ready(qReg)) {
+        regop_stage4_modify_done(qReg);
+    }
+    while(regop_stage5_send_ready(qReg)) {
+        regop_stage5_send_done(qReg);
+    }
+    while(regop_stage6_int_ready(qReg)) {
+        regop_stage6_int_done(qReg);
+    }
+    while(regop_stage7_event_ready(qReg)) {
+        struct register_operation *entry = regop_stage7_event_ptr(qReg);
+        if (NULL != entry->callback) {
+           entry->callback(g, false, entry->regAddr, 0u, entry->tag, g->gTag);
+        }
+        regop_stage7_event_done(qReg);
+    }
+    if (g->eth_started) {
+        TC6_CB_OnRxEthernetPacket(g, false, 0, NULL, g->gTag);
+    }
 
     /* Set protocol defaults */
     g->txc = 24u;
@@ -326,7 +366,7 @@ uint8_t TC6_GetRawSegments(TC6_t *g, TC6_RawTxSegment **pSegments)
 {
     bool success = false;
     TC6_ASSERT(g && (TC6_MAGIC == g->magic) && pSegments);
-    if (g->enableData && g->enableData) {
+    if (g->enableData) {
         struct qtxeth_queue *q = &g->eth_q;
         struct qtxeth *entry;
         if (qtxeth_stage1_enqueue_ready(q)) {
@@ -348,7 +388,7 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     TC6_ASSERT(segmentCount && pSegments && (segmentCount <= TC6_TX_ETH_MAX_SEGMENTS) && qtxeth_stage1_enqueue_ready(q));
     (void)pSegments;
-    if (g->enableData && g->enableData) {
+    if (g->enableData) {
         struct qtxeth *entry = qtxeth_stage1_enqueue_ptr(q);
 
         TC6_ASSERT(entry->ethSegs == pSegments);
@@ -718,7 +758,7 @@ static bool modify(TC6_t *g, uint32_t value)
 
 static bool accessRegisters(TC6_t *g, enum register_op_type op, uint32_t addr, uint32_t value, bool secure, uint32_t modifyMask, TC6_RegCallback_t callback, void *tag)
 {
-    struct register_operation *reg_op;
+    struct register_operation *reg_op = NULL;
     uint16_t payloadSize = 0;
     bool write = true;
     bool success = false;
