@@ -132,6 +132,8 @@ int8_t TC6NoIP_Init(bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t 
     }
     if (success) {
         lw->magic = NOIP_TC6_MAGIC;
+    } else {
+        TC6_Destroy(lw->tc.tc6);
     }
     return (success ? (int8_t)lw->idx : -1);
 }
@@ -248,124 +250,122 @@ uint32_t TC6Regs_CB_GetTicksMs(void)
     return TC6Stub_GetTick();
 }
 
- void TC6Regs_CB_OnEvent(TC6_t *pInst, TC6Regs_Event_t event, void *pTag)
- {
+ void TC6Regs_CB_OnEvent(TC6_t *pInst, TC6Regs_Event_t event, void *pTag) {
     bool reinit = false;
-	switch(event)
-    {
-	case TC6Regs_Event_UnknownError:
-        PRINT(ESC_RED "UnknownError" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Transmit_Protocol_Error:
-        PRINT(ESC_RED "Transmit_Protocol_Error" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Transmit_Buffer_Overflow_Error:
-        PRINT(ESC_RED "Transmit_Buffer_Overflow_Error" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Transmit_Buffer_Underflow_Error:
-        PRINT(ESC_RED "Transmit_Buffer_Underflow_Error" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Receive_Buffer_Overflow_Error:
-        PRINT(ESC_RED "Receive_Buffer_Overflow_Error" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Loss_of_Framing_Error:
-        PRINT(ESC_RED "Loss_of_Framing_Error" ESC_RESETCOLOR "\r\n");
-        reinit = true;
-        break;
-	case TC6Regs_Event_Header_Error:
-        PRINT(ESC_RED "Header_Error" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Reset_Complete:
-        PRINT(ESC_GREEN "Reset_Complete" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_PHY_Interrupt:
-        PRINT(ESC_GREEN "PHY_Interrupt" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Transmit_Timestamp_Capture_Available_A:
-        PRINT(ESC_GREEN "Transmit_Timestamp_Capture_Available_A" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Transmit_Timestamp_Capture_Available_B:
-        PRINT(ESC_GREEN "Transmit_Timestamp_Capture_Available_B" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Transmit_Timestamp_Capture_Available_C:
-        PRINT(ESC_GREEN "Transmit_Timestamp_Capture_Available_C" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Transmit_Frame_Check_Sequence_Error:
-        PRINT(ESC_RED "Transmit_Frame_Check_Sequence_Error" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Control_Data_Protection_Error:
-        PRINT(ESC_RED "Control_Data_Protection_Error" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_RX_Non_Recoverable_Error:
-        PRINT(ESC_RED "RX_Non_Recoverable_Error" ESC_RESETCOLOR "\r\n");
-        reinit = true;
-        break;
-	case TC6Regs_Event_TX_Non_Recoverable_Error:
-        PRINT(ESC_RED "TX_Non_Recoverable_Error" ESC_RESETCOLOR "\r\n");
-        reinit = true;
-        break;
-	case TC6Regs_Event_FSM_State_Error:
-        PRINT(ESC_RED "FSM_State_Error" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_SRAM_ECC_Error:
-        PRINT(ESC_RED "SRAM_ECC_Error" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Undervoltage:
-        PRINT(ESC_RED "Undervoltage" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Internal_Bus_Error:
-        PRINT(ESC_RED "Internal_Bus_Error" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_TX_Timestamp_Capture_Overflow_A:
-        PRINT(ESC_RED "TX_Timestamp_Capture_Overflow_A" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_TX_Timestamp_Capture_Overflow_B:
-        PRINT(ESC_RED "TX_Timestamp_Capture_Overflow_B" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_TX_Timestamp_Capture_Overflow_C:
-        PRINT(ESC_RED "TX_Timestamp_Capture_Overflow_C" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_TX_Timestamp_Capture_Missed_A:
-        PRINT(ESC_RED "TX_Timestamp_Capture_Missed_A" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_TX_Timestamp_Capture_Missed_B:
-        PRINT(ESC_RED "TX_Timestamp_Capture_Missed_B" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_TX_Timestamp_Capture_Missed_C:
-        PRINT(ESC_RED "TX_Timestamp_Capture_Missed_C" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_MCLK_GEN_Status:
-        PRINT(ESC_YELLOW "MCLK_GEN_Status" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_gPTP_PA_TS_EG_Status:
-        PRINT(ESC_YELLOW "gPTP_PA_TS_EG_Status" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_Extended_Block_Status:
-        PRINT(ESC_YELLOW "Extended_Block_Status" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_SPI_Err_Int:
-        PRINT(ESC_YELLOW "SPI_Err_Int" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_MAC_BMGR_Int:
-        PRINT(ESC_YELLOW "MAC_BMGR_Int" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_MAC_Int:
-        PRINT(ESC_YELLOW "MAC_Int" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_HMX_Int:
-        PRINT(ESC_YELLOW "HMX_Int" ESC_RESETCOLOR "\r\n");
-        break;
-	case TC6Regs_Event_GINT_Mask:
-        PRINT(ESC_YELLOW "GINT_Mask" ESC_RESETCOLOR "\r\n");
-        break;
-    case TC6Regs_Event_PHY_Not_Trimmed:
-        PRINT(ESC_RED "PHY is not trimmed" ESC_RESETCOLOR "\r\n");
-        break;
+    switch (event) {
+        case TC6Regs_Event_UnknownError:
+            PRINT(ESC_RED "UnknownError" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Transmit_Protocol_Error:
+            PRINT(ESC_RED "Transmit_Protocol_Error" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Transmit_Buffer_Overflow_Error:
+            PRINT(ESC_RED "Transmit_Buffer_Overflow_Error" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Transmit_Buffer_Underflow_Error:
+            PRINT(ESC_RED "Transmit_Buffer_Underflow_Error" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Receive_Buffer_Overflow_Error:
+            PRINT(ESC_RED "Receive_Buffer_Overflow_Error" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Loss_of_Framing_Error:
+            PRINT(ESC_RED "Loss_of_Framing_Error" ESC_RESETCOLOR "\r\n");
+            reinit = true;
+            break;
+        case TC6Regs_Event_Header_Error:
+            PRINT(ESC_RED "Header_Error" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Reset_Complete:
+            PRINT(ESC_GREEN "Reset_Complete" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_PHY_Interrupt:
+            PRINT(ESC_GREEN "PHY_Interrupt" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Transmit_Timestamp_Capture_Available_A:
+            PRINT(ESC_GREEN "Transmit_Timestamp_Capture_Available_A" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Transmit_Timestamp_Capture_Available_B:
+            PRINT(ESC_GREEN "Transmit_Timestamp_Capture_Available_B" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Transmit_Timestamp_Capture_Available_C:
+            PRINT(ESC_GREEN "Transmit_Timestamp_Capture_Available_C" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Transmit_Frame_Check_Sequence_Error:
+            PRINT(ESC_RED "Transmit_Frame_Check_Sequence_Error" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Control_Data_Protection_Error:
+            PRINT(ESC_RED "Control_Data_Protection_Error" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_RX_Non_Recoverable_Error:
+            PRINT(ESC_RED "RX_Non_Recoverable_Error" ESC_RESETCOLOR "\r\n");
+            reinit = true;
+            break;
+        case TC6Regs_Event_TX_Non_Recoverable_Error:
+            PRINT(ESC_RED "TX_Non_Recoverable_Error" ESC_RESETCOLOR "\r\n");
+            reinit = true;
+            break;
+        case TC6Regs_Event_FSM_State_Error:
+            PRINT(ESC_RED "FSM_State_Error" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_SRAM_ECC_Error:
+            PRINT(ESC_RED "SRAM_ECC_Error" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Undervoltage:
+            PRINT(ESC_RED "Undervoltage" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Internal_Bus_Error:
+            PRINT(ESC_RED "Internal_Bus_Error" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_TX_Timestamp_Capture_Overflow_A:
+            PRINT(ESC_RED "TX_Timestamp_Capture_Overflow_A" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_TX_Timestamp_Capture_Overflow_B:
+            PRINT(ESC_RED "TX_Timestamp_Capture_Overflow_B" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_TX_Timestamp_Capture_Overflow_C:
+            PRINT(ESC_RED "TX_Timestamp_Capture_Overflow_C" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_TX_Timestamp_Capture_Missed_A:
+            PRINT(ESC_RED "TX_Timestamp_Capture_Missed_A" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_TX_Timestamp_Capture_Missed_B:
+            PRINT(ESC_RED "TX_Timestamp_Capture_Missed_B" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_TX_Timestamp_Capture_Missed_C:
+            PRINT(ESC_RED "TX_Timestamp_Capture_Missed_C" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_MCLK_GEN_Status:
+            PRINT(ESC_YELLOW "MCLK_GEN_Status" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_gPTP_PA_TS_EG_Status:
+            PRINT(ESC_YELLOW "gPTP_PA_TS_EG_Status" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_Extended_Block_Status:
+            PRINT(ESC_YELLOW "Extended_Block_Status" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_SPI_Err_Int:
+            PRINT(ESC_YELLOW "SPI_Err_Int" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_MAC_BMGR_Int:
+            PRINT(ESC_YELLOW "MAC_BMGR_Int" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_MAC_Int:
+            PRINT(ESC_YELLOW "MAC_Int" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_HMX_Int:
+            PRINT(ESC_YELLOW "HMX_Int" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_GINT_Mask:
+            PRINT(ESC_YELLOW "GINT_Mask" ESC_RESETCOLOR "\r\n");
+            break;
+        case TC6Regs_Event_PHY_Not_Trimmed:
+            PRINT(ESC_RED "PHY is not trimmed" ESC_RESETCOLOR "\r\n");
+            break;
     }
     if (reinit) {
         TC6Regs_Reinit(pInst);
     }
- }
+}
 
 static void PrintRateLimited(const char *statement, ...)
 {
