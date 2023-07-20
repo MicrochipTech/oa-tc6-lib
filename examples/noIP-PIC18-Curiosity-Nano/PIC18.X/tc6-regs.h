@@ -78,7 +78,8 @@ typedef enum
     TC6Regs_Event_MAC_Int,
     TC6Regs_Event_HMX_Int,
     TC6Regs_Event_GINT_Mask,
-    TC6Regs_Event_PHY_Not_Trimmed
+    TC6Regs_Event_Chip_Error,
+    TC6Regs_Event_Unsupported_Hardware
 } TC6Regs_Event_t;
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -112,13 +113,19 @@ bool TC6Regs_GetInitDone(TC6_t *pInst);
 void TC6Regs_Reinit(TC6_t *pInst);
 
 /** \brief Sets the PLCA Node ID and the PLCA Node Count and can enable/disable PLCA.
- *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
+ *  \param pInst - The pointer returned by TC6_Init.
  *  \param plcaEnable - true, if PLCA shall be enabled. false, if CSMA/CD mode shall be used.
  *  \param nodeId - The new Node ID
  *  \param nodeCount - The new Node Count
  *  \return true, if request could be enqueued, the PLCA parameters will be changed soon. false, request failed, no change.
  */
-bool TC6Regs_SetPlca(TC6_t *pTC6, bool plcaEnable, uint8_t nodeId, uint8_t nodeCount);
+bool TC6Regs_SetPlca(TC6_t *pInst, bool plcaEnable, uint8_t nodeId, uint8_t nodeCount);
+
+/** \brief Returns the LAN865x Revision number.
+ *  \param pInst - The pointer returned by TC6_Init.
+ *  \return 0, in case of error. Otherwise, Chip Revision.
+ */
+uint8_t TC6Regs_GetChipRevision(TC6_t *pInst);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                   Implementation of TC6 Callback                     */
@@ -126,9 +133,9 @@ bool TC6Regs_SetPlca(TC6_t *pTC6, bool plcaEnable, uint8_t nodeId, uint8_t nodeC
 
 /** \brief This component implements the callback TC6_CB_OnExtendedStatus defined in TC6.h
  *  \note Integrator must not implement this function, as this is already done inside this component.
- * \note This function must be implemented by the integrator.
- * \param pInst - The pointer returned by TC6_Init.
- * \param pGlobalTag - The exact same pointer, which was given along with the TC6_Init() function.
+ *  \note This function must be implemented by the integrator.
+ *  \param pInst - The pointer returned by TC6_Init.
+ *  \param pGlobalTag - The exact same pointer, which was given along with the TC6_Init() function.
  */
 void TC6_CB_OnExtendedStatus(TC6_t *pInst, void *pGlobalTag);
 

@@ -1,13 +1,13 @@
 @echo off
-rmdir app\firmware\demo.X\.generated_files /S/Q
-rmdir app\firmware\demo.X\debug /S/Q
-rmdir app\firmware\demo.X\build /S/Q
-rmdir app\firmware\demo.X\report /S/Q
-rmdir app\firmware\demo.X\dist\default /S/Q
-rmdir app\firmware\demo.X\dist\release\debug /S/Q
-rmdir app\firmware\demo.X\nbproject\private /S/Q
-del   app\firmware\demo.X\nbproject\Makefile* /F/Q
-del   app\firmware\demo.X\nbproject\Package* /F/Q
+rmdir firmware\demo.X\.generated_files /S/Q
+rmdir firmware\demo.X\debug /S/Q
+rmdir firmware\demo.X\build /S/Q
+rmdir firmware\demo.X\report /S/Q
+rmdir firmware\demo.X\dist\default /S/Q
+rmdir firmware\demo.X\dist\release\debug /S/Q
+rmdir firmware\demo.X\nbproject\private /S/Q
+del   firmware\demo.X\nbproject\Makefile* /F/Q
+del   firmware\demo.X\nbproject\Package* /F/Q
 
 rmdir liblwip.X\.generated_files /S/Q
 rmdir liblwip.X\debug /S/Q

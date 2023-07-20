@@ -3,7 +3,7 @@
     <type>com.microchip.mplab.nbide.embedded.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
-            <name>PIC18_Sync</name>
+            <name>PIC18_DMA</name>
             <creation-uuid>5f15bb4b-f85b-47da-abcb-05096b190e4d</creation-uuid>
             <make-project-type>0</make-project-type>
             <c-extensions>c</c-extensions>

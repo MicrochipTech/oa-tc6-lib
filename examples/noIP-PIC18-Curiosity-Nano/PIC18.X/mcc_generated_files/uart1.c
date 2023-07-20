@@ -221,9 +221,9 @@ void UART1_Write(uint8_t txData)
     PIE4bits.U1TXIE = 1;
 }
 
-char getch(void)
+int getch(void)
 {
-    return UART1_Read();
+    return (int)UART1_Read();
 }
 
 void putch(char txData)

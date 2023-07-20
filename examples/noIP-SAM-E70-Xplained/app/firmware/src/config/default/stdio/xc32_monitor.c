@@ -48,7 +48,8 @@ int read(int handle, void *buffer, unsigned int len)
 {
     int nChars = 0;
     bool success = false;
-    if ((handle == 0)  && (len > 0U))
+    (void)len;
+    if ((handle == 0)  && (len > 0))
     {
         do
         {
@@ -69,5 +70,5 @@ int write(int handle, void * buffer, size_t count)
            success = USART1_Write(buffer, count);
        }while( !success);
    }
-   return (int)count;
+   return count;
 }

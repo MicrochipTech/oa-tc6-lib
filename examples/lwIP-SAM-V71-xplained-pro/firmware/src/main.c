@@ -59,7 +59,7 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.0.1"
+#define FIRMWARE_VERSION            "V3.1.0"
 
 #define BOARD_INSTANCE              (0)
 #define T1S_PLCA_ENABLE             (true)
@@ -209,8 +209,7 @@ static void PrintMenu()
     PRINT(" r - soft reset\r\n");
     PRINT(" c - clear screen\r\n");
     PRINT(" s - set iperf tx UDP packet size\r\n");
-    PRINT(" f - set LAN865x SPI frequency\r\n");
-    PRINT("======================\r\n");
+    PRINT(" f - set LAN865x SPI frequency\r\n\r\n");
 }
 
 static void CheckUartInput(void)

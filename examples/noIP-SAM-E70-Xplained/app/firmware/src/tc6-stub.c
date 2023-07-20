@@ -161,6 +161,7 @@ bool TC6Stub_IntActive(uint8_t idx)
     ASSERT(idx < TC6_MAX_INSTANCES);
     ps->intReported = ps->intIn;
     return (ps->intReported != ps->intOut);
+
 }
 
 void TC6Stub_ReleaseInt(uint8_t idx)

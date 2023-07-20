@@ -361,7 +361,7 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>../src</Elem>
-    </sourceRootList>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="default" type="2">
@@ -1254,7 +1254,7 @@
         <targetDevice>ATSAME54P20A</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>noID</platformTool>
+        <platformTool>EdbgTool</platformTool>
         <languageToolchain>XC32</languageToolchain>
         <languageToolchainVersion>4.09</languageToolchainVersion>
         <platform>3</platform>
@@ -2377,7 +2377,7 @@
         <property key="memories.programmemory.ranges" value="0-fffff"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="programmerToGoFilePath"
-                  value="C:/_svn_/TC6_Library/trunk/examples/noIP-SAM-E54-Curiosity/app/firmware/demo.X/debug/1/demo_ptg"/>
+                  value="C:/_svn_/Galileo/SAME54-Curiosity/trunk/app/firmware/demo.X/debug/release/demo_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"
@@ -3252,7 +3252,7 @@
         <property key="memories.programmemory.ranges" value="0-fffff"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="programmerToGoFilePath"
-                  value="C:/_svn_/TC6_Library/trunk/examples/noIP-SAM-E54-Curiosity/app/firmware/demo.X/debug/2/demo_ptg"/>
+                  value="C:/_svn_/Galileo/SAME54-Curiosity/trunk/app/firmware/demo.X/debug/release/demo_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"
