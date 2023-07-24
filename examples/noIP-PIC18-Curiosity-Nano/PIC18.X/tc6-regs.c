@@ -40,53 +40,9 @@ Microchip or any third party.
 #include "tc6-regs.h"
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
-/*                          AUTO GENERATED DEFINES                      */
-/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
-
-static const MemoryMap_t TC6_MEMMAP[] = {
-    {  .address=0x00000004,  .value=0x00000026,  .mask=0x00000000,  .op=MemOp_Write,            .secure=false }, /* CONFIG0 */
-    {  .address=0x00040091,  .value=0x00009660,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x00040081,  .value=0x00000080,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x00010077,  .value=0x00000028,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x00040043,  .value=0x000000FF,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x00040044,  .value=0x0000FFFF,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x00040045,  .value=0x00000000,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x00040053,  .value=0x000000FF,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x00040054,  .value=0x0000FFFF,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x00040055,  .value=0x00000000,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x00040040,  .value=0x00000002,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x00040050,  .value=0x00000002,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400D0,  .value=0x00005F21,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400E9,  .value=0x00009E50,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400F5,  .value=0x00001CF8,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400F4,  .value=0x0000C020,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400F8,  .value=0x00009B00,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400F9,  .value=0x00004E53,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400B0,  .value=0x00000103,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400B1,  .value=0x00000910,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400B2,  .value=0x00001D26,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400B3,  .value=0x0000002A,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400B4,  .value=0x00000103,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400B5,  .value=0x0000070D,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400B6,  .value=0x00001720,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400B7,  .value=0x00000027,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400B8,  .value=0x00000509,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400B9,  .value=0x00000E13,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400BA,  .value=0x00001C25,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-    {  .address=0x000400BB,  .value=0x0000002B,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  },
-
-    {  .address=0x00040087,  .value=0x00000083,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  }, /* COL_DET_CTRL0 */
-    {  .address=0x0000000C,  .value=0x00000100,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  }, /* IMASK0 */
-    {  .address=0x00040081,  .value=0x000000E0,  .mask=0x00000000,  .op=MemOp_Write,            .secure=true  }, /* DEEP_SLEEP_CTRL_1 */
-};
-
-const uint32_t TC6_MEMMAP_LENGTH = (sizeof(TC6_MEMMAP) / sizeof(MemoryMap_t));
-
-/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define DELAY_EFUSE             (1u)
 #define DELAY_UNLOCK_EXT        (100u)
 #define CONTROL_PROTECTION      (true)
 
@@ -100,17 +56,17 @@ typedef struct
     TC6_t *pTC6;
     void *pTag;
     uint32_t unlockExtTime;
-    uint32_t efuseVal;
+    uint32_t readResult;
     uint8_t nodeId;
-    uint8_t nodeIdChange;
     uint8_t nodeCount;
-    uint8_t nodeCountChange;
     uint8_t burstCount;
     uint8_t burstTimer;
+    uint8_t chipRev;
     bool extBlock;
     bool initialized;
     bool initDone;
     bool enablePlca;
+    bool plcaChanged;
     bool promiscuous;
     bool txCutThrough;
     bool rxCutThrough;
@@ -124,14 +80,16 @@ static TC6Reg_t m_reg[TC6_MAX_INSTANCES] = { 0 };
 
 static TC6Reg_t *GetContext(TC6_t *pTC6);
 static void DoInitialization(TC6Reg_t *pReg);
-static void InitDelay(void);
+static void HandlePlca(TC6Reg_t *pReg);
 static void OnSoftResetCB(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *pTag, void *pGlobalTag);
+static void OnReadId1(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *pTag, void *pGlobalTag);
+static void OnReadId2(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *pTag, void *pGlobalTag);
 static void OnInitialRegCB(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *pTag, void *pGlobalTag);
-static void OnEFuseResult(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag);
-static bool ReadEFuseReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal, uint32_t mask);
+static void OnChipResult(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag);
+static bool ReadReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal);
+static bool ReadIndirectReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal, uint32_t mask);
 static int8_t GetSignedVal(uint32_t val);
-static uint32_t _CalculateValueAndMask(uint8_t start, uint8_t end, uint32_t newValue, uint32_t *mask);
-static void InitTrim(TC6_t *pInst);
+static void InitChip(TC6_t *pInst);
 
 static void OnInitDone(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *pTag, void *pGlobalTag);
 static void OnExtendedBlock(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag);
@@ -157,7 +115,7 @@ bool TC6Regs_Init(TC6_t *pTC6, void *pTag, const uint8_t mac[6], bool enablePlca
         pReg->promiscuous = promiscuous;
         pReg->txCutThrough = txCutThrough;
         pReg->rxCutThrough = rxCutThrough;
-        memcpy(pReg->mac, mac, 6);
+        (void)memcpy(pReg->mac, mac, 6);
         DoInitialization(pReg);
     }
     return ((NULL != pReg) && pReg->initialized);
@@ -175,23 +133,9 @@ void TC6Regs_CheckTimers(void)
         }
         DoInitialization(pReg);
 
-        if (pReg->nodeIdChange || pReg->nodeCountChange)
-        {
-            uint32_t regVal;
-            if (!pReg->enablePlca) {
-                regVal = ((uint32_t)1u << 15);
-                while (pReg->initDone && !TC6_WriteRegister(pReg->pTC6, 0x0004CA01, regVal, CONTROL_PROTECTION, NULL, NULL)) {
-                    TC6_Service(pReg->pTC6, true);
-                }
-            }
-            pReg->enablePlca = true;
-            regVal = ((uint32_t) pReg->nodeCountChange << 8) | pReg->nodeIdChange;
-            if (false == TC6_WriteRegister(pReg->pTC6, 0x0004CA02, regVal, CONTROL_PROTECTION, NULL, NULL)) {
-                pReg->nodeId = pReg->nodeIdChange;
-                pReg->nodeCount = pReg->nodeCountChange;
-                pReg->nodeIdChange = 0;
-                pReg->nodeCountChange = 0;
-            }
+        if (pReg->plcaChanged) {
+            pReg->plcaChanged = false;
+            HandlePlca(pReg);
         }
     }
 }
@@ -217,22 +161,22 @@ void TC6Regs_Reinit(TC6_t *pTC6)
 
 bool TC6Regs_SetPlca(TC6_t *pTC6, bool plcaEnable, uint8_t nodeId, uint8_t nodeCount)
 {
+    bool success = false;
     TC6Reg_t *pReg = GetContext(pTC6);
-    if (plcaEnable) {
-        if (!pReg->enablePlca || (pReg->nodeId != nodeId) || (pReg->nodeCount != nodeCount)) {
-            pReg->nodeIdChange = nodeId;
-            pReg->nodeCountChange = nodeCount;
-        }
-    } else {
-        if (pReg->enablePlca) {
-            uint32_t regVal = 0u;
-            while (pReg->initDone && !TC6_WriteRegister(pReg->pTC6, 0x0004CA01, regVal, CONTROL_PROTECTION, NULL, NULL)) {
-                TC6_Service(pReg->pTC6, true);
-            }
-            pReg->enablePlca = false;
-        }
+    if (NULL != pReg) {
+        pReg->enablePlca = plcaEnable;
+        pReg->nodeId = nodeId;
+        pReg->nodeCount = nodeCount;
+        pReg->plcaChanged = true;
+        success = true;
     }
-    return true;
+    return success;
+}
+
+uint8_t TC6Regs_GetChipRevision(TC6_t *pTC6)
+{
+    TC6Reg_t *pReg = GetContext(pTC6);
+    return pReg->chipRev;
 }
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -275,8 +219,50 @@ static TC6Reg_t *GetContext(TC6_t *pTC6)
 
 static void DoInitialization(TC6Reg_t *pReg)
 {
-    uint32_t i = 0;
     uint32_t regVal;
+    uint16_t i = 0;
+    
+    /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
+    /*                          AUTO GENERATED DEFINES                      */
+    /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
+
+    static const MemoryMap_t TC6_MEMMAP[] = {
+        {  .address=0x00000004,  .value=0x00000026,  .mask=0x00000000,  .op=MemOp_Write,  .secure=false }, /* CONFIG0 */
+        {  .address=0x00010000,  .value=0x00000000,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  }, /* NETWORK_CONTROL */
+        {  .address=0x00040091,  .value=0x00009660,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x00040081,  .value=0x00000080,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x00010077,  .value=0x00000028,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x00040043,  .value=0x000000FF,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x00040044,  .value=0x0000FFFF,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x00040045,  .value=0x00000000,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x00040053,  .value=0x000000FF,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x00040054,  .value=0x0000FFFF,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x00040055,  .value=0x00000000,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x00040040,  .value=0x00000002,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x00040050,  .value=0x00000002,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400E9,  .value=0x00009E50,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400F5,  .value=0x00001CF8,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400F4,  .value=0x0000C020,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400F8,  .value=0x00009B00,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400F9,  .value=0x00004E53,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400B0,  .value=0x00000103,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400B1,  .value=0x00000910,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400B2,  .value=0x00001D26,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400B3,  .value=0x0000002A,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400B4,  .value=0x00000103,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400B5,  .value=0x0000070D,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400B6,  .value=0x00001720,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400B7,  .value=0x00000027,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400B8,  .value=0x00000509,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400B9,  .value=0x00000E13,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400BA,  .value=0x00001C25,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+        {  .address=0x000400BB,  .value=0x0000002B,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  },
+
+        {  .address=0x0000000C,  .value=0x00000100,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  }, /* IMASK0 */
+        {  .address=0x00040081,  .value=0x000000E0,  .mask=0x00000000,  .op=MemOp_Write,  .secure=true  }, /* DEEP_SLEEP_CTRL_1 */
+    };
+
+    static const uint32_t TC6_MEMMAP_LENGTH = (sizeof(TC6_MEMMAP) / sizeof(MemoryMap_t));
 
     if ((NULL != pReg) && !pReg->initialized) {
         pReg->initialized = true;
@@ -289,12 +275,30 @@ static void DoInitialization(TC6Reg_t *pReg)
         while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x00000003u /* RESET */, 0x1u, true, OnSoftResetCB, NULL)) {
             TC6_Service(pReg->pTC6, true);
         }
+        while (pReg->initialized && !TC6_ReadRegister(pReg->pTC6, 0x00000001, false, OnReadId1, NULL)) {
+            TC6_Service(pReg->pTC6, true);
+        }
+        pReg->chipRev = 0xFFu;
+        while (pReg->initialized && !TC6_ReadRegister(pReg->pTC6, 0x000A0094, false, OnReadId2, NULL)) {
+            TC6_Service(pReg->pTC6, true);
+        }
+        while (pReg->initialized && (0xFFu == pReg->chipRev)) {
+            /* Wait until Chip Revision is reported back */
+            TC6_Service(pReg->pTC6, true);
+        }
         /* Start with default settings */
         while (pReg->initialized && (i < TC6_MEMMAP_LENGTH)) {
-            i += TC6_MultipleRegisterAccess(pReg->pTC6, &TC6_MEMMAP[i], (uint16_t)(TC6_MEMMAP_LENGTH - i), OnInitialRegCB, NULL);
+            i += TC6_MultipleRegisterAccess(pReg->pTC6, &TC6_MEMMAP[i], (TC6_MEMMAP_LENGTH - i), OnInitialRegCB, NULL);
             if (i != TC6_MEMMAP_LENGTH) {
                 TC6_Service(pReg->pTC6, true);
             }
+        }
+        regVal = (1u == pReg->chipRev) ? 0x5F21ul : 0x3F31ul;
+        while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x000400D0, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+            TC6_Service(pReg->pTC6, true);
+        }
+        while (pReg->initialized && (2u == pReg->chipRev) && !TC6_WriteRegister(pReg->pTC6, 0x000400E0, 0x0000C000, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+            TC6_Service(pReg->pTC6, true);
         }
         /* MAC address setting */
         regVal = ((uint32_t)pReg->mac[3] << 24) | ((uint32_t)pReg->mac[2] << 16) | ((uint32_t)pReg->mac[1] << 8) | (uint32_t)pReg->mac[0];
@@ -310,31 +314,18 @@ static void DoInitialization(TC6Reg_t *pReg)
         while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x00010022u /* SPEC_ADD1_BOTTOM */, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
             TC6_Service(pReg->pTC6, true);
         }
+
         /* Promiscuous mode setting */
         regVal = pReg->promiscuous ? 0x10 : 0x0;
         while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x00010001 /* NETWORK_CONFIG */, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
             TC6_Service(pReg->pTC6, true);
         }
         if (pReg->initialized) {
-            InitTrim(pReg->pTC6);
+            InitChip(pReg->pTC6);
         }
-        if (pReg->initialized && pReg->enablePlca) {
-            /* T1S Phy Node Id and Max Node Count */
-            regVal = ((uint32_t)pReg->nodeCount << 8) | pReg->nodeId;
-            while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x0004CA02 /* PLCA_CONTROL_1_REGISTER */, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
-                TC6_Service(pReg->pTC6, true);
-            }
-            /* PLCA Burst Count and Burst Timer */
-            regVal = ((uint32_t)pReg->burstCount << 8) | pReg->burstTimer;
-            while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x0004CA05 /* PLCA_BURST_MODE_REGISTER */, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
-                TC6_Service(pReg->pTC6, true);
-            }
-            /* Enable PLCA */
-            regVal = ((uint32_t)1u << 15);
-            while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x0004CA01/* PLCA_CONTROL_0_REGISTER */, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
-                TC6_Service(pReg->pTC6, true);
-            }
-        }
+
+        HandlePlca(pReg);
+
         /* Cut Through / Store and Forward mode */
         regVal = 0x9026;
         if (pReg->txCutThrough) {
@@ -352,11 +343,29 @@ static void DoInitialization(TC6Reg_t *pReg)
     }
 }
 
-static void InitDelay(void)
+static void HandlePlca(TC6Reg_t *pReg)
 {
-    uint32_t startTime = TC6Regs_CB_GetTicksMs();
-    while ((TC6Regs_CB_GetTicksMs() - startTime) <  DELAY_EFUSE) {
-        /* Wait */
+    /* Collision Detection */
+    uint32_t regVal = pReg->enablePlca ? 0x0083u : 0x8083u;
+    while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x00040087u /* COL_DET_CTRL0 */, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+        TC6_Service(pReg->pTC6, true);
+    }
+    if (pReg->initialized && pReg->enablePlca) {
+        /* T1S Phy Node Id and Max Node Count */
+        regVal = ((uint32_t)pReg->nodeCount << 8) | pReg->nodeId;
+        while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x0004CA02 /* PLCA_CONTROL_1_REGISTER */, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+            TC6_Service(pReg->pTC6, true);
+        }
+        /* PLCA Burst Count and Burst Timer */
+        regVal = ((uint32_t)pReg->burstCount << 8) | pReg->burstTimer;
+        while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x0004CA05 /* PLCA_BURST_MODE_REGISTER */, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+            TC6_Service(pReg->pTC6, true);
+        }
+        /* Enable PLCA */
+        regVal = ((uint32_t)1u << 15);
+        while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x0004CA01/* PLCA_CONTROL_0_REGISTER */, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+            TC6_Service(pReg->pTC6, true);
+        }
     }
 }
 
@@ -371,6 +380,41 @@ static void OnSoftResetCB(TC6_t *pInst, bool success, uint32_t addr, uint32_t va
     /* Silently ignore anything */
 }
 
+static void OnReadId1(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *pTag, void *pGlobalTag)
+{
+    TC6Reg_t *pReg = GetContext(pInst);
+    (void)pInst;
+    (void)addr;
+    (void)pTag;
+    (void)pGlobalTag;
+    pReg->initialized &= success;
+    if (success) {
+        uint32_t oui = value >> 10;
+        uint32_t model = (value >> 4) & 0x3FFu;
+        if ((0x1F0u != oui) || (0x1Bu != model)) {
+            TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Unsupported_Hardware, pReg->pTag);
+            pReg->initialized = false;
+        }
+    }
+}
+
+static void OnReadId2(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *pTag, void *pGlobalTag)
+{
+    TC6Reg_t *pReg = GetContext(pInst);
+    (void)pInst;
+    (void)addr;
+    (void)pTag;
+    (void)pGlobalTag;
+    pReg->initialized &= success;
+    if (success) {
+        pReg->chipRev = (value & 0xFu);
+        if (0u == pReg->chipRev) {
+            TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Unsupported_Hardware, pReg->pTag);
+            pReg->initialized = false;
+        }
+    }
+}
+
 static void OnInitialRegCB(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *pTag, void *pGlobalTag)
 {
     TC6Reg_t *pReg = GetContext(pInst);
@@ -382,40 +426,58 @@ static void OnInitialRegCB(TC6_t *pInst, bool success, uint32_t addr, uint32_t v
     pReg->initialized &= success;
 }
 
-static void OnEFuseResult(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag)
+static void OnChipResult(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag)
 {
     TC6Reg_t *pReg = GetContext(pInst);
     (void)addr;
     (void)value;
     (void)tag;
     (void)pGlobalTag;
+    pReg->initialized &= success;
     if (success) {
-        pReg->efuseVal = value;
+        pReg->readResult = value;
     } else {
-        pReg->efuseVal = 0xFFFFFFFEu;
+        pReg->readResult = 0xFFFFFFFEu;
     }
 }
 
-static bool ReadEFuseReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal, uint32_t mask)
+static bool ReadReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal)
+{
+    TC6Reg_t *pReg = GetContext(pInst);
+    pReg->readResult = 0xFFFFFFFFu;
+    while (pReg->initialized && !TC6_ReadRegister(pInst, addr, CONTROL_PROTECTION, OnChipResult, NULL)) {
+        TC6_Service(pInst, true);
+    }
+    while(pReg->initialized && (0xFFFFFFFFu == pReg->readResult)) {
+        TC6_Service(pInst, true);
+    }
+    if (NULL != pVal) {
+        *pVal = pReg->readResult;
+    }
+    return (0xFFFFFFFEu != pReg->readResult);
+}
+
+static bool ReadIndirectReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal, uint32_t mask)
 {
     TC6Reg_t *pReg = GetContext(pInst);
     uint32_t regVal = (addr & 0x000Fu);
-    while (!TC6_WriteRegister(pInst, 0x000400D8, regVal, CONTROL_PROTECTION, NULL, NULL)) {
+    while (pReg->initialized && !TC6_WriteRegister(pInst, 0x000400D8, regVal, CONTROL_PROTECTION, NULL, NULL)) {
         TC6_Service(pInst, true);
     }
-    while (!TC6_WriteRegister(pInst, 0x000400DA, 0x0002, CONTROL_PROTECTION, NULL, NULL)) {
+    while (pReg->initialized && !TC6_WriteRegister(pInst, 0x000400DA, 0x0002, CONTROL_PROTECTION, NULL, NULL)) {
         TC6_Service(pInst, true);
     }
-    InitDelay();
-    pReg->efuseVal = 0xFFFFFFFFu;
-    while (!TC6_ReadRegister(pInst, 0x000400D9, CONTROL_PROTECTION, OnEFuseResult, NULL)) {
+    pReg->readResult = 0xFFFFFFFFu;
+    while (pReg->initialized && !TC6_ReadRegister(pInst, 0x000400D9, CONTROL_PROTECTION, OnChipResult, NULL)) {
         TC6_Service(pInst, true);
     }
-    while(0xFFFFFFFFu == pReg->efuseVal) {
+    while(pReg->initialized && (0xFFFFFFFFu == pReg->readResult)) {
         TC6_Service(pInst, true);
     }
-    *pVal = (pReg->efuseVal & mask);
-    return (0xFFFFFFFEu != pReg->efuseVal);
+    if (NULL != pVal) {
+        *pVal = (pReg->readResult & mask);
+    }
+    return (0xFFFFFFFEu != pReg->readResult);
 }
 
 static int8_t GetSignedVal(uint32_t val)
@@ -431,75 +493,107 @@ static int8_t GetSignedVal(uint32_t val)
     return result;
 }
 
-static uint32_t _CalculateValueAndMask(uint8_t start, uint8_t end, uint32_t newValue, uint32_t *mask)
-{
-    if (NULL != mask) {
-        uint8_t i;
-        for (i = start; i <= end; i++) {
-            *mask |= (1u << i);
-        }
-    }
-    return (newValue << start);
-}
-
-static void InitTrim(TC6_t *pInst)
+static void InitChip(TC6_t *pInst)
 {
     TC6Reg_t *pReg = GetContext(pInst);
     uint32_t val;
-    uint32_t mask;
-    int8_t efuseA4 = 0;
-    int8_t efuseA8 = 0;
-    bool success = false;
-    if (ReadEFuseReg(pInst, 0x5, &val, 0x40)) {
-        /* IsTimmed? */
-        if (0u != (val & 0x40u)) {
-            if (ReadEFuseReg(pInst, 0x4, &val, 0x1F)) {
-                efuseA4 = GetSignedVal(val);
-                if (ReadEFuseReg(pInst, 0x8, &val, 0x1F)) {
-                    efuseA8 = GetSignedVal(val);
-                    if (efuseA4 >= -5) {
-                        success = true;
-                    }
-                }
-            }
+    int16_t tempParam;
+    uint16_t cfgParam;
+    int8_t initOffset1 = 0;
+    int8_t initOffset2 = 0;
+    uint16_t initValue3 = 0u;
+    uint16_t initValue4 = 0u;
+    uint16_t initValue5 = 0u;
+    uint16_t initValue6 = 0u;
+    uint16_t initValue7 = 0u;
+    if (ReadIndirectReg(pInst, 0x5, &val, 0x40)) {
+        if (0u == val) {
+            TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Chip_Error, pReg->pTag);
+            pReg->initialized = false;
         }
     }
-    if (success) {
-        mask = 0u;
-        val = _CalculateValueAndMask(10, 15, (uint32_t)(0x9 + efuseA4), &mask);
-        val |= _CalculateValueAndMask(4, 9, (uint32_t)(0xE + efuseA4), &mask);
-        while (!TC6_ReadModifyWriteRegister(pInst, 0x00040084, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
-            TC6_Service(pInst, true);
+    if (pReg->initialized && ReadIndirectReg(pInst, 0x4, &val, 0x1F)) {
+        initOffset1 = GetSignedVal(val);
+        if (initOffset1 < -5) {
+            TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Chip_Error, pReg->pTag);
+            pReg->initialized = false;
         }
+    }
+    if (pReg->initialized && ReadIndirectReg(pInst, 0x8, &val, 0x1F)) {
+        initOffset2 = GetSignedVal(val);
+    }
+    if (pReg->initialized && ReadReg(pInst, 0x00040084, &val)) {
+        initValue3 = (uint8_t)val;
+    }
+    if (pReg->initialized && ReadReg(pInst, 0x0004008A, &val)) {
+        initValue4 = (uint8_t)val;
+    }
+    if (pReg->initialized && ReadReg(pInst, 0x000400AD, &val)) {
+        initValue5 = (uint8_t)val;
+    }
+    if (pReg->initialized && ReadReg(pInst, 0x000400AE, &val)) {
+        initValue6 = (uint8_t)val;
+    }
+    if (pReg->initialized && ReadReg(pInst, 0x000400AF, &val)) {
+        initValue7 = (uint8_t)val;
+    }
 
-        mask = 0u;
-        val = _CalculateValueAndMask(10, 15, (uint32_t)(0x28 + efuseA8), &mask);
-        while (!TC6_ReadModifyWriteRegister(pInst, 0x0004008A, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
-            TC6_Service(pInst, true);
-        }
+    /* CONFIG PARAMETER 3 */
+    cfgParam = initValue3 & 0x000Fu;
+    tempParam = (int16_t)9 + initOffset1; /* To be MISRA compliant */
+    cfgParam |= (uint16_t)tempParam << 10;
 
-        mask = 0u;
-        val = _CalculateValueAndMask(8, 13, (uint32_t)(0x5 + efuseA4), &mask);
-        val |= _CalculateValueAndMask(0, 5, (uint32_t)(0x9 + efuseA4), &mask);
-        while (!TC6_ReadModifyWriteRegister(pInst, 0x000400AD, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
-            TC6_Service(pInst, true);
-        }
+    tempParam = (int16_t)14 + initOffset1; /* To be MISRA compliant */
+    cfgParam |= (uint16_t)tempParam << 4;
 
-        mask = 0u;
-        val = _CalculateValueAndMask(8, 13, (uint32_t)(0x9 + efuseA4), &mask);
-        val |= _CalculateValueAndMask(0, 5, (uint32_t)(0xE + efuseA4), &mask);
-        while (!TC6_ReadModifyWriteRegister(pInst, 0x000400AE, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
-            TC6_Service(pInst, true);
-        }
+    while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x00040084, cfgParam, CONTROL_PROTECTION, NULL, NULL)) {
+        TC6_Service(pReg->pTC6, true);
+    }
 
-        mask = 0u;
-        val = _CalculateValueAndMask(8, 13, (uint32_t)(0x11 + efuseA4), &mask);
-        val |= _CalculateValueAndMask(0, 5, (uint32_t)(0x16 + efuseA4), &mask);
-        while (!TC6_ReadModifyWriteRegister(pInst, 0x000400AF, val, mask, CONTROL_PROTECTION, NULL, NULL)) {
-            TC6_Service(pInst, true);
-        }
-    } else {
-         TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_PHY_Not_Trimmed, pReg->pTag);
+    /* CONFIG PARAMETER 4 */
+    cfgParam = initValue4 & 0x3FFu;
+    tempParam = (int16_t)40 + initOffset2; /* To be MISRA compliant */
+    cfgParam |= (uint16_t)(tempParam) << 10;
+
+    while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x0004008A, cfgParam, CONTROL_PROTECTION, NULL, NULL)) {
+        TC6_Service(pReg->pTC6, true);
+    }
+
+    /* CONFIG PARAMETER 5 */
+    cfgParam = initValue5 & 0xC0C0u;
+    tempParam = (int16_t)5 + initOffset1; /* To be MISRA compliant */
+    cfgParam |= (uint16_t)tempParam << 8;
+
+    tempParam = (int16_t)9 + initOffset1; /* To be MISRA compliant */
+    cfgParam |= (uint16_t)tempParam;
+
+    while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x000400AD, cfgParam, CONTROL_PROTECTION, NULL, NULL)) {
+        TC6_Service(pReg->pTC6, true);
+    }
+
+    /* CONFIG PARAMETER 6 */
+    cfgParam = initValue6 & 0xC0C0u;
+    tempParam = (int16_t)9 + initOffset1; /* To be MISRA compliant */
+    cfgParam |= (uint16_t)tempParam << 8;
+
+    tempParam = (int16_t)14 + initOffset1; /* To be MISRA compliant */
+    cfgParam |= (uint16_t)tempParam;
+
+    while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x000400AE, cfgParam, CONTROL_PROTECTION, NULL, NULL)) {
+        TC6_Service(pReg->pTC6, true);
+    }
+
+    /* CONFIG PARAMETER 7 */
+    cfgParam = initValue7 & 0xC0C0u;
+
+    tempParam = (int16_t)17 + initOffset1; /* To be MISRA compliant */
+    cfgParam |= (uint16_t)tempParam << 8;
+
+    tempParam = (int16_t)22 + initOffset1; /* To be MISRA compliant */
+    cfgParam |= (uint16_t)tempParam;
+
+    while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x000400AF, cfgParam, CONTROL_PROTECTION, NULL, NULL)) {
+        TC6_Service(pReg->pTC6, true);
     }
 }
 
@@ -550,7 +644,9 @@ static void OnClearStatus1(TC6_t *pInst, bool success, uint32_t addr, uint32_t v
     (void)pGlobalTag;
     if (pReg->extBlock) {
         pReg->extBlock = false;
-        TC6_ReadRegister(pInst, 0x000A0087, CONTROL_PROTECTION, OnExtendedBlock, NULL);
+        if (!TC6_ReadRegister(pInst, 0x000A0087, CONTROL_PROTECTION, OnExtendedBlock, NULL)) {
+            TC6_UnlockExtendedStatus(pInst);
+        }
     }
 }
 
@@ -589,7 +685,9 @@ static void OnStatus1(TC6_t *pInst, bool success, uint32_t addr, uint32_t value,
         }
         if (0u != value) {
             /* Write to clear pending flags */
-            TC6_WriteRegister(pInst, addr, value, CONTROL_PROTECTION, OnClearStatus1, NULL);
+            if (!TC6_WriteRegister(pInst, addr, value, CONTROL_PROTECTION, OnClearStatus1, NULL)) {
+                TC6_UnlockExtendedStatus(pInst);
+            }
         }
     } else {
         TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_UnknownError, pReg->pTag);
@@ -603,7 +701,9 @@ static void OnClearStatus0(TC6_t *pInst, bool success, uint32_t addr, uint32_t v
     (void)value;
     (void)tag;
     (void)pGlobalTag;
-    TC6_ReadRegister(pInst, 0x00000009u, CONTROL_PROTECTION, OnStatus1, NULL);
+    if (!TC6_ReadRegister(pInst, 0x00000009u, CONTROL_PROTECTION, OnStatus1, NULL)) {
+        TC6_UnlockExtendedStatus(pInst);
+    }
 }
 
 static void OnStatus0(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag)
@@ -635,10 +735,14 @@ static void OnStatus0(TC6_t *pInst, bool success, uint32_t addr, uint32_t value,
             }
         }
         if (0u == value) {
-            TC6_ReadRegister(pInst, 0x00000009, CONTROL_PROTECTION, OnStatus1, NULL);
+            if (!TC6_ReadRegister(pInst, 0x00000009, CONTROL_PROTECTION, OnStatus1, NULL)) {
+                TC6_UnlockExtendedStatus(pInst);
+            }
         } else {
             /* Write to clear pending flags */
-            TC6_WriteRegister(pInst, addr, value, CONTROL_PROTECTION, OnClearStatus0, NULL);
+            if (!TC6_WriteRegister(pInst, addr, value, CONTROL_PROTECTION, OnClearStatus0, NULL)) {
+                TC6_UnlockExtendedStatus(pInst);
+            }
         }
     } else {
         TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_UnknownError, pReg->pTag);

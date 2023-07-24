@@ -55,7 +55,7 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.0.1"
+#define FIRMWARE_VERSION            "V3.1.0"
 
 #ifndef BOARD_INSTANCE
 #define BOARD_INSTANCE              (0)

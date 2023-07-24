@@ -15,7 +15,10 @@
         <itemPath>mcc_generated_files/uart1.h</itemPath>
         <itemPath>mcc_generated_files/ext_int.h</itemPath>
         <itemPath>mcc_generated_files/spi1.h</itemPath>
+        <itemPath>mcc_generated_files/dma1.h</itemPath>
+        <itemPath>mcc_generated_files/dma2.h</itemPath>
       </logicalFolder>
+      <itemPath>DMASPItransfer.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -34,6 +37,8 @@
         <itemPath>mcc_generated_files/uart1.c</itemPath>
         <itemPath>mcc_generated_files/ext_int.c</itemPath>
         <itemPath>mcc_generated_files/spi1.c</itemPath>
+        <itemPath>mcc_generated_files/dma1.c</itemPath>
+        <itemPath>mcc_generated_files/dma2.c</itemPath>
         <itemPath>mcc_generated_files/interrupt_manager.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
@@ -46,6 +51,7 @@
       <itemPath>tc6-queue.h</itemPath>
       <itemPath>tc6.c</itemPath>
       <itemPath>tc6.h</itemPath>
+      <itemPath>DMASPItransfer.c</itemPath>
       <itemPath>tc6-noip.c</itemPath>
       <itemPath>tc6-noip.h</itemPath>
       <itemPath>tc6-stub.h</itemPath>
@@ -213,8 +219,6 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-1ffff"/>
         <property key="poweroptions.powerenable" value="false"/>
-        <property key="programmerToGoFilePath"
-                  value="C:/_svn_/TC6_Library/trunk/examples/noIP-PIC18-Curiosity-Nano/PIC18.X/debug/default/PIC18_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"
@@ -453,8 +457,6 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-1ffff"/>
         <property key="poweroptions.powerenable" value="false"/>
-        <property key="programmerToGoFilePath"
-                  value="C:/_svn_/TC6_Library/trunk/examples/noIP-PIC18-Curiosity-Nano/PIC18.X/debug/release/PIC18_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"

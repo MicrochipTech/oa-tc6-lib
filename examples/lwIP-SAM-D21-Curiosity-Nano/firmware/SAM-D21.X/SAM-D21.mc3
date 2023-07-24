@@ -1,4 +1,4 @@
-<config configName="default" projectName="SAM-D21" configVersion="1.1" device="ATSAMD21G17D" deviceLibraryClass="com.microchip.mcc.harmony.Harmony3Library" coreVersion="5.4.14">
+<config configName="default" projectName="SAM-D21" configVersion="1.1" device="ATSAMD21G17D" deviceLibraryClass="com.microchip.mcc.harmony.Harmony3Library" coreVersion="5.5.7">
    <usedPackages class="java.util.ArrayList"/>
    <usedClasses class="java.util.TreeMap">
       <entry>
@@ -9535,7 +9535,7 @@
       </entry>
       <entry>
          <file>..\src\config\default\bsp\bsp.h</file>
-         <hash>46d7789c3f799e270b280d70d335f64a3edc6ea508dddd35a6ee3583bd0f4eff</hash>
+         <hash>66cc6cf48cdef55c9e85b2bb799b2892267dcb57ae1ddb1901d29666db86f222</hash>
       </entry>
       <entry>
          <file>..\src\packs\ATSAMD21G17D_DFP\instance\wdt.h</file>

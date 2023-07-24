@@ -182,12 +182,12 @@ int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_
         ip_addr_set_zero(&ip);
         ip_addr_set_zero(&nm);
         ip_addr_set_zero(&gw);
-        PRINT("LwIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, DHCP]\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+        PRINT("LwIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, DHCP, ChipRev=%d]\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], TC6Regs_GetChipRevision(lw->tc.tc6));
 #else
         ipaddr_aton(lw->ip.ipAddr, &ipAddr);
         ipaddr_aton(TC6LwIP_NETMASK, &nm);
         ipaddr_aton(TC6LwIP_GATEWAY, &gw);
-        PRINT("LwIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, IP='%s']\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], lw->ip.ipAddr);
+        PRINT("LwIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, IP='%s', ChipRev=%d]\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], lw->ip.ipAddr, TC6Regs_GetChipRevision(lw->tc.tc6));
 #endif
         if (!netif_add(&lw->ip.netint, &ipAddr, &nm, &gw, lw, lwIpInit, ethernet_input)) {
             TC6_ASSERT(false);
@@ -689,8 +689,11 @@ uint32_t TC6Regs_CB_GetTicksMs(void)
     case TC6Regs_Event_GINT_Mask:
         PRINT(ESC_YELLOW "GINT_Mask" ESC_RESETCOLOR "\r\n");
         break;
-    case TC6Regs_Event_PHY_Not_Trimmed:
-        PRINT(ESC_RED "PHY is not trimmed" ESC_RESETCOLOR "\r\n");
+    case TC6Regs_Event_Chip_Error:
+        PRINT(ESC_RED "Chip_error! Please contact microchip support for replacement" ESC_RESETCOLOR "\r\n");
+        break;
+    case TC6Regs_Event_Unsupported_Hardware:
+        PRINT(ESC_RED "Unsupported MAC-PHY hardware found" ESC_RESETCOLOR "\r\n");
         break;
     }
     if (reinit) {

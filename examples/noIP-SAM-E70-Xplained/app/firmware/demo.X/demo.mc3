@@ -1,4 +1,4 @@
-<config configName="default" projectName="demo" configVersion="1.1" device="ATSAME70Q21B" deviceLibraryClass="com.microchip.mcc.harmony.Harmony3Library" coreVersion="5.4.14">
+<config configName="default" projectName="demo" configVersion="1.1" device="ATSAME70Q21B" deviceLibraryClass="com.microchip.mcc.harmony.Harmony3Library" coreVersion="5.5.7">
    <usedPackages class="java.util.ArrayList">
       <package packageName="core" version="3.11.1" contentType="HARMONY">
          <modules class="java.util.ArrayList"/>
@@ -2658,7 +2658,7 @@
       </entry>
       <entry>
          <file>..\src\config\default\initialization.c</file>
-         <hash>5f53a3c613e174d04ec41d0e55cada907427e1aef5d9d48e33a024b3cb70e59a</hash>
+         <hash>c84bc73c8cfe1b12c50df13992379dfaf255bcf6965851dcb5ebcb7724be06d1</hash>
       </entry>
       <entry>
          <file>..\src\packs\CMSIS\CMSIS\Core\Include\cmsis_compiler.h</file>
@@ -2758,7 +2758,7 @@
       </entry>
       <entry>
          <file>..\src\config\default\stdio\xc32_monitor.c</file>
-         <hash>31efc687085ecbbd86ed7e6029426bfaa81ddb5b644d7d57766b2791ca081e32</hash>
+         <hash>9fc8e69bbee19c5b30db9cb5de30e352e85963f84d6f539455d612e06311b700</hash>
       </entry>
       <entry>
          <file>..\src\config\default\peripheral\systick\plib_systick.c</file>

@@ -54,9 +54,7 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.0.1"
-
-#define MAC_SPI_FREQUENCY           (20000000)
+#define FIRMWARE_VERSION            "V3.1.0"
 
 #define BOARD_INSTANCE              (0)
 #define T1S_PLCA_ENABLE             (true)
@@ -332,10 +330,6 @@ int main(void)
     m.idxNoIp = TC6NoIP_Init(T1S_PLCA_ENABLE, T1S_PLCA_NODE_ID, T1S_PLCA_NODE_COUNT,
         T1S_PLCA_BURST_COUNT, T1S_PLCA_BURST_TIMER, MAC_PROMISCUOUS_MODE,
         MAC_TX_CUT_THROUGH, MAC_RX_CUT_THROUGH);
-
-    if (!TC6NoIP_SetSpiFrequency(m.idxNoIp, MAC_SPI_FREQUENCY)) {
-        PRINT(ESC_RED "Failed to set SPI frequency to %d Hz" ESC_RESETCOLOR "\r\n", MAC_SPI_FREQUENCY);
-    }
 
     if (m.idxNoIp < 0) {
         PRINT(ESC_RED "Failed to initialize TC6 noIP Driver" ESC_RESETCOLOR "\r\n");

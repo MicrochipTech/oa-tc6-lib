@@ -16,7 +16,6 @@
             </make-dep-projects>
             <sourceRootList>
                 <sourceRootElem>../src</sourceRootElem>
-                <sourceRootElem>../../../../../SAME54-xultra/trunk/SAM-E54/app/firmware/src</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

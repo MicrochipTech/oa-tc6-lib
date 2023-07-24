@@ -2,12 +2,29 @@
 
 # OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release Notes
 
+## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.0
+
+### Bugfixes
+
+ - Changed initialization phase according to Configuration Application Note (AN1760)
+ - Checking Chip Revision at startup
+
+### Dependencies (applies only to Demo applications)
+
+* [MPLAB® X IDE v610](https://www.microchip.com/mplab/mplab-x-ide) or later
+* [MPLAB® XC32 C/C++ Compiler v4.30](https://www.microchip.com/mplab/compilers)
+ 
+## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.0.1
+
+### Bugfixes
+
+ - Fixes issue with mass production LAN8650/1
 
 ## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.0.0
 
 This is the first release distributed on GitHub. Previous releases were distributed via the Microchip support channel.
 
-## New Features
+### New Features
 
 **Generic TC6 Protocol Driver for LAN8650/1**
 
@@ -38,4 +55,3 @@ This is the first release distributed on GitHub. Previous releases were distribu
 * [MPLAB® X IDE v6.05](https://www.microchip.com/mplab/mplab-x-ide) or later
 * [MPLAB® XC32 C/C++ Compiler v4.21](https://www.microchip.com/mplab/compilers) or later
 **(OR)** [MPLAB® XC32 Functional Safety Compiler v4.09](https://www.microchip.com/mplab/compilers) or later
-* [net v3.9.1](https://github.com/Microchip-MPLAB-Harmony/net/tree/v3.9.1) or later
