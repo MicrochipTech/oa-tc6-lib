@@ -915,14 +915,15 @@ static uint8_t get_parity(const uint8_t *pVal)
 
 #if UINT_MAX == UINT32_MAX
     /* 32 Bit machine */
-    uint32_t v = *((const uint32_t *)pVal);
+    uint32_t v = pVal[0] | (pVal[1] << 8) | (pVal[2] << 16) | (pVal[3] << 24);
     v ^= v >> 16;
     v ^= v >> 8;
     v ^= v >> 4;
     v ^= v >> 2;
     v ^= v >> 1;
 
-    val =  ~v & 1u; /* odd parity */
+    v = ~v & 1u;       /* odd parity */
+    val = (uint8_t)v;  /* MISRA c2012-10.3 */
 #else
     /* 16 Bit machine */
     uint16_t h = *((const uint16_t*)&pVal[0]);
@@ -938,7 +939,7 @@ static uint8_t get_parity(const uint8_t *pVal)
     l ^= l >> 1;
 
     val =  ~(h ^ l) & 1u;
-#endif
+#endif    
 
     return val;
 }
@@ -1004,9 +1005,9 @@ static uint16_t mk_ctrl_req(bool wnr, bool aid, uint32_t addr,
         SET_VAL(HDR_C_DNC, 0, tx_buf);
         SET_VAL(HDR_C_WNR, wnr, tx_buf);
         SET_VAL(HDR_C_AID, aid, tx_buf);
-        SET_VAL(HDR_C_MMS, (addr >> 16), tx_buf);
-        SET_VAL(HDR_C_ADDR_HI, (addr >> 8), tx_buf);
-        SET_VAL(HDR_C_ADDR_LO, addr, tx_buf);
+        SET_VAL(HDR_C_MMS, (uint8_t)(addr >> 16), tx_buf);
+        SET_VAL(HDR_C_ADDR_HI, (uint8_t)(addr >> 8), tx_buf);
+        SET_VAL(HDR_C_ADDR_LO, (uint8_t)addr, tx_buf);
         SET_VAL(HDR_C_LEN, (num_regs - 1u), tx_buf);
         SET_VAL(HDR_C_P, get_parity(tx_buf), tx_buf);
     }
@@ -1046,9 +1047,9 @@ static uint16_t mk_secure_ctrl_req(bool wnr, bool aid, uint32_t addr,
         SET_VAL(HDR_C_DNC, 0, tx_buf);
         SET_VAL(HDR_C_WNR, wnr, tx_buf);
         SET_VAL(HDR_C_AID, aid, tx_buf);
-        SET_VAL(HDR_C_MMS, (addr >> 16), tx_buf);
-        SET_VAL(HDR_C_ADDR_HI, (addr >> 8), tx_buf);
-        SET_VAL(HDR_C_ADDR_LO, addr, tx_buf);
+        SET_VAL(HDR_C_MMS, (uint8_t)(addr >> 16), tx_buf);
+        SET_VAL(HDR_C_ADDR_HI, (uint8_t)(addr >> 8), tx_buf);
+        SET_VAL(HDR_C_ADDR_LO, (uint8_t)addr, tx_buf);
         SET_VAL(HDR_C_LEN, (num_regs - 1u), tx_buf);
         SET_VAL(HDR_C_P, get_parity(tx_buf), tx_buf);
     }
@@ -1168,7 +1169,7 @@ static uint16_t process_tx(TC6_t *g, uint8_t *tx_buf)
         TC6_ASSERT(g->offsetEth <= entry->totalLen);
         if (g->offsetEth == entry->totalLen) {
             SET_VAL(HDR_EV, 1u, tx_buf);
-            SET_VAL(HDR_EBO, (tocopy_len - 1u), tx_buf);
+            SET_VAL(HDR_EBO, (uint8_t)(tocopy_len - 1u), tx_buf);
             g->offsetEth = 0;
             on_tx_eth_done(g, entry->ethSegs[0].pEth, entry->totalLen, entry->txCallback, entry->priv);
             qtxeth_stage2_convert_done(q);
@@ -1181,7 +1182,7 @@ static uint16_t process_tx(TC6_t *g, uint8_t *tx_buf)
                     /* Make sure, that next packet does not end in the same chunk (TC6 does not support two "end valid") */
                     if (remaining_len && (entry->totalLen > remaining_len)) {
                         SET_VAL(HDR_SV, 1, tx_buf);
-                        SET_VAL(HDR_SWO, (tocopy_len / 4u), tx_buf);
+                        SET_VAL(HDR_SWO, (uint8_t)(tocopy_len / 4u), tx_buf);
                         if (0u != entry->tsc) {
                             SET_VAL(HDR_TSC, entry->tsc, tx_buf);
                         }
