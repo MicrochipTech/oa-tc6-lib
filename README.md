@@ -2,6 +2,8 @@
 
 # OPEN Alliance TC6 Protocol Driver for LAN8650/1
 
+This branch gives an example how to use asynchronous DMA on SPI together with the TC6 Protocol.
+
 This repository contains the Microchip OPEN Alliance TC6 Protocol Driver for LAN8650/1 source code and example applications. 
 
 The driver is fully OPEN Alliance TC6 V1.1 compliant.
@@ -27,20 +29,13 @@ The following applications are provided to demonstrate the typical or interestin
 
 | Name                                                                      | Status                                                                                            |
 | ---                                                                       | ---                                                                                               |
-|[lwIP TCP/IP example running on dsPIC33CK Curiosity Development Board](examples/lwIP-dsPIC33CK_Curiosity/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
-|[lwIP TCP/IP example running on SAM D21 Curiosity Nano Evaluation Kit](examples/lwIP-SAM-D21-Curiosity-Nano/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
-|[lwIP TCP/IP example running on SAM E54 Curiosity Ultra Development Board](examples/lwIP-SAM-E54-Curiosity/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
-|[lwIP TCP/IP example running on SAM E54 Xplained Pro evaluation kit](examples/lwIP-SAM-E54-xplained-pro/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
-|[lwIP TCP/IP example running on SAM V71 Xplained Ultra evaluation kit](examples/lwIP-SAM-V71-xplained-pro/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
-|[RAW Ethernet example running on PIC18F57Q43 Curiosity Nano Evaluation Kit](examples/noIP-PIC18-Curiosity-Nano/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
-|[RAW Ethernet example running on SAM E54 Curiosity Ultra Development Board](examples/noIP-SAM-E54-Curiosity/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
-|[RAW Ethernet example running on SAM E70 Xplained Ultra Evaluation Kit](examples/noIP-SAM-E70-Xplained/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
-
+|
+|[RAW Ethernet example running on PIC18F57Q43 Curiosity Nano Evaluation Kit using DMA](examples/noIP-PIC18-Curiosity-Nano/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  
 
 Those applications have no deep integration of the TC6 protocol driver into MPLAB® Harmony 3. If this is desired, please refer to the official LAN865x MPLAB Harmony v3 driver and example applications in the corresponding repository:
 - [MPLAB® Harmony 3 - 10BASE-T1S-Examples](https://github.com/Microchip-MPLAB-Harmony/net_10base_t1s)
 
-Note: Please refer to ANXXXX provided on the Microchip LAN865x product websites:
+Note: Please refer to AN4964 provided on the Microchip LAN865x product websites:
 - [LAN8650](https://www.microchip.com/en-us/product/lan8650)
 - [LAN8651](https://www.microchip.com/en-us/product/lan8651)
 
