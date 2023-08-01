@@ -66,9 +66,11 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.1.0"
+#define FIRMWARE_VERSION            "V3.1.1"
 
+#ifndef BOARD_INSTANCE
 #define BOARD_INSTANCE              (0)
+#endif
 #define T1S_PLCA_ENABLE             (true)
 #define T1S_PLCA_NODE_ID            (BOARD_INSTANCE + 1)
 #define T1S_PLCA_NODE_COUNT         (8)
@@ -92,6 +94,7 @@ Microchip or any third party.
 
 #define PRINT(...)                  printf(__VA_ARGS__)
 #define RESET()                     {__asm__ volatile ("reset");}
+
 #ifdef DEBUG
 #define ASSERT(x)                  __conditional_software_breakpoint(x)
 #else

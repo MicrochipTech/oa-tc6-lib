@@ -46,8 +46,8 @@ Microchip or any third party.
 #include <stddef.h>                     // Defines NULL
 #include <stdbool.h>                    // Defines true
 #include <stdlib.h>                     // Defines EXIT_FAILURE
-#include <stdio.h>
-#include <string.h>                     // memset
+#include <stdio.h>                      // printf
+#include <string.h>                     // memset, memcpy
 #include "definitions.h"                // SYS function prototypes
 #include "tc6-noip.h"
 
@@ -55,7 +55,7 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.1.0"
+#define FIRMWARE_VERSION            "V3.1.1"
 
 #ifndef BOARD_INSTANCE
 #define BOARD_INSTANCE              (0)
@@ -481,7 +481,7 @@ static void PrintStat(void)
     for (i = 0; i < BOARD_INSTANCES_MAX; i++) {
         if (m.stats[i].packetCntTotal) {
             uint32_t curSpeed = (8 * m.stats[i].byteCntCurrent / 1000);
-            PRINT("[%d] Speed=%ld kbit/s Rate=%ld 1/s Packet-Total=%ld Bytes-Total=%ld Errors=%ld             \r\n",
+            PRINT(ESC_CLEAR_LINE "[%d] Speed=%ld kbit/s Rate=%ld 1/s Packet-Total=%ld Bytes-Total=%ld Errors=%ld\r\n",
                 i, curSpeed, m.stats[i].packetCntCurrent, m.stats[i].packetCntTotal, m.stats[i].byteCntTotal,
                 m.stats[i].errors);
             totalSpeed += curSpeed;
@@ -492,10 +492,10 @@ static void PrintStat(void)
             PRINT(ESC_CLEAR_LINE "\r\n");
         }
     }
-    PRINT("[TOTAL] Speed=%ld kbit/s Rate=%ld 1/s           %s", totalSpeed, totalPackets, MoveCursor(false));
+    PRINT(ESC_CLEAR_LINE "[TOTAL] Speed=%ld kbit/s Rate=%ld 1/s%s", totalSpeed, totalPackets, MoveCursor(false));
 }
 
-static void OnSendIperf(void *pDummy, int8_t idx, const uint8_t *pTx, uint16_t len, void *pTag, void *pDummy2)
+static void OnSendIperf(void *pDummy, const uint8_t *pTx, uint16_t len, uint32_t idx, void *pDummy2)
 {
     m.txBusy = false;
 }
@@ -511,7 +511,7 @@ static void SendIperfPacket(void)
         iperf[i++] = (m.iperfTx >> 8) & 0xFF;
         iperf[i++] = (m.iperfTx) & 0xFF;
         m.txBusy = true;
-        if (TC6NoIP_SendEthernetPacket(m.idxNoIp, iperf, len, OnSendIperf, NULL)) {
+        if (TC6NoIP_SendEthernetPacket(m.idxNoIp, iperf, len, OnSendIperf)) {
             m.iperfTx++;
             m.stats[BOARD_INSTANCE].packetCntCurrent++;
             m.stats[BOARD_INSTANCE].packetCntTotal++;
@@ -555,7 +555,7 @@ static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus)
 /*                      Callback from NO IP component                   */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-void TC6NoIP_CB_OnEthernetReceive(const uint8_t *pRx, uint16_t len)
+void TC6NoIP_CB_OnEthernetReceive(int8_t idx, const uint8_t *pRx, uint16_t len)
 {
     if (len >= (UDP_PAYLOAD_OFFSET + 5)) {
         uint16_t i = UDP_PAYLOAD_OFFSET;

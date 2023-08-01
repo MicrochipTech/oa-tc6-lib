@@ -28,7 +28,7 @@ in MPLABX IDE.
 * Hardware used
     * [SAM D21 Curiosity Nano Evaluation Kit](https://www.microchip.com/en-us/development-tool/DM320119)
     * [Curiosity Nano Base for Click boards™](https://www.microchip.com/en-us/development-tool/AC164162)
-    * [SPI to 10BASE-T1S interface card](https://www.microchip.com/en-us/development-tool/TODO_REPLACE_LINK)
+    * [SPI to 10BASE-T1S interface card](https://www.mikroe.com/two-wire-eth-click)
 * Hardware setup
     * Connect the DEBUG USB port on the board to the computer using a micro USB cable
     * Connect the SPI to 10BASE-T1S interface card to another 10BASE-T1S node (e.g. a second instance of this setup)
@@ -66,4 +66,4 @@ These settings are stored in a subsection inside the MAC-PHY settings.
     * Stop : 1 Bit
     * Flow Control : None
 3. Build and Program the application using the MPLAB X IDE
-	For optimum results, select "Release" Mode as build target, this requires fee-based XC32 compiler license.
+    For optimum results, select "Release" Mode as build target, this requires fee-based XC32 compiler license.

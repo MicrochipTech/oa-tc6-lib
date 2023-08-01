@@ -78,8 +78,8 @@ typedef struct
     uint8_t intReported;
     uint8_t idx;
     bool opened;
-    bool busy;
     bool firstTransaction;
+    volatile bool busy;
     volatile uint8_t macValid;
 } Stub_Local_t;
 

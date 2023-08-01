@@ -1502,7 +1502,7 @@
         <property key="memories.programmemory.ranges" value="0-fffff"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="programmerToGoFilePath"
-                  value="C:/_svn_/TC6_Library/trunk/examples/noIP-SAM-E54-Curiosity/app/firmware/demo.X/debug/0/demo_ptg"/>
+                  value="C:/_svn_/Galileo/SAME54-Curiosity/trunk/app/firmware/demo.X/debug/release/demo_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"

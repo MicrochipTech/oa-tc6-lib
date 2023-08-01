@@ -81,7 +81,7 @@ typedef struct
     uint8_t intReported;
     uint8_t idx;
     bool opened;
-    bool busy;
+    volatile bool busy;
     volatile uint8_t macValid;
 } Stub_Local_t;
 
@@ -115,6 +115,7 @@ bool TC6Stub_Init(uint8_t idx, uint8_t pMac[6])
         if (GetMacAddress(ps)) {
             memcpy(pMac, ps->mac, 6u);
         } else {
+            PRINT("Using fallback MAC address, instance=%d\r\n", idx);
             memcpy(pMac, FALLBACK_MAC, 6u);
         }
         switch (idx) {
@@ -122,8 +123,6 @@ bool TC6Stub_Init(uint8_t idx, uint8_t pMac[6])
             PIO_PinInterruptCallbackRegister(TC6_INT_1_PIN, IntHandler, (uintptr_t)ps);
             PIO_PinInterruptEnable(TC6_INT_1_PIN);
 
-            TC6_RESET_1_Clear();
-            SYSTICK_DelayMs(10);
             TC6_RESET_1_Set();
             SYSTICK_DelayMs(10);
             break;
@@ -161,7 +160,6 @@ bool TC6Stub_IntActive(uint8_t idx)
     ASSERT(idx < TC6_MAX_INSTANCES);
     ps->intReported = ps->intIn;
     return (ps->intReported != ps->intOut);
-
 }
 
 void TC6Stub_ReleaseInt(uint8_t idx)

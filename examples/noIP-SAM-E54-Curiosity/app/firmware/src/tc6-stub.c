@@ -81,7 +81,7 @@ typedef struct
     uint8_t intReported;
     uint8_t idx;
     bool opened;
-    bool busy;
+    volatile bool busy;
     volatile uint8_t macValid;
 } Stub_Local_t;
 
@@ -115,6 +115,7 @@ bool TC6Stub_Init(uint8_t idx, uint8_t pMac[6])
         if (GetMacAddress(ps)) {
             memcpy(pMac, ps->mac, 6u);
         } else {
+            PRINT("Using fallback MAC address, instance=%d\r\n", idx);
             memcpy(pMac, FALLBACK_MAC, 6u);
         }
         switch (idx) {

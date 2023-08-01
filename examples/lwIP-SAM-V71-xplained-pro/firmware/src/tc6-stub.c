@@ -81,7 +81,7 @@ typedef struct
     uint8_t intReported;
     uint8_t idx;
     bool opened;
-    bool busy;
+    volatile bool busy;
     volatile uint8_t macValid;
 } Stub_Local_t;
 
@@ -119,7 +119,6 @@ bool TC6Stub_Init(uint8_t idx, uint8_t pMac[6])
         }
         switch (idx) {
         case FIRST_TC6_INSTANCE:
-//            EIC_CallbackRegister(EIC_PIN_14, IntHandler, (uintptr_t)ps);
             PIO_PinInterruptCallbackRegister(TC6_INT_1_PIN, IntHandler, (uintptr_t)ps);
             PIO_PinInterruptEnable(TC6_INT_1_PIN);
 
