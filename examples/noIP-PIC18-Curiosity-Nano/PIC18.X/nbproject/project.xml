@@ -3,13 +3,9 @@
     <type>com.microchip.mplab.nbide.embedded.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
-            <name>PIC18_DMA</name>
-            <creation-uuid>5f15bb4b-f85b-47da-abcb-05096b190e4d</creation-uuid>
+            <name>test_thermo7_10base</name>
+            <creation-uuid>1dbe6e24-ed27-4068-a7b9-31ffcf2667f9</creation-uuid>
             <make-project-type>0</make-project-type>
-            <c-extensions>c</c-extensions>
-            <cpp-extensions/>
-            <header-extensions>h</header-extensions>
-            <asminc-extensions/>
             <sourceEncoding>ISO-8859-1</sourceEncoding>
             <make-dep-projects/>
             <sourceRootList>
@@ -18,10 +14,6 @@
             <confList>
                 <confElem>
                     <name>default</name>
-                    <type>2</type>
-                </confElem>
-                <confElem>
-                    <name>release</name>
                     <type>2</type>
                 </confElem>
             </confList>

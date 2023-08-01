@@ -1,26 +1,24 @@
 /**
-  Generated Interrupt Manager Source File
+  I2C1 Generated Driver API Header File
 
-  @Company:
+  @Company
     Microchip Technology Inc.
 
-  @File Name:
-    interrupt_manager.c
+  @File Name
+    i2c1_master_example.h
 
-  @Summary:
-    This is the Interrupt Manager file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+  @Summary
+    This is the generated header file for the I2C1 driver example using PIC10 / PIC12 / PIC16 / PIC18 MCUs
 
-  @Description:
-    This header file provides implementations for global interrupt handling.
-    For individual peripheral handlers please see the peripheral driver for
-    all modules selected in the GUI.
+  @Description
+    This header file provides APIs for driver for I2C1.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.8
         Device            :  PIC18F57Q43
-        Driver Version    :  2.04
+        Driver Version    :  1.0.0
     The generated drivers are tested against the following:
         Compiler          :  XC8 2.36 and above or later
-        MPLAB 	          :  MPLAB X 6.00
+        MPLAB             :  MPLAB X 6.00
 */
 
 /*
@@ -46,39 +44,19 @@
     SOFTWARE.
 */
 
-#include "interrupt_manager.h"
-#include "mcc.h"
+#ifndef I2C1_MASTER_EXAMPLE_H
+#define I2C1_MASTER_EXAMPLE_H
 
-void  INTERRUPT_Initialize (void)
-{
-    // Disable Interrupt Priority Vectors (16CXXX Compatibility Mode)
-    INTCON0bits.IPEN = 0;
-}
+#include <stdint.h>
+#include <stdio.h>
+#include "../i2c1_master.h"
 
-void __interrupt() INTERRUPT_InterruptManager (void)
-{
-    // interrupt handler
-    if(PIE3bits.TMR0IE == 1 && PIR3bits.TMR0IF == 1)
-    {
-        TMR0_ISR();
-    }
-    else if(PIE1bits.INT0IE == 1 && PIR1bits.INT0IF == 1)
-    {
-        INT0_ISR();
-    }
-    else if(PIE3bits.TMR2IE == 1 && PIR3bits.TMR2IF == 1)
-    {
-        TMR2_ISR();
-    }
-    else if(PIE0bits.IOCIE == 1 && PIR0bits.IOCIF == 1)
-    {
-        PIN_MANAGER_IOC();
-    }
-    else
-    {
-        //Unhandled Interrupt
-    }
-}
-/**
- End of File
-*/
+uint8_t  I2C1_Read1ByteRegister(i2c1_address_t address, uint8_t reg);
+uint16_t I2C1_Read2ByteRegister(i2c1_address_t address, uint8_t reg);
+void I2C1_Write1ByteRegister(i2c1_address_t address, uint8_t reg, uint8_t data);
+void I2C1_Write2ByteRegister(i2c1_address_t address, uint8_t reg, uint16_t data);
+void I2C1_WriteNBytes(i2c1_address_t address, uint8_t *data, size_t len);
+void I2C1_ReadNBytes(i2c1_address_t address, uint8_t *data, size_t len);
+void I2C1_ReadDataBlock(i2c1_address_t address, uint8_t reg, uint8_t *data, size_t len);
+
+#endif /* I2C1_MASTER_EXAMPLE_H */
