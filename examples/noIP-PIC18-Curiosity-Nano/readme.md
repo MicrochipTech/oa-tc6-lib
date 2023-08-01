@@ -65,7 +65,7 @@ Click on Make and Program Device and wait until the board is programmed.
  
 The board with no Thermo7 Click mounted to it should start outputting the temperature data to the Terminal:
  
-![Setup](images/Running.jpg)
+![Setup](images/Running.JPG)
 
 The second board, with the Thermo7 Click mounted will output the following message: 
 
