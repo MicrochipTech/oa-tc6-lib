@@ -124,14 +124,9 @@ void SPI1_ExchangeBlocks(const uint8_t *pTx, uint8_t *pRx, size_t blockSize)
         {
             SPI1TCNTL = 1;
             SPI1TXB = pTx[i];
-            
-            //PRINT("Tx%d  ",SPI1TXB);
             while(!PIR3bits.SPI1RXIF);
             pRx[i] = SPI1RXB;
-            
-           // PRINT("%d:%d  ",i,pRx[i]);
         }
-       // PRINT("\r\n");
     } else if (pTx) {
         for (i = 0; i < blockSize; i++)
         {
@@ -147,9 +142,7 @@ void SPI1_ExchangeBlocks(const uint8_t *pTx, uint8_t *pRx, size_t blockSize)
             SPI1TXB = 0xFF;
             while(!PIR3bits.SPI1RXIF);
             pRx[i] = SPI1RXB;
-           // PRINT("%d  ",SPI1RXB);
         }
-       // PRINT("\r\n");
     }
 }
 

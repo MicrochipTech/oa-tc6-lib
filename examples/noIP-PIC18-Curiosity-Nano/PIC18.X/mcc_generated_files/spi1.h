@@ -70,6 +70,5 @@ void SPI1_ReadBlock(void *block, size_t blockSize);
 void SPI1_WriteByte(uint8_t byte);
 uint8_t SPI1_ReadByte(void);
 void SPI1_ExchangeBlocks(const uint8_t *pTx, uint8_t *pRx, size_t blockSize);
-void SPI1_ExchangeBlocks(const uint8_t *pTx, uint8_t *pRx, size_t blockSize);
 
 #endif //SPI1_H
