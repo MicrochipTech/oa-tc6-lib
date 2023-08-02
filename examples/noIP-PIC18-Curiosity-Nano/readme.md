@@ -1,11 +1,8 @@
-![Microchip logo](https://raw.githubusercontent.com/wiki/Microchip-MPLAB-Harmony/Microchip-MPLAB-Harmony.github.io/images/microchip_logo.png)
+﻿![Microchip logo](https://raw.githubusercontent.com/wiki/Microchip-MPLAB-Harmony/Microchip-MPLAB-Harmony.github.io/images/microchip_logo.png)
 
-# RAW Ethernet example on PIC18F57Q43 Curiosity Nano Evaluation Kit using the LAN865x 10BASE-T1S Ethernet MAC-PHY
+# Example on PIC18F57Q43 Curiosity Nano Evaluation Kit using the LAN865x 10BASE-T1S Ethernet MAC-PHY
 
-This example shows how to configure the LAN865x to be used in a 10BASE-T1S Multi-Drop
-Ethernet network in either PLCA and CSMA/CD mode. It also shows how to r/w registers
-of the LAN865x during normal operation.
-This example shows basic sending and receive functionality with predefined Ethernet frames.
+This example shows how to configure the LAN865x to be used in a 10BASE-T1S Multi-Drop Ethernet network. The project shows basic sending and receive functionality of temperature sensor data, using predefined Ethernet frames.
 
 ## Building The Application
 The parent folder for all the MPLAB X IDE projects for this application is given below:
@@ -14,55 +11,67 @@ The parent folder for all the MPLAB X IDE projects for this application is given
 
 To build the application, refer to the table below and open the appropriate project file
 in MPLABX IDE.
-
 | Project Name              | Description                                               |
 | ---                       | ---                                                       |
-| PIC18.X | Main project holding the board support package and running the bare metal application. This project pulls in libtc6.X as library.  |
-| libtc6.X  | Container to build a library out of the libtc6 source code from the root folder  |
+| PIC18.X | Main project holding the board support package and running the bare metal application.  |
+
+## Documentation how this Application was built:
+* [10baset1s_thermo7.pdf](10baset1s_thermo7.pdf)
 
 ## Hardware setup
 
-![Setup](images/setup.jpg)
+![Setup](images/Setup.png)
 
 * Hardware used
-    * [PIC18F57Q43 Curiosity Nano Evaluation Kit](https://www.microchip.com/en-us/development-tool/DM164150)
-    * [Curiosity Nano Base for Click boards™](https://www.microchip.com/en-us/development-tool/AC164162)
-    * [SPI to 10BASE-T1S interface card](https://www.microchip.com/en-us/development-tool/TODO_REPLACE_LINK)
+    * [2x PIC18F57Q43 Curiosity Nano Evaluation Kit](https://www.microchip.com/en-us/development-tool/DM164150)
+    * [2x Curiosity Nano Base for Click boards™](https://www.microchip.com/en-us/development-tool/AC164162)
+    * [2x Two-Wire ETH Click Boards LAN8651B](https://www.mikroe.com/two-wire-eth-click)
+    * [at least 1x Thermo 7 Click Board](https://www.mikroe.com/thermo-7-click)
 * Hardware setup
     * Connect the DEBUG USB port on the board to the computer using a micro USB cable
-    * Connect the SPI to 10BASE-T1S interface card to another 10BASE-T1S node (e.g. a second instance of this setup)
+    * Connect the Two-Wire ETH Click Board interface card to another 10BASE-T1S node (e.g. a second instance of this setup), using a twisted single pair cable.
 
-## Settings for LAN865x
+![Setup](images/Setup-2boards.jpg)
 
-Configuration is done via #defines in the "main.c".
+* Software Used
+    * [MPLABX v6.10](https://www.microchip.com/en-us/tools-resources/develop/mplab-x-ide)
+    * [Harmony 3](https://www.microchip.com/en-us/tools-resources/configure/mplab-harmony)
+    * [TC6 Library](https://github.com/MicrochipTech/oa-tc6-lib)
 
-**MAC-PHY Settings**
-The LAN865x MAC-PHY at the beginning of the "main.c":
+## Project Setup in MPLAB-X:
 
-    #define T1S_PLCA_ENABLE             (true)
-    #define T1S_PLCA_NODE_ID            (0)
-    #define T1S_PLCA_NODE_COUNT         (8)
-    #define T1S_PLCA_BURST_COUNT        (0)
-    #define T1S_PLCA_BURST_TIMER        (0x80)
-    #define MAC_PROMISCUOUS_MODE        (false)
-    #define MAC_TX_CUT_THROUGH          (true)
-    #define MAC_RX_CUT_THROUGH          (false)
+In MPLAB X IDE, navigate to File > Open Project:
+ 
+![Setup](images/OpenProject.jpg)
 
-**PLCA Settings**
+Connect one of the Curiosity boards to the PC and then click on Make and Program Device and wait until the board is programmed.
 
-10BASE-T1S can be used in PLCA or CSMA/CD mode.
-When using PLCA, the parameters for _Local Node ID_, _Node Count_,
-_Max Burst Count_ and _Burst Timer_ must be configured.
-These settings are stored in a subsection inside the MAC-PHY settings.
+![Setup](images/Make.jpg)
+
+Disconnect the first board and then connect the second board to the PC.
+
+Open the **main.c** file and change the board instance from 0 to 1:
+
+![Setup](images/NodeID.jpg)
+
+Click on Make and Program Device and wait until the board is programmed.
 
 ## Running the Application
 
-1. Open a Terminal application (e.g. Tera term) on the computer
+1. Open a Terminal application (e.g. Tera Term or Putty) on the computer
 2. Connect to the Virtual COM port and configure the serial settings as follows:
     * Baud : 115200
     * Data : 8 Bits
     * Parity : None
     * Stop : 1 Bit
     * Flow Control : None
-3. Build and Program the application using the MPLAB X IDE
-	For optimum results, select "Release" Mode as build target, this requires fee-based XC32 compiler license.
+ 
+The board with no Thermo7 Click mounted to it should start outputting the temperature data to the Terminal:
+ 
+![Setup](images/Running.JPG)
+
+The second board, with the Thermo7 Click mounted will output the following message: 
+
+*"Temperature from Node 1 invalid. Is Thermo7 click missing?"*
+
+If a second Thermo7 Click is available, it can be mounted to the second Curiosity Base Board so both Nodes will exchange temperature data between each other.

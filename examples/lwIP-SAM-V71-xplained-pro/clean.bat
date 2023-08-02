@@ -16,8 +16,8 @@ rmdir liblwip.X\build /S/Q
 rmdir liblwip.X\dist\default /S/Q
 rmdir liblwip.X\dist\release\debug /S/Q
 rmdir liblwip.X\nbproject\private /S/Q
-del   liblwip.X\\nbproject\Makefile* /F/Q
-del   liblwip.X\\nbproject\Package* /F/Q
+del   liblwip.X\nbproject\Makefile* /F/Q
+del   liblwip.X\nbproject\Package* /F/Q
 
 rmdir libtc6.X\.generated_files /S/Q
 rmdir libtc6.X\debug /S/Q

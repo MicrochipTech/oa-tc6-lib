@@ -15,12 +15,12 @@
     For individual peripheral handlers please see the peripheral driver for
     all modules selected in the GUI.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.7
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.8
         Device            :  PIC18F57Q43
         Driver Version    :  2.04
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.31 and above or later
-        MPLAB 	          :  MPLAB X 5.45
+        Compiler          :  XC8 2.36 and above or later
+        MPLAB 	          :  MPLAB X 6.00
 */
 
 /*
@@ -58,25 +58,21 @@ void  INTERRUPT_Initialize (void)
 void __interrupt() INTERRUPT_InterruptManager (void)
 {
     // interrupt handler
-    if(PIE6bits.DMA2DCNTIE == 1 && PIR6bits.DMA2DCNTIF == 1)
-    {
-        DMA2_DMADCNTI_ISR();
-    }
-    else if(PIE4bits.U1TXIE == 1 && PIR4bits.U1TXIF == 1)
-    {
-        UART1_TxInterruptHandler();
-    }
-    else if(PIE4bits.U1RXIE == 1 && PIR4bits.U1RXIF == 1)
-    {
-        UART1_RxInterruptHandler();
-    }
-    else if(PIE3bits.TMR0IE == 1 && PIR3bits.TMR0IF == 1)
+    if(PIE3bits.TMR0IE == 1 && PIR3bits.TMR0IF == 1)
     {
         TMR0_ISR();
     }
     else if(PIE1bits.INT0IE == 1 && PIR1bits.INT0IF == 1)
     {
         INT0_ISR();
+    }
+    else if(PIE3bits.TMR2IE == 1 && PIR3bits.TMR2IF == 1)
+    {
+        TMR2_ISR();
+    }
+    else if(PIE0bits.IOCIE == 1 && PIR0bits.IOCIF == 1)
+    {
+        PIN_MANAGER_IOC();
     }
     else
     {

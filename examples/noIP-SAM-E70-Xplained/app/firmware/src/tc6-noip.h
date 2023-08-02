@@ -73,8 +73,7 @@ int8_t TC6NoIP_Init(bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t 
 void TC6NoIP_Service(void);
 
 /**
- * \brief Callback to the .
- * \note This function may be implemented by the integrator and passed as argument with TC6_SendRawEthernetPacket().
+ * \brief Callback from TC6NoIP_GetPlcaStatus function in order to retrieve the PLCA Status.
  * \param idx - The instance number as returned from the TC6NoIP_Init() function.
  * \param success - true, when the status could be successful retrieved. false, there was an error. plcaStatus variable may not reflect the real state.
  * \param plcaStatus - On success, this variable holds the current status of the PLCA. true, PLCA mode is active. false, running CSMA/CD mode
@@ -92,37 +91,40 @@ bool TC6NoIP_GetPlcaStatus(int8_t idx, TC6NoIP_On_PlcaStatus pStatusCallback);
  * \brief Callback when ever a transmission of RAW Ethernet packet was finished.
  * \note This function may be implemented by the integrator and passed as argument with TC6_SendRawEthernetPacket().
  * \param pDummy - Do not care...
- * \param idx - The instance number as returned from the TC6NoIP_Init() function.
  * \param pTx - Exact the same pointer as has been given along with the TC6_SendRawEthernetPacket function.
  * \param len - Exact the same length as has been given along with the TC6_SendRawEthernetPacket function.
- * \param pTag - Tag pointer which was given along TC6_SendRawEthernetPacket function.
+ * \param idx - The instance number as returned from the TC6NoIP_Init() function.
  * \param pDummy2 - Do also not care...
  */
-typedef void (*TC6NoIP_OnTxCallback_t)(void *pDummy, int8_t idx, const uint8_t *pTx, uint16_t len, void *pTag, void *pDummy2);
+typedef void (*TC6NoIP_OnTxCallback_t)(void *pDummy, const uint8_t *pTx, uint16_t len, uint32_t idx, void *pDummy2);
 
 /** \brief Sends a raw Ethernet packet.
  *  \param idx - The instance number as returned from the TC6NoIP_Init() function.
  *  \param pTx - Filled byte array holding an entire Ethernet packet. Warning, the buffer must stay valid until TC6_CB_OnTxRawEthernetPacket callback with this pointer as parameter was called.
  *  \param len - Length of the byte array.
  *  \param txCallback - Callback function if desired, NULL otherwise.
- *  \param pTag - Any pointer the integrator wants to give. It will be returned in TC6_CB_OnTxRawEthernetPacket.
  *  \return true, on success. false, otherwise.
  */
-bool TC6NoIP_SendEthernetPacket(int8_t idx, const uint8_t *pTx, uint16_t len, TC6NoIP_OnTxCallback_t txCallback, void *pTag);
+bool TC6NoIP_SendEthernetPacket(int8_t idx, const uint8_t *pTx, uint16_t len, TC6NoIP_OnTxCallback_t txCallback);
 
-/**
- * \brief Sets the frequency of the SPI bus to the desired frequency.
- * \param idx - The instance number of the hardware. Starting with 0 for the first hardware.
- * \param frequency - The new frequency in Hz.
- * \return true, if value could be set. false, no change to SPI frequency.
+/** \brief Writes the corresponding MAC address into the given buffer.
+ *  \param idx - The instance number as returned from the TC6NoIP_Init() function.
+ *  \param mac - Buffer where the MAC address will be copied to.
+ *  \return true, on success. false, otherwise.
  */
-bool TC6NoIP_SetSpiFrequency(uint8_t idx, uint32_t frequency);
+bool TC6NoIP_GetMacAddress(int8_t idx, uint8_t mac[6]);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                 Callback to be implemented in higher layers          */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-void TC6NoIP_CB_OnEthernetReceive(const uint8_t *pRx, uint16_t len);
+/** \brief Callback whenever a Ethernet packet was received.
+ *  \note This function must be implemented by the integrator.
+ *  \param idx - The instance number as returned from the TC6NoIP_Init() function.
+ *  \param pRx - Filled byte array holding an entire Ethernet packet. 
+ *  \param len - Length of the byte array.
+ */
+void TC6NoIP_CB_OnEthernetReceive(int8_t idx, const uint8_t *pRx, uint16_t len);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                 Callback implementations from TC6 library            */

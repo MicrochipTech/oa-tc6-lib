@@ -13,12 +13,12 @@
   @Description
     This header file provides implementations for driver APIs for SPI1.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.7
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.8
         Device            :  PIC18F57Q43
-        Driver Version    :  3.0.0
+        Driver Version    :  1.0.0
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.31 and above or later
-        MPLAB             :  MPLAB X 5.45
+        Compiler          :  XC8 2.36 and above or later
+        MPLAB             :  MPLAB X 6.00
 */
 
 /*
@@ -58,21 +58,21 @@ typedef struct {
 
 //con0 == SPIxCON0, con1 == SPIxCON1, con2 == SPIxCON2, baud == SPIxBAUD, operation == Master/Slave
 static const spi1_configuration_t spi1_configuration[] = {   
-    { 0x2, 0xd0, 0x3, 0x1, 0 }
+    { 0x2, 0x40, 0x0, 0x4, 0 }
 };
 
 void SPI1_Initialize(void)
 {
-    //EN disabled; LSBF MSb first; MST bus master; BMODE last byte; 
+    //EN disabled; LSBF MSb first; MST bus slave; BMODE last byte; 
     SPI1CON0 = 0x02;
-    //SMP End; CKE Active to idle; CKP Idle:Low, Active:High; FST enabled; SSP active high; SDIP active high; SDOP active high; 
-    SPI1CON1 = 0xD0;
+    //SMP Middle; CKE Active to idle; CKP Idle:Low, Active:High; FST disabled; SSP active high; SDIP active high; SDOP active high; 
+    SPI1CON1 = 0x40;
     //SSET disabled; TXR not required for a transfer; RXR data is not stored in the FIFO; 
     SPI1CON2 = 0x00;
     //CLKSEL FOSC; 
     SPI1CLK = 0x00;
-    //BAUD 3; 
-    SPI1BAUD = 0x03;
+    //BAUD 4; 
+    SPI1BAUD = 0x04;
     TRISCbits.TRISC6 = 0;
 }
 
@@ -83,7 +83,6 @@ bool SPI1_Open(spi1_modes_t spi1UniqueConfiguration)
         SPI1CON0 = spi1_configuration[spi1UniqueConfiguration].con0;
         SPI1CON1 = spi1_configuration[spi1UniqueConfiguration].con1;
         SPI1CON2 = spi1_configuration[spi1UniqueConfiguration].con2 | (_SPI1CON2_SPI1RXR_MASK | _SPI1CON2_SPI1TXR_MASK);
-        SPI1CLK  = 0x00;
         SPI1BAUD = spi1_configuration[spi1UniqueConfiguration].baud;        
         TRISCbits.TRISC6 = spi1_configuration[spi1UniqueConfiguration].operation;
         SPI1CON0bits.EN = 1;
@@ -103,6 +102,18 @@ uint8_t SPI1_ExchangeByte(uint8_t data)
     SPI1TXB = data;
     while(!PIR3bits.SPI1RXIF);
     return SPI1RXB;
+}
+
+void SPI1_ExchangeBlock(void *block, size_t blockSize)
+{
+    uint8_t *data = block;
+    while(blockSize--)
+    {
+        SPI1TCNTL = 1;
+        SPI1TXB = *data;
+        while(!PIR3bits.SPI1RXIF);
+        *data++ = SPI1RXB;
+    }
 }
 
 void SPI1_ExchangeBlocks(const uint8_t *pTx, uint8_t *pRx, size_t blockSize)
@@ -132,18 +143,6 @@ void SPI1_ExchangeBlocks(const uint8_t *pTx, uint8_t *pRx, size_t blockSize)
             while(!PIR3bits.SPI1RXIF);
             pRx[i] = SPI1RXB;
         }
-    }
-}
-
-void SPI1_ExchangeBlock(void *block, size_t blockSize)
-{
-    uint8_t *data = block;
-    while(blockSize--)
-    {
-        SPI1TCNTL = 1;
-        SPI1TXB = *data;
-        while(!PIR3bits.SPI1RXIF);
-        *data++ = SPI1RXB;
     }
 }
 

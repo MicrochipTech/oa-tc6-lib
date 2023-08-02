@@ -2,6 +2,17 @@
 
 # OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release Notes
 
+## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.1
+### New Features
+
+ - Add MAC-PHY chip revision checking
+ - Replaced PIC18 example by synchronous API OA-TC6 example (easier to use and maintain)
+
+### Bugfixes
+
+ - Initialize MAC-PHY according to AN1760 LAN8650/1 Configuration Application Note
+ - Enable collision detection on CSMA/CD mode
+
 ## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.0
 
 ### Bugfixes

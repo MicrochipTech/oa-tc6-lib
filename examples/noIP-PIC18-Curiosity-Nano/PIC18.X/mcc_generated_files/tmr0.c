@@ -13,12 +13,12 @@
   @Description
     This source file provides APIs for TMR0.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.7
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.8
         Device            :  PIC18F57Q43
         Driver Version    :  3.10
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.31 and above
-        MPLAB 	          :  MPLAB X 5.45
+        Compiler          :  XC8 2.36 and above
+        MPLAB 	          :  MPLAB X 6.00
 */
 
 /*
@@ -77,7 +77,7 @@ void TMR0_Initialize(void)
     TMR0L = 0x00;
 
     // Load TMR0 value to the 16-bit reload variable
-    timer0ReloadVal16bit = (uint16_t)((TMR0H << 8) | TMR0L);
+    timer0ReloadVal16bit = ((uint16_t)TMR0H << 8) | TMR0L;
 
     // Clear Interrupt flag before enabling the interrupt
     PIR3bits.TMR0IF = 0;
@@ -139,22 +139,14 @@ void TMR0_ISR(void)
     TMR0H = timer0ReloadVal16bit >> 8;
     TMR0L = (uint8_t) timer0ReloadVal16bit;
 
-    // ticker function call;
-    // ticker is 1 -> Callback function gets called every time this ISR executes
-    TMR0_CallBack();
-
-    // add your TMR0 interrupt custom code
-}
-
-void TMR0_CallBack(void)
-{
-    // Add your custom callback code here
-
     if(TMR0_InterruptHandler)
     {
         TMR0_InterruptHandler();
     }
+
+    // add your TMR0 interrupt custom code
 }
+
 
 void TMR0_SetInterruptHandler(void (* InterruptHandler)(void)){
     TMR0_InterruptHandler = InterruptHandler;

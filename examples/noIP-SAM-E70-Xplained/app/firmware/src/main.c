@@ -46,7 +46,8 @@ Microchip or any third party.
 #include <stddef.h>                     // Defines NULL
 #include <stdbool.h>                    // Defines true
 #include <stdlib.h>                     // Defines EXIT_FAILURE
-#include <string.h>                     // memset
+#include <stdio.h>                      // printf
+#include <string.h>                     // memset, memcpy
 #include "definitions.h"                // SYS function prototypes
 #include "tc6-noip.h"
 
@@ -54,9 +55,11 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.1.0"
+#define FIRMWARE_VERSION            "V3.1.1"
 
+#ifndef BOARD_INSTANCE
 #define BOARD_INSTANCE              (0)
+#endif
 #define T1S_PLCA_ENABLE             (true)
 #define T1S_PLCA_NODE_ID            (BOARD_INSTANCE + 1)
 #define T1S_PLCA_NODE_COUNT         (8)
@@ -81,6 +84,7 @@ Microchip or any third party.
 #define ESC_BLUE                    "\033[0;36m"
 
 #define PRINT(...)                  printf(__VA_ARGS__)
+
 #ifdef DEBUG
 #define ASSERT(x)                  __conditional_software_breakpoint(x)
 #else
@@ -374,7 +378,7 @@ ERROR:
 /*                  PRIVATE  FUNCTION IMPLEMENTATIONS                   */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-static void OnSendIperf(void *pDummy, int8_t idx, const uint8_t *pTx, uint16_t len, void *pTag, void *pDummy2)
+static void OnSendIperf(void *pDummy, const uint8_t *pTx, uint16_t len, uint32_t idx, void *pDummy2)
 {
     m.txBusy = false;
 }
@@ -388,7 +392,7 @@ static void SendIperfPacket(void)
         iperf[i++] = (m.iperfTx >> 8) & 0xFF;
         iperf[i++] = (m.iperfTx) & 0xFF;
         m.txBusy = true;
-        if (TC6NoIP_SendEthernetPacket(m.idxNoIp, iperf, sizeof(iperf), OnSendIperf, NULL)) {
+        if (TC6NoIP_SendEthernetPacket(m.idxNoIp, iperf, sizeof(iperf), OnSendIperf)) {
             m.iperfTx++;
             m.txData += sizeof(iperf);
         } else {
@@ -428,7 +432,7 @@ static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus)
 /*                      Callback from NO IP component                   */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-void TC6NoIP_CB_OnEthernetReceive(const uint8_t *pRx, uint16_t len)
+void TC6NoIP_CB_OnEthernetReceive(int8_t idx, const uint8_t *pRx, uint16_t len)
 {
     /* PRINT("RX len=%d\r\n", len); */
 }
