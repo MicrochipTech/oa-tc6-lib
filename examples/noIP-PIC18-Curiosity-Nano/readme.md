@@ -15,6 +15,9 @@ in MPLABX IDE.
 | ---                       | ---                                                       |
 | PIC18.X | Main project holding the board support package and running the bare metal application.  |
 
+## Documentation how this Application was built:
+* [10baset1s_thermo7.pdf](10baset1s_thermo7.pdf)
+
 ## Hardware setup
 
 ![Setup](images/Setup.png)
