@@ -118,14 +118,14 @@ typedef enum
 } DRV_I2C_ERROR;
 
 
-typedef void (* DRV_I2C_PLIB_CALLBACK)( uintptr_t );
+typedef void (* DRV_I2C_PLIB_CALLBACK)( uintptr_t contextHandle);
 
-typedef bool (* DRV_I2C_PLIB_READ)( uint16_t, uint8_t *, uint32_t );
+typedef bool (* DRV_I2C_PLIB_READ)( uint16_t address, uint8_t *pdata, uint32_t length);
 
-typedef bool (* DRV_I2C_PLIB_WRITE)( uint16_t, uint8_t *, uint32_t );
+typedef bool (* DRV_I2C_PLIB_WRITE)( uint16_t address, uint8_t *pdata, uint32_t length);
 
 
-typedef bool (* DRV_I2C_PLIB_WRITE_READ)( uint16_t, uint8_t *, uint32_t, uint8_t *, uint32_t );
+typedef bool (* DRV_I2C_PLIB_WRITE_READ)( uint16_t address, uint8_t *wdata, uint32_t wlength, uint8_t *rdata, uint32_t rlength );
 
 typedef void (* DRV_I2C_PLIB_TRANSFER_ABORT) (void);
 
@@ -133,7 +133,7 @@ typedef DRV_I2C_ERROR (* DRV_I2C_PLIB_ERROR_GET)( void );
 
 typedef bool (* DRV_I2C_PLIB_TRANSFER_SETUP)(DRV_I2C_TRANSFER_SETUP* setup, uint32_t srcClkFreq);
 
-typedef void (* DRV_I2C_PLIB_CALLBACK_REGISTER)(DRV_I2C_PLIB_CALLBACK, uintptr_t);
+typedef void (* DRV_I2C_PLIB_CALLBACK_REGISTER)(DRV_I2C_PLIB_CALLBACK callback, uintptr_t contextHandle);
 
 typedef struct
 {
@@ -174,10 +174,10 @@ typedef struct
 typedef struct
 {
     /* I2C PLib read API */
-    DRV_I2C_PLIB_READ                           read;
+    DRV_I2C_PLIB_READ                           read_t;
 
     /* I2C PLib write API */
-    DRV_I2C_PLIB_WRITE                          write;
+    DRV_I2C_PLIB_WRITE                          write_t;
 
 
     /* I2C PLib writeRead API */

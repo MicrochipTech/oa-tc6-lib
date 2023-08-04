@@ -69,17 +69,15 @@
 // *****************************************************************************
 /* USART Driver Errors Declaration */
 
-typedef enum _DRV_USART_ERROR
-{
-    DRV_USART_ERROR_NONE = 0,
+#define    DRV_USART_ERROR_NONE     0U
 
-    DRV_USART_ERROR_OVERRUN = 1,
+#define    DRV_USART_ERROR_OVERRUN  1U
 
-    DRV_USART_ERROR_PARITY = 2,
+#define    DRV_USART_ERROR_PARITY   2U
 
-    DRV_USART_ERROR_FRAMING = 3
+#define    DRV_USART_ERROR_FRAMING  3U
 
-} _DRV_USART_ERROR;
+typedef uint32_t DRV_USART_ERROR;
 
 // *****************************************************************************
 /* USART Serial Setup */
@@ -122,7 +120,7 @@ typedef enum
 
 } DRV_USART_STOP_BIT;
 
-typedef struct _DRV_USART_SERIAL_SETUP
+typedef struct  DRV_USART_SERIAL_SETUP_T
 {
     uint32_t baudRate;
 
@@ -132,7 +130,7 @@ typedef struct _DRV_USART_SERIAL_SETUP
 
     DRV_USART_STOP_BIT stopBits;
 
-} _DRV_USART_SERIAL_SETUP;
+}DRV_USART_SERIAL_SETUP;
 
 // *****************************************************************************
 /* USART PLIB API Set needed by the driver */
@@ -151,18 +149,18 @@ typedef bool(*DRV_USART_PLIB_WRITE_IS_BUSY)(void);
 typedef size_t(*DRV_USART_PLIB_WRITE_COUNT_GET)(void);
 
 typedef uint32_t (*DRV_USART_PLIB_ERROR_GET)(void);
-typedef bool(*DRV_USART_PLIB_SERIAL_SETUP)(_DRV_USART_SERIAL_SETUP* setup, uint32_t clkSrc);
+typedef bool(*DRV_USART_PLIB_SERIAL_SETUP)(DRV_USART_SERIAL_SETUP* setup, uint32_t clkSrc);
 
 typedef struct
 {
     DRV_USART_PLIB_READ_CALLBACK_REG readCallbackRegister;
-    DRV_USART_PLIB_READ read;
+    DRV_USART_PLIB_READ read_t;
     DRV_USART_PLIB_READ_IS_BUSY readIsBusy;
     DRV_USART_PLIB_READ_COUNT_GET readCountGet;
     DRV_USART_PLIB_READ_ABORT readAbort;
 
     DRV_USART_PLIB_WRITE_CALLBACK_REG writeCallbackRegister;
-    DRV_USART_PLIB_WRITE write;
+    DRV_USART_PLIB_WRITE write_t;
     DRV_USART_PLIB_WRITE_IS_BUSY writeIsBusy;
     DRV_USART_PLIB_WRITE_COUNT_GET writeCountGet;
 
@@ -197,7 +195,7 @@ typedef struct
 // *****************************************************************************
 /* USART Driver Initialization Data Declaration */
 
-struct _DRV_USART_INIT
+struct DRV_USART_INIT_T
 {
     /* Identifies the PLIB API set to be used by the driver to access the
      * peripheral. */

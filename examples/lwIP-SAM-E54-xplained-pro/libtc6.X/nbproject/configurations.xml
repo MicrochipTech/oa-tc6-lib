@@ -47,7 +47,7 @@
       </toolsSet>
       <packs>
         <pack name="CMSIS" vendor="ARM" version="5.8.0"/>
-        <pack name="SAME54_DFP" vendor="Microchip" version="3.7.122"/>
+        <pack name="SAME54_DFP" vendor="Microchip" version="3.8.234"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>
@@ -759,8 +759,8 @@
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="SAME54_DFP" vendor="Microchip" version="3.7.122"/>
         <pack name="CMSIS" vendor="ARM" version="5.8.0"/>
+        <pack name="SAME54_DFP" vendor="Microchip" version="3.8.234"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>

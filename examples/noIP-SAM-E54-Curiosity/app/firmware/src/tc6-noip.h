@@ -72,40 +72,20 @@ int8_t TC6NoIP_Init(bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t 
  */
 void TC6NoIP_Service(void);
 
-/**
- * \brief Callback from TC6NoIP_GetPlcaStatus function in order to retrieve the PLCA Status.
- * \param idx - The instance number as returned from the TC6NoIP_Init() function.
- * \param success - true, when the status could be successful retrieved. false, there was an error. plcaStatus variable may not reflect the real state.
- * \param plcaStatus - On success, this variable holds the current status of the PLCA. true, PLCA mode is active. false, running CSMA/CD mode
-  */
-typedef void (*TC6NoIP_On_PlcaStatus)(int8_t idx, bool success, bool plcaStatus);
-
-/** \brief Queries the current PLCA status
+/** \brief Queries the current PLCA status.
  *  \param idx - The instance number as returned from the TC6NoIP_Init() function.
- *  \param pStatusCallback - Callback which holds the result. Must not be NULL.
- *  \return true, if request could be enqueued, the given callback will be called later. false, queue is full, callback will not be called, try again later.
+ *  \param pStatus - Pointer to result flag. If function was successful, the result will be written to this pointer. true, receiving PLCA beacons. false, no beacons.
+ *  \return true, read operation was successful. pStatus is valid. false, otherwise.
  */
-bool TC6NoIP_GetPlcaStatus(int8_t idx, TC6NoIP_On_PlcaStatus pStatusCallback);
-
-/**
- * \brief Callback when ever a transmission of RAW Ethernet packet was finished.
- * \note This function may be implemented by the integrator and passed as argument with TC6_SendRawEthernetPacket().
- * \param pDummy - Do not care...
- * \param pTx - Exact the same pointer as has been given along with the TC6_SendRawEthernetPacket function.
- * \param len - Exact the same length as has been given along with the TC6_SendRawEthernetPacket function.
- * \param idx - The instance number as returned from the TC6NoIP_Init() function.
- * \param pDummy2 - Do also not care...
- */
-typedef void (*TC6NoIP_OnTxCallback_t)(void *pDummy, const uint8_t *pTx, uint16_t len, uint32_t idx, void *pDummy2);
+bool TC6NoIP_GetPlcaStatus(int8_t idx, bool *pStatus);
 
 /** \brief Sends a raw Ethernet packet.
  *  \param idx - The instance number as returned from the TC6NoIP_Init() function.
  *  \param pTx - Filled byte array holding an entire Ethernet packet. Warning, the buffer must stay valid until TC6_CB_OnTxRawEthernetPacket callback with this pointer as parameter was called.
  *  \param len - Length of the byte array.
- *  \param txCallback - Callback function if desired, NULL otherwise.
  *  \return true, on success. false, otherwise.
  */
-bool TC6NoIP_SendEthernetPacket(int8_t idx, const uint8_t *pTx, uint16_t len, TC6NoIP_OnTxCallback_t txCallback);
+bool TC6NoIP_SendEthernetPacket(int8_t idx, const uint8_t *pTx, uint16_t len);
 
 /** \brief Writes the corresponding MAC address into the given buffer.
  *  \param idx - The instance number as returned from the TC6NoIP_Init() function.
@@ -118,12 +98,6 @@ bool TC6NoIP_GetMacAddress(int8_t idx, uint8_t mac[6]);
 /*                 Callback to be implemented in higher layers          */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-/** \brief Callback whenever a Ethernet packet was received.
- *  \note This function must be implemented by the integrator.
- *  \param idx - The instance number as returned from the TC6NoIP_Init() function.
- *  \param pRx - Filled byte array holding an entire Ethernet packet.
- *  \param len - Length of the byte array.
- */
 void TC6NoIP_CB_OnEthernetReceive(int8_t idx, const uint8_t *pRx, uint16_t len);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -162,13 +136,13 @@ void TC6_CB_OnError(TC6_t *pInst, TC6_Error_t err, void *pGlobalTag);
 /**
  * \brief Call to SPI driver to do bidirectional data transfer.
  * \param tc6instance - The instance number of the hardware. Starting with 0 for the first.
- * \param pTx - Pointer to the MOSI data. The pointer stays valid until user calls TC6_SpiBufferDone()
- * \param pRx - Pointer to the MISO Buffer. The pointer stays valid until user calls TC6_SpiBufferDone()
+ * \param pTx - Pointer to the MOSI data.
+ * \param pRx - Pointer to the MISO Buffer.
  * \param len - The length of both buffers (pTx and pRx). The entire length must be transfered via SPI.
  * \param pGlobalTag - The exact same pointer, which was given along with the TC6_Init() function.
  * \return true, if the SPI data was enqueued/transfered. false, there was an error.
  */
-bool TC6_CB_OnSpiTransaction(uint8_t tc6instance, uint8_t *pTx, uint8_t *pRx, uint16_t len, void *pGlobalTag);
+bool TC6_CB_OnSpiTransaction(uint8_t tc6instance, const uint8_t *pTx, uint8_t *pRx, uint16_t len, void *pGlobalTag);
 
 #ifdef __cplusplus
 }

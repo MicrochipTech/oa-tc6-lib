@@ -59,37 +59,37 @@ void NVIC_Initialize( void )
 
     /* Enable the interrupt sources and configure the priorities as configured
      * from within the "Interrupt Manager" of MHC. */
-    NVIC_SetPriority(EIC_EXTINT_14_IRQn, 6);
+    NVIC_SetPriority(EIC_EXTINT_14_IRQn, 7);
     NVIC_EnableIRQ(EIC_EXTINT_14_IRQn);
-    NVIC_SetPriority(DMAC_0_IRQn, 7);
+    NVIC_SetPriority(DMAC_0_IRQn, 6);
     NVIC_EnableIRQ(DMAC_0_IRQn);
-    NVIC_SetPriority(DMAC_1_IRQn, 7);
+    NVIC_SetPriority(DMAC_1_IRQn, 6);
     NVIC_EnableIRQ(DMAC_1_IRQn);
-    NVIC_SetPriority(DMAC_2_IRQn, 7);
+    NVIC_SetPriority(DMAC_2_IRQn, 6);
     NVIC_EnableIRQ(DMAC_2_IRQn);
-    NVIC_SetPriority(SERCOM0_0_IRQn, 7);
+    NVIC_SetPriority(SERCOM0_0_IRQn, 6);
     NVIC_EnableIRQ(SERCOM0_0_IRQn);
-    NVIC_SetPriority(SERCOM0_1_IRQn, 7);
+    NVIC_SetPriority(SERCOM0_1_IRQn, 6);
     NVIC_EnableIRQ(SERCOM0_1_IRQn);
-    NVIC_SetPriority(SERCOM0_2_IRQn, 7);
+    NVIC_SetPriority(SERCOM0_2_IRQn, 6);
     NVIC_EnableIRQ(SERCOM0_2_IRQn);
-    NVIC_SetPriority(SERCOM0_OTHER_IRQn, 7);
+    NVIC_SetPriority(SERCOM0_OTHER_IRQn, 6);
     NVIC_EnableIRQ(SERCOM0_OTHER_IRQn);
-    NVIC_SetPriority(SERCOM1_0_IRQn, 7);
+    NVIC_SetPriority(SERCOM1_0_IRQn, 6);
     NVIC_EnableIRQ(SERCOM1_0_IRQn);
-    NVIC_SetPriority(SERCOM1_1_IRQn, 7);
+    NVIC_SetPriority(SERCOM1_1_IRQn, 6);
     NVIC_EnableIRQ(SERCOM1_1_IRQn);
-    NVIC_SetPriority(SERCOM1_2_IRQn, 7);
+    NVIC_SetPriority(SERCOM1_2_IRQn, 6);
     NVIC_EnableIRQ(SERCOM1_2_IRQn);
-    NVIC_SetPriority(SERCOM1_OTHER_IRQn, 7);
+    NVIC_SetPriority(SERCOM1_OTHER_IRQn, 6);
     NVIC_EnableIRQ(SERCOM1_OTHER_IRQn);
-    NVIC_SetPriority(SERCOM6_0_IRQn, 7);
+    NVIC_SetPriority(SERCOM6_0_IRQn, 6);
     NVIC_EnableIRQ(SERCOM6_0_IRQn);
-    NVIC_SetPriority(SERCOM6_1_IRQn, 7);
+    NVIC_SetPriority(SERCOM6_1_IRQn, 6);
     NVIC_EnableIRQ(SERCOM6_1_IRQn);
-    NVIC_SetPriority(SERCOM6_2_IRQn, 7);
+    NVIC_SetPriority(SERCOM6_2_IRQn, 6);
     NVIC_EnableIRQ(SERCOM6_2_IRQn);
-    NVIC_SetPriority(SERCOM6_OTHER_IRQn, 7);
+    NVIC_SetPriority(SERCOM6_OTHER_IRQn, 6);
     NVIC_EnableIRQ(SERCOM6_OTHER_IRQn);
 
     /* Enable Usage fault */
@@ -99,6 +99,9 @@ void NVIC_Initialize( void )
 
     /* Enable Bus fault */
     SCB->SHCSR |= (SCB_SHCSR_BUSFAULTENA_Msk);
+
+    /* Enable memory management fault */
+    SCB->SHCSR |= (SCB_SHCSR_MEMFAULTENA_Msk);
 
 }
 

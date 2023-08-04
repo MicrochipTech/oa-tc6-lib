@@ -63,55 +63,55 @@ void NVIC_Initialize( void )
     NVIC_EnableIRQ(EIC_EXTINT_0_IRQn);
     NVIC_SetPriority(EIC_EXTINT_7_IRQn, 7);
     NVIC_EnableIRQ(EIC_EXTINT_7_IRQn);
-    NVIC_SetPriority(DMAC_0_IRQn, 7);
+    NVIC_SetPriority(DMAC_0_IRQn, 6);
     NVIC_EnableIRQ(DMAC_0_IRQn);
-    NVIC_SetPriority(DMAC_1_IRQn, 7);
+    NVIC_SetPriority(DMAC_1_IRQn, 6);
     NVIC_EnableIRQ(DMAC_1_IRQn);
-    NVIC_SetPriority(DMAC_2_IRQn, 7);
+    NVIC_SetPriority(DMAC_2_IRQn, 6);
     NVIC_EnableIRQ(DMAC_2_IRQn);
-    NVIC_SetPriority(DMAC_3_IRQn, 7);
+    NVIC_SetPriority(DMAC_3_IRQn, 6);
     NVIC_EnableIRQ(DMAC_3_IRQn);
-    NVIC_SetPriority(DMAC_OTHER_IRQn, 7);
+    NVIC_SetPriority(DMAC_OTHER_IRQn, 6);
     NVIC_EnableIRQ(DMAC_OTHER_IRQn);
-    NVIC_SetPriority(SERCOM2_0_IRQn, 7);
+    NVIC_SetPriority(SERCOM2_0_IRQn, 6);
     NVIC_EnableIRQ(SERCOM2_0_IRQn);
-    NVIC_SetPriority(SERCOM2_1_IRQn, 7);
+    NVIC_SetPriority(SERCOM2_1_IRQn, 6);
     NVIC_EnableIRQ(SERCOM2_1_IRQn);
-    NVIC_SetPriority(SERCOM2_2_IRQn, 7);
+    NVIC_SetPriority(SERCOM2_2_IRQn, 6);
     NVIC_EnableIRQ(SERCOM2_2_IRQn);
-    NVIC_SetPriority(SERCOM2_OTHER_IRQn, 7);
+    NVIC_SetPriority(SERCOM2_OTHER_IRQn, 6);
     NVIC_EnableIRQ(SERCOM2_OTHER_IRQn);
-    NVIC_SetPriority(SERCOM3_0_IRQn, 7);
+    NVIC_SetPriority(SERCOM3_0_IRQn, 6);
     NVIC_EnableIRQ(SERCOM3_0_IRQn);
-    NVIC_SetPriority(SERCOM3_1_IRQn, 7);
+    NVIC_SetPriority(SERCOM3_1_IRQn, 6);
     NVIC_EnableIRQ(SERCOM3_1_IRQn);
-    NVIC_SetPriority(SERCOM3_2_IRQn, 7);
+    NVIC_SetPriority(SERCOM3_2_IRQn, 6);
     NVIC_EnableIRQ(SERCOM3_2_IRQn);
-    NVIC_SetPriority(SERCOM3_OTHER_IRQn, 7);
+    NVIC_SetPriority(SERCOM3_OTHER_IRQn, 6);
     NVIC_EnableIRQ(SERCOM3_OTHER_IRQn);
-    NVIC_SetPriority(SERCOM4_0_IRQn, 7);
+    NVIC_SetPriority(SERCOM4_0_IRQn, 6);
     NVIC_EnableIRQ(SERCOM4_0_IRQn);
-    NVIC_SetPriority(SERCOM4_1_IRQn, 7);
+    NVIC_SetPriority(SERCOM4_1_IRQn, 6);
     NVIC_EnableIRQ(SERCOM4_1_IRQn);
-    NVIC_SetPriority(SERCOM4_2_IRQn, 7);
+    NVIC_SetPriority(SERCOM4_2_IRQn, 6);
     NVIC_EnableIRQ(SERCOM4_2_IRQn);
-    NVIC_SetPriority(SERCOM4_OTHER_IRQn, 7);
+    NVIC_SetPriority(SERCOM4_OTHER_IRQn, 6);
     NVIC_EnableIRQ(SERCOM4_OTHER_IRQn);
-    NVIC_SetPriority(SERCOM6_0_IRQn, 7);
+    NVIC_SetPriority(SERCOM6_0_IRQn, 6);
     NVIC_EnableIRQ(SERCOM6_0_IRQn);
-    NVIC_SetPriority(SERCOM6_1_IRQn, 7);
+    NVIC_SetPriority(SERCOM6_1_IRQn, 6);
     NVIC_EnableIRQ(SERCOM6_1_IRQn);
-    NVIC_SetPriority(SERCOM6_2_IRQn, 7);
+    NVIC_SetPriority(SERCOM6_2_IRQn, 6);
     NVIC_EnableIRQ(SERCOM6_2_IRQn);
-    NVIC_SetPriority(SERCOM6_OTHER_IRQn, 7);
+    NVIC_SetPriority(SERCOM6_OTHER_IRQn, 6);
     NVIC_EnableIRQ(SERCOM6_OTHER_IRQn);
-    NVIC_SetPriority(SERCOM7_0_IRQn, 7);
+    NVIC_SetPriority(SERCOM7_0_IRQn, 6);
     NVIC_EnableIRQ(SERCOM7_0_IRQn);
-    NVIC_SetPriority(SERCOM7_1_IRQn, 7);
+    NVIC_SetPriority(SERCOM7_1_IRQn, 6);
     NVIC_EnableIRQ(SERCOM7_1_IRQn);
-    NVIC_SetPriority(SERCOM7_2_IRQn, 7);
+    NVIC_SetPriority(SERCOM7_2_IRQn, 6);
     NVIC_EnableIRQ(SERCOM7_2_IRQn);
-    NVIC_SetPriority(SERCOM7_OTHER_IRQn, 7);
+    NVIC_SetPriority(SERCOM7_OTHER_IRQn, 6);
     NVIC_EnableIRQ(SERCOM7_OTHER_IRQn);
 
     /* Enable Usage fault */
@@ -121,6 +121,9 @@ void NVIC_Initialize( void )
 
     /* Enable Bus fault */
     SCB->SHCSR |= (SCB_SHCSR_BUSFAULTENA_Msk);
+
+    /* Enable memory management fault */
+    SCB->SHCSR |= (SCB_SHCSR_MEMFAULTENA_Msk);
 
 }
 

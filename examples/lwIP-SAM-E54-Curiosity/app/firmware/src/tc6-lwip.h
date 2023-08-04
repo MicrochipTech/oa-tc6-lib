@@ -83,34 +83,18 @@ int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_
  */
 void TC6LwIP_Service(void);
 
-/**
- * \brief Callback to the .
- * \note This function may be implemented by the integrator and passed as argument with TC6_SendRawEthernetPacket().
- * \param idx - The instance number as returned from the TC6LwIP_Init() function.
- * \param success - true, when the status could be successful retrieved. false, there was an error. plcaStatus variable may not reflect the real state.
- * \param plcaStatus - On success, this variable holds the current status of the PLCA. true, PLCA mode is active. false, running CSMA/CD mode
+/** \brief Queries the current PLCA status.
+ *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
+ *  \param pStatus - Pointer to result flag. If function was successful, the result will be written to this pointer. true, receiving PLCA beacons. false, no beacons.
+ *  \return true, read operation was successful. pStatus is valid. false, otherwise.
   */
-typedef void (*TC6LwIP_On_PlcaStatus)(int8_t idx, bool success, bool plcaStatus);
-
-/** \brief Queries the current PLCA status
- *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
- *  \param pStatusCallback - Callback which holds the result. Must not be NULL.
- *  \return true, if request could be enqueued, the given callback will be called later. false, queue is full, callback will not be called, try again later.
- */
-bool TC6LwIP_GetPlcaStatus(int8_t idx, TC6LwIP_On_PlcaStatus pStatusCallback);
-
-/** \brief Checks if sending out an Ethernet message would block.
- *  \note This function is meant to be used to improve performance of an application. The socket application can use this function to quickly check if there is back pressure from the network.
- *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
- *  \return true, the next sending attempt would fail because of back pressure from the network. false, sending will be successful.
- */
-bool TC6LwIP_SendWouldBlock(int8_t idx);
+bool TC6LwIP_GetPlcaStatus(int8_t idx, bool *pStatus);
 
 /** \brief Get the MAC address of the given interface instance.
  *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
  *  \param mac - Pointer to an 6 Byte array. The MAC address will be written to that.
  */
-void TC6LwIP_GetMac(int8_t idx, uint8_t *mac[6]);
+void TC6LwIP_GetMacAddress(int8_t idx, uint8_t *mac[6]);
 
 /** \brief Sets the PLCA Node ID and the PLCA Node Count and can enable/disable PLCA.
  *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
@@ -157,13 +141,13 @@ void TC6_CB_OnError(TC6_t *pInst, TC6_Error_t err, void *pGlobalTag);
 /**
  * \brief Call to SPI driver to do bidirectional data transfer.
  * \param tc6instance - The instance number of the hardware. Starting with 0 for the first.
- * \param pTx - Pointer to the MOSI data. The pointer stays valid until user calls TC6_SpiBufferDone()
- * \param pRx - Pointer to the MISO Buffer. The pointer stays valid until user calls TC6_SpiBufferDone()
+ * \param pTx - Pointer to the MOSI data.
+ * \param pRx - Pointer to the MISO Buffer.
  * \param len - The length of both buffers (pTx and pRx). The entire length must be transfered via SPI.
  * \param pGlobalTag - The exact same pointer, which was given along with the TC6_Init() function.
  * \return true, if the SPI data was enqueued/transfered. false, there was an error.
  */
-bool TC6_CB_OnSpiTransaction(uint8_t tc6instance, uint8_t *pTx, uint8_t *pRx, uint16_t len, void *pGlobalTag);
+bool TC6_CB_OnSpiTransaction(uint8_t tc6instance, const uint8_t *pTx, uint8_t *pRx, uint16_t len, void *pGlobalTag);
 
 #ifdef __cplusplus
 }

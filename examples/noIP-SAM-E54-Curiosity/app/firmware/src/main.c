@@ -49,13 +49,14 @@ Microchip or any third party.
 #include <stdio.h>                      // printf
 #include <string.h>                     // memset, memcpy
 #include "definitions.h"                // SYS function prototypes
+#include "tc6.h"
 #include "tc6-noip.h"
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.1.1"
+#define FIRMWARE_VERSION            TC6_LIB_VER_STRING
 
 #ifndef BOARD_INSTANCE
 #define BOARD_INSTANCE              (0)
@@ -122,7 +123,6 @@ typedef struct
     bool button2;
     bool gotBeaconState;
     bool lastBeaconState;
-    bool txBusy;
     bool allowTxStress;
 } MainLocal_t;
 
@@ -333,7 +333,6 @@ static void CheckUartInput(void);
 static void PrintStat(void);
 static void SendIperfPacket(void);
 static void CheckButton(uint8_t instance, bool newLevel, bool *oldLevel);
-static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                         PUBLIC FUNCTIONS                             */
@@ -381,9 +380,17 @@ int main(void)
             PrintStat();
         }
         if (DELAY_BEACON_CHECK && now > m.nextBeaconCheck) {
+            bool plcaStatus = false;
             m.nextBeaconCheck = now + DELAY_BEACON_CHECK;
-            if (!TC6NoIP_GetPlcaStatus(m.idxNoIp, OnPlcaStatus)) {
-                PRINT(ESC_RED "%sGetPlcaStatus failed" ESC_RESETCOLOR "\r\n", MoveCursor(true));
+            if (TC6NoIP_GetPlcaStatus(m.idxNoIp, &plcaStatus)) {
+                if (plcaStatus != m.lastBeaconState) {
+                    m.lastBeaconState = plcaStatus;
+                    if (plcaStatus) {
+                        PRINT(ESC_GREEN "%sPLCA Mode active" ESC_RESETCOLOR "\r\n", MoveCursor(true));
+                    } else {
+                        PRINT(ESC_RED "%sCSMA/CD fallback" ESC_RESETCOLOR "\r\n", MoveCursor(true));
+                    }
+                }
             }
         }
         if (now > m.nextLed) {
@@ -495,14 +502,9 @@ static void PrintStat(void)
     PRINT(ESC_CLEAR_LINE "[TOTAL] Speed=%ld kbit/s Rate=%ld 1/s%s", totalSpeed, totalPackets, MoveCursor(false));
 }
 
-static void OnSendIperf(void *pDummy, const uint8_t *pTx, uint16_t len, uint32_t idx, void *pDummy2)
-{
-    m.txBusy = false;
-}
-
 static void SendIperfPacket(void)
 {
-    if (m.allowTxStress && !m.txBusy) {
+    if (m.allowTxStress) {
         uint32_t len = sizeof(iperf);
         uint16_t i = UDP_PAYLOAD_OFFSET;
         iperf[i++] = BOARD_INSTANCE;
@@ -510,15 +512,12 @@ static void SendIperfPacket(void)
         iperf[i++] = (m.iperfTx >> 16) & 0xFF;
         iperf[i++] = (m.iperfTx >> 8) & 0xFF;
         iperf[i++] = (m.iperfTx) & 0xFF;
-        m.txBusy = true;
-        if (TC6NoIP_SendEthernetPacket(m.idxNoIp, iperf, len, OnSendIperf)) {
+        if (TC6NoIP_SendEthernetPacket(m.idxNoIp, iperf, len)) {
             m.iperfTx++;
             m.stats[BOARD_INSTANCE].packetCntCurrent++;
             m.stats[BOARD_INSTANCE].packetCntTotal++;
             m.stats[BOARD_INSTANCE].byteCntCurrent += len;
             m.stats[BOARD_INSTANCE].byteCntTotal += len;
-        } else {
-            m.txBusy = false;
         }
     }
 }
@@ -530,24 +529,6 @@ static void CheckButton(uint8_t instance, bool newLevel, bool *oldLevel)
         if (0 == instance && !newLevel) {
             /* Do something with the button */
         }
-    }
-}
-
-static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus)
-{
-    if (success) {
-        if (!m.gotBeaconState || (plcaStatus != m.lastBeaconState)) {
-            m.gotBeaconState = true;
-            m.lastBeaconState = plcaStatus;
-            if (plcaStatus) {
-                PRINT(ESC_GREEN "%sPLCA Mode active" ESC_RESETCOLOR "\r\n", MoveCursor(true));
-            } else {
-                PRINT(ESC_RED "%sCSMA/CD fallback" ESC_RESETCOLOR "\r\n", MoveCursor(true));
-            }
-        }
-        m.lastBeaconState = plcaStatus;
-    } else {
-        PRINT(ESC_RED "%sPLCA status register read failed" ESC_RESETCOLOR "\r\n", MoveCursor(true));
     }
 }
 

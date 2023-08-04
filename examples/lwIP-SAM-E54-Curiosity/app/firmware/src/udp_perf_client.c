@@ -153,7 +153,7 @@ static void reset_stats(void)
 static int udp_packet_send(u8_t finished)
 {
     int32_t i, *payload;
-    for (i = 0; !TC6LwIP_SendWouldBlock(0) && (i < NUM_OF_PARALLEL_CLIENTS); i++) {
+    for (i = 0; i < NUM_OF_PARALLEL_CLIENTS; i++) {
         struct pbuf *send_buf;
         int32_t result;
         send_buf = pbuf_alloc(PBUF_TRANSPORT, iPayloadSize, PBUF_RAM);

@@ -61,12 +61,14 @@ void NVIC_Initialize( void )
      * from within the "Interrupt Manager" of MHC. */
     NVIC_SetPriority(EIC_EXTINT_14_IRQn, 6);
     NVIC_EnableIRQ(EIC_EXTINT_14_IRQn);
-    NVIC_SetPriority(DMAC_0_IRQn, 7);
+    NVIC_SetPriority(DMAC_0_IRQn, 5);
     NVIC_EnableIRQ(DMAC_0_IRQn);
-    NVIC_SetPriority(DMAC_1_IRQn, 7);
+    NVIC_SetPriority(DMAC_1_IRQn, 5);
     NVIC_EnableIRQ(DMAC_1_IRQn);
-    NVIC_SetPriority(DMAC_2_IRQn, 7);
+    NVIC_SetPriority(DMAC_2_IRQn, 5);
     NVIC_EnableIRQ(DMAC_2_IRQn);
+    NVIC_SetPriority(DMAC_3_IRQn, 5);
+    NVIC_EnableIRQ(DMAC_3_IRQn);
     NVIC_SetPriority(SERCOM0_0_IRQn, 7);
     NVIC_EnableIRQ(SERCOM0_0_IRQn);
     NVIC_SetPriority(SERCOM0_1_IRQn, 7);
@@ -99,6 +101,9 @@ void NVIC_Initialize( void )
 
     /* Enable Bus fault */
     SCB->SHCSR |= (SCB_SHCSR_BUSFAULTENA_Msk);
+
+    /* Enable memory management fault */
+    SCB->SHCSR |= (SCB_SHCSR_MEMFAULTENA_Msk);
 
 }
 

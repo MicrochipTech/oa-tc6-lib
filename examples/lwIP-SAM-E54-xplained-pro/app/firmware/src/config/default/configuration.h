@@ -107,7 +107,7 @@ extern "C" {
 #define DRV_SPI_QUEUE_SIZE_IDX0               1
 
 /* I2C Driver Common Configuration Options */
-#define DRV_I2C_INSTANCES_NUMBER              2
+#define DRV_I2C_INSTANCES_NUMBER              (2U)
 
 
 /* USART Driver Instance 0 Configuration Options */
@@ -127,7 +127,7 @@ extern "C" {
 #define DRV_SPI_QUEUE_SIZE_IDX1               1
 
 /* SPI Driver Common Configuration Options */
-#define DRV_SPI_INSTANCES_NUMBER              2
+#define DRV_SPI_INSTANCES_NUMBER              (2U)
 
 
 

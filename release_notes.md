@@ -2,6 +2,11 @@
 
 # OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release Notes
 
+## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.2-sync
+### New Features
+
+ - First version with synchronous TC6 protocol driver support.
+
 ## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.1
 ### New Features
 

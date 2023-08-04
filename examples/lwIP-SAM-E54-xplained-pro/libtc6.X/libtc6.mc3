@@ -1,9 +1,0 @@
-<config configName="default" projectName="libtc6" configVersion="1.1" device="ATSAME54P20A" deviceLibraryClass="com.microchip.mcc.harmony.Harmony3Library" coreVersion="5.4.14">
-   <usedPackages class="java.util.ArrayList"/>
-   <usedClasses class="java.util.TreeMap"/>
-   <usedLibraries class="java.util.ArrayList">
-      <ILibraryFile class="com.microchip.mcc.core.library.BaseLibraryFile" libraryClass="com.microchip.mcc.harmony.Harmony3Library" version="1.2.0"/>
-   </usedLibraries>
-   <tokenMap class="java.util.TreeMap"/>
-   <generatedFileHashHistoryMap class="java.util.TreeMap"/>
-</config>

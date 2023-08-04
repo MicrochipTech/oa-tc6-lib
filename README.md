@@ -2,7 +2,8 @@
 
 # OPEN Alliance TC6 Protocol Driver for LAN8650/1
 
-This repository contains the Microchip OPEN Alliance TC6 Protocol Driver for LAN8650/1 source code and example applications. 
+This repository contains the Microchip OPEN Alliance TC6 Protocol Driver for LAN8650/1 source code and example applications.
+This specific branch implements a synchronous approach, meaning all functions of the TC6 protocol driver are blocking until finished.
 
 The driver is fully OPEN Alliance TC6 V1.1 compliant.
 Quickly incorporate connectivity to your designs with 10BASE-T1S
@@ -40,7 +41,7 @@ The following applications are provided to demonstrate the typical or interestin
 Those applications have no deep integration of the TC6 protocol driver into MPLAB® Harmony 3. If this is desired, please refer to the official LAN865x MPLAB Harmony v3 driver and example applications in the corresponding repository:
 - [MPLAB® Harmony 3 - 10BASE-T1S-Examples](https://github.com/Microchip-MPLAB-Harmony/net_10base_t1s)
 
-Note: Please refer to ANXXXX provided on the Microchip LAN865x product websites:
+Note: Please refer to AN4964 provided on the Microchip LAN865x product websites:
 - [LAN8650](https://www.microchip.com/en-us/product/lan8650)
 - [LAN8651](https://www.microchip.com/en-us/product/lan8651)
 

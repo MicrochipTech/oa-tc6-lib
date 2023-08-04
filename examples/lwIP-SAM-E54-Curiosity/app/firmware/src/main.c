@@ -51,6 +51,7 @@ Microchip or any third party.
 
 #include "lwip/apps/lwiperf.h"
 
+#include "tc6.h"
 #include "tc6-lwip.h"
 #include "udp_perf_client.h"
 
@@ -58,7 +59,7 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.1.1"
+#define FIRMWARE_VERSION            TC6_LIB_VER_STRING
 
 #ifndef BOARD_INSTANCE
 #define BOARD_INSTANCE              (0)
@@ -119,7 +120,6 @@ static const uint8_t m_ip[] = {192, 168, 0, (100 + BOARD_INSTANCE)};
 static void PrintMenu();
 static void CheckUartInput(void);
 static void CheckButton(uint8_t instance, bool newLevel, bool *oldLevel);
-static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus);
 static void OnIperfResult(void *arg, enum lwiperf_report_type report_type,
                           const ip_addr_t *local_addr, u16_t local_port,
                           const ip_addr_t *remote_addr, u16_t remote_port,
@@ -167,10 +167,18 @@ int main(void)
         TC6LwIP_Service();
 
         now = systick.tickCounter;
-        if (now > m.nextBeaconCheck) {
+        if (DELAY_BEACON_CHECK && now > m.nextBeaconCheck) {
+            bool plcaStatus = false;
             m.nextBeaconCheck = now + DELAY_BEACON_CHECK;
-            if (!TC6LwIP_GetPlcaStatus(m.idxLwIp, OnPlcaStatus)) {
-                PRINT(ESC_RED "GetPlcaStatus failed" ESC_RESETCOLOR "\r\n");
+            if (TC6LwIP_GetPlcaStatus(m.idxLwIp, &plcaStatus)) {
+                if (plcaStatus != m.lastBeaconState) {
+                    m.lastBeaconState = plcaStatus;
+                    if (plcaStatus) {
+                        PRINT(ESC_GREEN "PLCA Mode active" ESC_RESETCOLOR "\r\n");
+                    } else {
+                        PRINT(ESC_RED "CSMA/CD fallback" ESC_RESETCOLOR "\r\n");
+                    }
+                }
             }
         }
         if (now > m.nextLed) {
@@ -268,24 +276,6 @@ static void CheckButton(uint8_t instance, bool newLevel, bool *oldLevel)
         }
     }
 }
-
-static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus)
-{
-    if (success) {
-        if (plcaStatus != m.lastBeaconState) {
-            m.lastBeaconState = plcaStatus;
-            if (plcaStatus) {
-                PRINT(ESC_GREEN "PLCA Mode active" ESC_RESETCOLOR "\r\n");
-            } else {
-                PRINT(ESC_RED "CSMA/CD fallback" ESC_RESETCOLOR "\r\n");
-            }
-        }
-        m.lastBeaconState = plcaStatus;
-    } else {
-        PRINT(ESC_RED "PLCA status register read failed" ESC_RESETCOLOR "\r\n");
-    }
-}
-
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                  CALLBACK FUNCTION FROM LWIP iperf                   */

@@ -61,7 +61,7 @@
 /* SERCOM1 USART baud value for 115200 Hz baud rate */
 #define SERCOM1_USART_INT_BAUD_VALUE            (63522UL)
 
-static SERCOM_USART_OBJECT sercom1USARTObj;
+volatile static SERCOM_USART_OBJECT sercom1USARTObj;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -246,6 +246,34 @@ USART_ERROR SERCOM1_USART_ErrorGet( void )
     return errorStatus;
 }
 
+void SERCOM1_USART_Enable( void )
+{
+    if((SERCOM1_REGS->USART_INT.SERCOM_CTRLA & SERCOM_USART_INT_CTRLA_ENABLE_Msk) == 0U)
+    {
+        SERCOM1_REGS->USART_INT.SERCOM_CTRLA |= SERCOM_USART_INT_CTRLA_ENABLE_Msk;
+
+        /* Wait for sync */
+        while((SERCOM1_REGS->USART_INT.SERCOM_SYNCBUSY) != 0U)
+        {
+            /* Do nothing */
+        }
+    }
+}
+
+void SERCOM1_USART_Disable( void )
+{
+    if((SERCOM1_REGS->USART_INT.SERCOM_CTRLA & SERCOM_USART_INT_CTRLA_ENABLE_Msk) != 0U)
+    {
+        SERCOM1_REGS->USART_INT.SERCOM_CTRLA &= ~SERCOM_USART_INT_CTRLA_ENABLE_Msk;
+
+        /* Wait for sync */
+        while((SERCOM1_REGS->USART_INT.SERCOM_SYNCBUSY) != 0U)
+        {
+            /* Do nothing */
+        }
+    }
+}
+
 
 void SERCOM1_USART_TransmitterEnable( void )
 {
@@ -282,9 +310,11 @@ bool SERCOM1_USART_Write( void *buffer, const size_t size )
             sercom1USARTObj.txSize = size;
             sercom1USARTObj.txBusyStatus = true;
 
+            size_t txSize = sercom1USARTObj.txSize;
+
             /* Initiate the transfer by sending first byte */
             while (((SERCOM1_REGS->USART_INT.SERCOM_INTFLAG & SERCOM_USART_INT_INTFLAG_DRE_Msk) == SERCOM_USART_INT_INTFLAG_DRE_Msk) &&
-                    (processedSize < sercom1USARTObj.txSize))
+                    (processedSize < txSize))
             {
                 if (((SERCOM1_REGS->USART_INT.SERCOM_CTRLB & SERCOM_USART_INT_CTRLB_CHSIZE_Msk) >> SERCOM_USART_INT_CTRLB_CHSIZE_Pos) != 0x01U)
                 {
@@ -409,7 +439,7 @@ bool SERCOM1_USART_ReadAbort(void)
 
         /* If required application should read the num bytes processed prior to calling the read abort API */
         sercom1USARTObj.rxSize = 0U;
-		sercom1USARTObj.rxProcessedSize = 0U;
+        sercom1USARTObj.rxProcessedSize = 0U;
     }
 
     return true;
@@ -423,9 +453,9 @@ void SERCOM1_USART_ReadCallbackRegister( SERCOM_USART_CALLBACK callback, uintptr
 }
 
 
-void static SERCOM1_USART_ISR_ERR_Handler( void )
+void static __attribute__((used)) SERCOM1_USART_ISR_ERR_Handler( void )
 {
-    USART_ERROR errorStatus = USART_ERROR_NONE;
+    USART_ERROR errorStatus;
 
     errorStatus = (USART_ERROR) (SERCOM1_REGS->USART_INT.SERCOM_STATUS & (uint16_t)(SERCOM_USART_INT_STATUS_PERR_Msk | SERCOM_USART_INT_STATUS_FERR_Msk | SERCOM_USART_INT_STATUS_BUFOVF_Msk));
 
@@ -445,37 +475,45 @@ void static SERCOM1_USART_ISR_ERR_Handler( void )
 
         if(sercom1USARTObj.rxCallback != NULL)
         {
-            sercom1USARTObj.rxCallback(sercom1USARTObj.rxContext);
+            uintptr_t rxContext = sercom1USARTObj.rxContext;
+
+            sercom1USARTObj.rxCallback(rxContext);
         }
     }
 }
 
-void static SERCOM1_USART_ISR_RX_Handler( void )
+void static __attribute__((used)) SERCOM1_USART_ISR_RX_Handler( void )
 {
     uint16_t temp;
 
 
     if(sercom1USARTObj.rxBusyStatus == true)
     {
-        if(sercom1USARTObj.rxProcessedSize < sercom1USARTObj.rxSize)
+        size_t rxSize = sercom1USARTObj.rxSize;
+
+        if(sercom1USARTObj.rxProcessedSize < rxSize)
         {
+            uintptr_t rxContext = sercom1USARTObj.rxContext;
+
             temp = (uint16_t)SERCOM1_REGS->USART_INT.SERCOM_DATA;
+            size_t rxProcessedSize = sercom1USARTObj.rxProcessedSize;
 
             if (((SERCOM1_REGS->USART_INT.SERCOM_CTRLB & SERCOM_USART_INT_CTRLB_CHSIZE_Msk) >> SERCOM_USART_INT_CTRLB_CHSIZE_Pos) != 0x01U)
             {
                 /* 8-bit mode */
-                ((uint8_t*)sercom1USARTObj.rxBuffer)[sercom1USARTObj.rxProcessedSize] = (uint8_t) (temp);
+                ((uint8_t*)sercom1USARTObj.rxBuffer)[rxProcessedSize] = (uint8_t) (temp);
             }
             else
             {
                 /* 9-bit mode */
-                ((uint16_t*)sercom1USARTObj.rxBuffer)[sercom1USARTObj.rxProcessedSize] = temp;
+                ((uint16_t*)sercom1USARTObj.rxBuffer)[rxProcessedSize] = temp;
             }
 
             /* Increment processed size */
-            sercom1USARTObj.rxProcessedSize++;
+            rxProcessedSize++;
+            sercom1USARTObj.rxProcessedSize = rxProcessedSize;
 
-            if(sercom1USARTObj.rxProcessedSize == sercom1USARTObj.rxSize)
+            if(rxProcessedSize == sercom1USARTObj.rxSize)
             {
                 sercom1USARTObj.rxBusyStatus = false;
                 sercom1USARTObj.rxSize = 0U;
@@ -483,7 +521,7 @@ void static SERCOM1_USART_ISR_RX_Handler( void )
 
                 if(sercom1USARTObj.rxCallback != NULL)
                 {
-                    sercom1USARTObj.rxCallback(sercom1USARTObj.rxContext);
+                    sercom1USARTObj.rxCallback(rxContext);
                 }
             }
 
@@ -491,13 +529,15 @@ void static SERCOM1_USART_ISR_RX_Handler( void )
     }
 }
 
-void static SERCOM1_USART_ISR_TX_Handler( void )
+void static __attribute__((used)) SERCOM1_USART_ISR_TX_Handler( void )
 {
-    bool  dataRegisterEmpty= false;
-    bool  dataAvailable = false;
+    bool  dataRegisterEmpty;
+    bool  dataAvailable;
     if(sercom1USARTObj.txBusyStatus == true)
     {
-        dataAvailable = (sercom1USARTObj.txProcessedSize < sercom1USARTObj.txSize);
+        size_t txProcessedSize = sercom1USARTObj.txProcessedSize;
+
+        dataAvailable = (txProcessedSize < sercom1USARTObj.txSize);
         dataRegisterEmpty = ((SERCOM1_REGS->USART_INT.SERCOM_INTFLAG & SERCOM_USART_INT_INTFLAG_DRE_Msk) == SERCOM_USART_INT_INTFLAG_DRE_Msk);
 
         while(dataRegisterEmpty && dataAvailable)
@@ -505,21 +545,23 @@ void static SERCOM1_USART_ISR_TX_Handler( void )
             if (((SERCOM1_REGS->USART_INT.SERCOM_CTRLB & SERCOM_USART_INT_CTRLB_CHSIZE_Msk) >> SERCOM_USART_INT_CTRLB_CHSIZE_Pos) != 0x01U)
             {
                 /* 8-bit mode */
-                SERCOM1_REGS->USART_INT.SERCOM_DATA = ((uint8_t*)sercom1USARTObj.txBuffer)[sercom1USARTObj.txProcessedSize];
+                SERCOM1_REGS->USART_INT.SERCOM_DATA = ((uint8_t*)sercom1USARTObj.txBuffer)[txProcessedSize];
             }
             else
             {
                 /* 9-bit mode */
-                SERCOM1_REGS->USART_INT.SERCOM_DATA = ((uint16_t*)sercom1USARTObj.txBuffer)[sercom1USARTObj.txProcessedSize];
+                SERCOM1_REGS->USART_INT.SERCOM_DATA = ((uint16_t*)sercom1USARTObj.txBuffer)[txProcessedSize];
             }
             /* Increment processed size */
-            sercom1USARTObj.txProcessedSize++;
+            txProcessedSize++;
 
-            dataAvailable = (sercom1USARTObj.txProcessedSize < sercom1USARTObj.txSize);
+            dataAvailable = (txProcessedSize < sercom1USARTObj.txSize);
             dataRegisterEmpty = ((SERCOM1_REGS->USART_INT.SERCOM_INTFLAG & SERCOM_USART_INT_INTFLAG_DRE_Msk) == SERCOM_USART_INT_INTFLAG_DRE_Msk);
         }
 
-        if(sercom1USARTObj.txProcessedSize >= sercom1USARTObj.txSize)
+        sercom1USARTObj.txProcessedSize = txProcessedSize;
+
+        if(txProcessedSize >= sercom1USARTObj.txSize)
         {
             sercom1USARTObj.txBusyStatus = false;
             sercom1USARTObj.txSize = 0U;
@@ -527,15 +569,16 @@ void static SERCOM1_USART_ISR_TX_Handler( void )
 
             if(sercom1USARTObj.txCallback != NULL)
             {
-                sercom1USARTObj.txCallback(sercom1USARTObj.txContext);
+                uintptr_t txContext = sercom1USARTObj.txContext;
+                sercom1USARTObj.txCallback(txContext);
             }
         }
     }
 }
 
-void SERCOM1_USART_InterruptHandler( void )
+void __attribute__((used)) SERCOM1_USART_InterruptHandler( void )
 {
-    bool testCondition = false;
+    bool testCondition;
     if(SERCOM1_REGS->USART_INT.SERCOM_INTENSET != 0U)
     {
         /* Checks for error flag */

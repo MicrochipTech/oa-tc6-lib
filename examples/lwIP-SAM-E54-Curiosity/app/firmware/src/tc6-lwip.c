@@ -63,6 +63,7 @@ Microchip or any third party.
 #define LWIP_TC6_MAGIC          (0x47392741u)
 #define PRINT_RATE_TIMEOUT      (1000u)
 #define PRINT_RATE_THRESHOLD    (5u)
+#define TC6_TX_ETH_MAX_SEGMENTS (8u)
 
 #ifdef DEBUG
 #define ASSERT(x)               __conditional_software_breakpoint(x)
@@ -84,10 +85,8 @@ typedef struct
 {
     TC6_t *tc6;
     struct pbuf *pbuf;
-    TC6LwIP_On_PlcaStatus pStatusCallback;
     uint16_t rxLen;
     bool rxInvalid;
-    bool tc6NeedService;
 } TC6Lib_t;
 
 typedef struct
@@ -116,15 +115,12 @@ static void PrintRateLimited(const char *statement, ...);
 static TC6LwIP_t *GetContextNetif(struct netif *intf);
 static TC6LwIP_t *GetContextTC6(TC6_t *pTC6);
 
-static void OnPlcaStatus(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag);
-
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                  CALLBACK FUNCTIONS FROM TCP/IP STACK                */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
 static err_t lwIpInit(struct netif *netif);
 static err_t lwIpOut(struct netif *netif, struct pbuf *p);
-static void OnRawTx(TC6_t *pInst, const uint8_t *pTx, uint16_t len, void *pTag, void *pGlobalTag);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                         PUBLIC FUNCTIONS                             */
@@ -169,7 +165,7 @@ int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_
     }
     if (success) {
         while(!TC6Regs_GetInitDone(lw->tc.tc6)) {
-            TC6_Service(lw->tc.tc6, true);
+            /* Retry */
         }
     }
     if (success) {
@@ -203,50 +199,25 @@ int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_
 
 void TC6LwIP_Service(void)
 {
-    uint8_t idx;
     sys_check_timeouts(); /* LWIP timers - ARP, DHCP, TCP, etc. */
-    for (idx = 0; idx < TC6_MAX_INSTANCES; idx++) {
-        TC6LwIP_t *lw = &mlw[idx];
-        if (LWIP_TC6_MAGIC == lw->magic) {
-            if (TC6Stub_IntActive(lw->idx)) {
-                if (TC6_Service(lw->tc.tc6, false)) {
-                    TC6Stub_ReleaseInt(lw->idx);
-                }
-            } else if (lw->tc.tc6NeedService) {
-                lw->tc.tc6NeedService = false;
-                TC6_Service(lw->tc.tc6, true);
-            }
-        }
-    }
     TC6Regs_CheckTimers();
 }
 
-bool TC6LwIP_GetPlcaStatus(int8_t idx, TC6LwIP_On_PlcaStatus pStatusCallback)
+bool TC6LwIP_GetPlcaStatus(int8_t idx, bool *pStatus)
 {
     bool success = false;
-    if ((idx < TC6_MAX_INSTANCES) && (NULL != pStatusCallback) ) {
+    if ((idx < TC6_MAX_INSTANCES) && (NULL != pStatus) ) {
         TC6LwIP_t *lw = &mlw[idx];
-        lw->tc.pStatusCallback = pStatusCallback;
-        success = TC6_ReadRegister(lw->tc.tc6, 0x0004CA03, true, OnPlcaStatus, lw); /* PLCA_status_register.plca_status */
+        uint32_t value = 0;
+        success = TC6_ReadRegister(lw->tc.tc6, 0x0004CA03, &value, true); /* PLCA_status_register.plca_status */
+        if (success) {
+            *pStatus = (0u != ((1u << 15) & value));
+        }
     }
     return success;
 }
 
-bool TC6LwIP_SendWouldBlock(int8_t idx)
-{
-    bool wouldBlock = false;
-    if (idx < TC6_MAX_INSTANCES) {
-        TC6LwIP_t *lw = &mlw[idx];
-        TC6_RawTxSegment *dummySeg;
-        uint8_t segCount;
-
-        segCount = TC6_GetRawSegments(lw->tc.tc6, &dummySeg);
-        wouldBlock = (0u == segCount);
-    }
-    return wouldBlock;
-}
-
-void TC6LwIP_GetMac(int8_t idx, uint8_t *mac[6])
+void TC6LwIP_GetMacAddress(int8_t idx, uint8_t *mac[6])
 {
     if (mac && (idx < TC6_MAX_INSTANCES)) {
         TC6LwIP_t *lw = &mlw[idx];
@@ -356,34 +327,26 @@ static err_t lwIpInit(struct netif *netif)
 
 static err_t lwIpOut(struct netif *netif, struct pbuf *p)
 {
-    TC6_RawTxSegment *txSeg = NULL;
+    TC6_RawTxSegment txSeg[TC6_TX_ETH_MAX_SEGMENTS];
     TC6LwIP_t *lw = GetContextNetif(netif);
     struct pbuf *pC = p;
-    uint8_t maxSeg;
     uint8_t seg = 0;
-    err_t result;
-    bool success;
+    err_t result = ERR_MEM;
     TC6_ASSERT(netif && p);
     TC6_ASSERT(LWIP_TC6_MAGIC == ((TC6LwIP_t*)netif->state)->magic);
-    maxSeg = TC6_GetRawSegments(lw->tc.tc6, &txSeg);
-    if (maxSeg) {
-        pbuf_ref(p);
-        while (seg < maxSeg) {
-            txSeg[seg].pEth = (uint8_t *)pC->payload;
-            txSeg[seg].segLen = pC->len;
-            seg++;
-            if (NULL != pC->next) {
-                TC6_ASSERT(seg < TC6_TX_ETH_MAX_SEGMENTS);
-                pC = pC->next;
-            } else {
-                break;
-            }
+    while (seg < TC6_TX_ETH_MAX_SEGMENTS) {
+        txSeg[seg].pEth = (uint8_t *)pC->payload;
+        txSeg[seg].segLen = pC->len;
+        seg++;
+        if (NULL != pC->next) {
+            pC = pC->next;
+        } else {
+            break;
         }
-        success = TC6_SendRawEthernetSegments(lw->tc.tc6, txSeg, seg, p->tot_len, 0, OnRawTx, p);
-        TC6_ASSERT(success); /* Must always succeed as TC6_GetRawSegments returned a valid value */
+    }
+    if (NULL == pC->next) {
+        bool success = TC6_SendRawEthernetSegments(lw->tc.tc6, txSeg, seg, p->tot_len, 0);
         result = success ? ERR_OK : ERR_IF;
-    } else {
-        result = ERR_WOULDBLOCK;
     }
     return result;
 }
@@ -400,22 +363,6 @@ u32_t sys_now(void)
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*             CALLBACK FUNCTION FROM TC6 Protocol Driver               */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
-
-static void OnRawTx(TC6_t *pInst, const uint8_t *pTx, uint16_t len, void *pTag, void *pGlobalTag)
-{
-    struct pbuf *p = pTag;
-    (void)pInst;
-    (void)pTx;
-    (void)len;
-    (void)pTag;
-    (void)pGlobalTag;
-    TC6_ASSERT(GetContextTC6(pInst));
-    TC6_ASSERT(pTx == p->payload);
-    TC6_ASSERT(len == p->tot_len);
-    TC6_ASSERT(len == p->len);
-    TC6_ASSERT(p->ref);
-    pbuf_free(p);
-}
 
 void TC6_CB_OnRxEthernetSlice(TC6_t *pInst, const uint8_t *pRx, uint16_t offset, uint16_t len, void *pGlobalTag)
 {
@@ -442,6 +389,7 @@ void TC6_CB_OnRxEthernetSlice(TC6_t *pInst, const uint8_t *pRx, uint16_t offset,
         if (success && (lw->tc.pbuf || lw->tc.rxLen)) {
             TC6_ASSERT(false);
             lw->tc.rxInvalid = true;
+            pbuf_free(lw->tc.pbuf);
             success = false;
         }
 
@@ -517,12 +465,6 @@ void TC6_CB_OnRxEthernetPacket(TC6_t *pInst, bool success, uint16_t len, uint64_
         lw->tc.rxLen = 0;
         lw->tc.rxInvalid = false;
     }
-}
-
-void TC6_CB_OnNeedService(TC6_t *pInst, void *pGlobalTag)
-{
-    TC6LwIP_t *lw = GetContextTC6(pInst);
-    lw->tc.tc6NeedService = true;
 }
 
 void TC6_CB_OnError(TC6_t *pInst, TC6_Error_t err, void *pGlobalTag)
@@ -701,22 +643,12 @@ uint32_t TC6Regs_CB_GetTicksMs(void)
     }
  }
 
-static void OnPlcaStatus(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag)
-{
-    TC6LwIP_t *lw =tag;
-    (void)pInst;
-    (void)addr;
-    (void)pGlobalTag;
-    if ((NULL != lw) && (NULL != lw->tc.pStatusCallback)) {
-        bool status = false;
-        if (success) {
-            status = (0u != ((1u << 15) & value));
-        }
-        lw->tc.pStatusCallback(lw->idx, success, status);
-    }
-}
-
-bool TC6_CB_OnSpiTransaction(uint8_t tc6instance, uint8_t *pTx, uint8_t *pRx, uint16_t len, void *pGlobalTag)
+bool TC6_CB_OnSpiTransaction(uint8_t tc6instance, const uint8_t *pTx, uint8_t *pRx, uint16_t len, void *pGlobalTag)
 {
     return TC6Stub_SpiTransaction(tc6instance, pTx, pRx, len);
+}
+
+void TC6_CB_OnIntPinInterruptEnable(uint8_t tc6instance, bool enableInt)
+{
+    TC6Stub_IntPinInterruptEnable(tc6instance, enableInt);
 }

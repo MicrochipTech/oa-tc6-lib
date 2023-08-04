@@ -151,43 +151,6 @@ typedef enum
 } DRV_USART_BUFFER_EVENT;
 
 // *****************************************************************************
-/* USART Driver Errors
-
-  Summary:
-    Defines the different types of errors for USART driver
-
-  Description:
-    This data type defines the different types of errors for USART driver.
-    DRV_USART_ERROR_NONE : No errors
-    DRV_USART_ERROR_OVERRUN : Receive Overflow error
-    DRV_USART_ERROR_PARITY : Parity error
-    DRV_USART_ERROR_FRAMING : Framing error
-
-  Remarks:
-    This structure is implementation specific. It is fully defined in
-    drv_usart_definitions.h.
-*/
-
-typedef enum _DRV_USART_ERROR DRV_USART_ERROR;
-
-// *****************************************************************************
-/* USART Driver Serial Setup Data
-
-  Summary:
-    Defines the data required to dynamically set the serial settings.
-
-  Description:
-    This data type defines the data required to dynamically set the serial
-    settings for the specific USART driver instance.
-
-  Remarks:
-    This structure is implementation specific. It is fully defined in
-    drv_usart_definitions.h.
-*/
-
-typedef struct _DRV_USART_SERIAL_SETUP DRV_USART_SERIAL_SETUP;
-
-// *****************************************************************************
 /* USART Driver Initialization Data
 
   Summary:
@@ -202,7 +165,7 @@ typedef struct _DRV_USART_SERIAL_SETUP DRV_USART_SERIAL_SETUP;
     drv_usart_definitions.h.
 */
 
-typedef struct _DRV_USART_INIT DRV_USART_INIT;
+typedef struct DRV_USART_INIT_T DRV_USART_INIT;
 
 // *****************************************************************************
 /* USART Driver Buffer Event Handler Function Pointer
@@ -239,21 +202,20 @@ typedef struct _DRV_USART_INIT DRV_USART_INIT;
         uintptr_t context
     )
     {
-        // The context handle was set to an application specific
-        // object. It is now retrievable easily in the event handler.
+        
         MY_APP_OBJ* myAppObj = (MY_APP_OBJ *) context;
 
         switch(event)
         {
             case DRV_USART_BUFFER_EVENT_COMPLETE:
             {
-                // This means the data was transferred.
+                
                 break;
             }
 
             case DRV_USART_BUFFER_EVENT_ERROR:
             {
-                // Error handling here.
+               
                 break;
             }
 
@@ -338,8 +300,7 @@ typedef void (*DRV_USART_BUFFER_EVENT_HANDLER )( DRV_USART_BUFFER_EVENT event, D
     Otherwise, returns SYS_MODULE_OBJ_INVALID.
 
   Example:
-    <code>
-    // The following code snippet shows an example USART driver initialization.
+    <code>   
 
     SYS_MODULE_OBJ              objectHandle;
 
@@ -378,7 +339,7 @@ typedef void (*DRV_USART_BUFFER_EVENT_HANDLER )( DRV_USART_BUFFER_EVENT event, D
 
     if (objectHandle == SYS_MODULE_OBJ_INVALID)
     {
-        // Handle error
+       
     }
     </code>
 
@@ -389,7 +350,8 @@ typedef void (*DRV_USART_BUFFER_EVENT_HANDLER )( DRV_USART_BUFFER_EVENT event, D
     This routine will NEVER block for hardware access.
 */
 
-SYS_MODULE_OBJ DRV_USART_Initialize( const SYS_MODULE_INDEX index, const SYS_MODULE_INIT* const init );
+SYS_MODULE_OBJ DRV_USART_Initialize( const SYS_MODULE_INDEX drvIndex,
+    const SYS_MODULE_INIT* const init );
 
 // *****************************************************************************
 /* Function:
@@ -417,14 +379,13 @@ SYS_MODULE_OBJ DRV_USART_Initialize( const SYS_MODULE_INDEX index, const SYS_MOD
 
   Example:
     <code>
-    SYS_MODULE_OBJ      object;     // Returned from DRV_USART_Initialize
+    SYS_MODULE_OBJ      object;     
     SYS_STATUS          usartStatus;
 
     usartStatus = DRV_USART _Status(object);
     if (usartStatus == SYS_STATUS_READY)
     {
-        // This means the driver can be opened using the
-        // DRV_USART_Open() function.
+       
     }
     </code>
 
@@ -495,9 +456,7 @@ SYS_STATUS DRV_USART_Status( SYS_MODULE_OBJ object);
     handle = DRV_USART_Open(DRV_USART_INDEX_0, DRV_IO_INTENT_EXCLUSIVE);
     if (handle == DRV_HANDLE_INVALID)
     {
-        // Unable to open the driver
-        // May be the driver is not initialized or the initialization
-        // is not complete.
+       
     }
     </code>
 
@@ -508,7 +467,7 @@ SYS_STATUS DRV_USART_Status( SYS_MODULE_OBJ object);
     function is thread safe in a RTOS application.
 */
 
-DRV_HANDLE DRV_USART_Open( const SYS_MODULE_INDEX index, const DRV_IO_INTENT ioIntent );
+DRV_HANDLE DRV_USART_Open( const SYS_MODULE_INDEX drvIndex, const DRV_IO_INTENT ioIntent);
 
 // *****************************************************************************
 /* Function:
@@ -535,7 +494,7 @@ DRV_HANDLE DRV_USART_Open( const SYS_MODULE_INDEX index, const DRV_IO_INTENT ioI
 
   Example:
     <code>
-    // 'handle', returned from the DRV_USART_Open
+    
 
     DRV_USART_Close(handle);
 
@@ -545,7 +504,7 @@ DRV_HANDLE DRV_USART_Open( const SYS_MODULE_INDEX index, const DRV_IO_INTENT ioI
     None.
 */
 
-void DRV_USART_Close( const DRV_HANDLE handle);
+void DRV_USART_Close( DRV_HANDLE handle);
 
 // *****************************************************************************
 /* Function:
@@ -572,12 +531,11 @@ void DRV_USART_Close( const DRV_HANDLE handle);
 
   Example:
     <code>
-    // 'bufferHandle', returned from the DRV_USART_ReadBufferAdd
+    
 
     if (DRV_USART_ErrorGet(bufferHandle) & DRV_USART_ERROR_OVERRUN)
     {
-        //Errors are cleared by the driver, take respective action
-        //for the overrun error case.
+        
     }
     </code>
 
@@ -593,7 +551,7 @@ void DRV_USART_Close( const DRV_HANDLE handle);
     This function is expected to work in non-DMA mode only.
 */
 
-DRV_USART_ERROR DRV_USART_ErrorGet( const DRV_USART_BUFFER_HANDLE bufferHandle );
+DRV_USART_ERROR DRV_USART_ErrorGet( const DRV_USART_BUFFER_HANDLE handle );
 
 // *****************************************************************************
 /* Function:
@@ -624,8 +582,7 @@ DRV_USART_ERROR DRV_USART_ErrorGet( const DRV_USART_BUFFER_HANDLE bufferHandle )
     false - Failure while updating serial setup.
 
    Example:
-    <code>
-    // 'handle', returned from the DRV_USART_Open
+    <code>   
 
     DRV_USART_SERIAL_SETUP setup = {
             115200,
@@ -696,13 +653,11 @@ bool DRV_USART_SerialSetup(const DRV_HANDLE handle, DRV_USART_SERIAL_SETUP* setu
 
   Example:
     <code>
-    // myAppObj is an application specific state data object.
+  
     MY_APP_OBJ myAppObj;
 
     uint8_t mybuffer[MY_BUFFER_SIZE];
-    DRV_USART_BUFFER_HANDLE bufferHandle;
-
-    // Event is received when the buffer is processed.
+    DRV_USART_BUFFER_HANDLE bufferHandle;   
 
     void APP_USARTBufferEventHandler(
         DRV_USART_BUFFER_EVENT event,
@@ -710,21 +665,20 @@ bool DRV_USART_SerialSetup(const DRV_HANDLE handle, DRV_USART_SERIAL_SETUP* setu
         uintptr_t context
     )
     {
-        // The context handle was set to an application specific
-        // object. It is now retrievable easily in the event handler.
+       
         MY_APP_OBJ* myAppObj = (MY_APP_OBJ *) context;
 
         switch(event)
         {
             case DRV_USART_BUFFER_EVENT_COMPLETE:
             {
-                // This means the data was transferred.
+               
                 break;
             }
 
             case DRV_USART_BUFFER_EVENT_ERROR:
             {
-                // Error handling here.
+               
                 break;
             }
 
@@ -733,12 +687,7 @@ bool DRV_USART_SerialSetup(const DRV_HANDLE handle, DRV_USART_SERIAL_SETUP* setu
                 break;
             }
         }
-    }
-
-    // myUSARTHandle is the handle returned
-    // by the DRV_USART_Open function.
-
-    // Client registers an event handler with driver. This is done once
+    }  
 
     DRV_USART_BufferEventHandlerSet(
         myUSARTHandle,
@@ -755,7 +704,7 @@ bool DRV_USART_SerialSetup(const DRV_HANDLE handle, DRV_USART_SERIAL_SETUP* setu
 
     if(bufferHandle == DRV_USART_BUFFER_HANDLE_INVALID)
     {
-        // Error handling here
+       
     }
 
     </code>
@@ -823,10 +772,7 @@ void DRV_USART_BufferEventHandlerSet( const DRV_HANDLE handle, const DRV_USART_B
 
     MY_APP_OBJ myAppObj;
     uint8_t mybuffer[MY_BUFFER_SIZE];
-    DRV_USART_BUFFER_HANDLE bufferHandle;
-
-    // myUSARTHandle is the handle returned
-    // by the DRV_USART_Open function.
+    DRV_USART_BUFFER_HANDLE bufferHandle;   
 
     DRV_USART_WriteBufferAdd(
         myUSARThandle,
@@ -837,11 +783,9 @@ void DRV_USART_BufferEventHandlerSet( const DRV_HANDLE handle, const DRV_USART_B
 
     if(bufferHandle == DRV_USART_BUFFER_HANDLE_INVALID)
     {
-        // Error handling here
+      
     }
-
-    // Event is received when
-    // the buffer is processed.
+ 
     </code>
 
   Remarks:
@@ -852,7 +796,10 @@ void DRV_USART_BufferEventHandlerSet( const DRV_HANDLE handle, const DRV_USART_B
 
 */
 
-void DRV_USART_WriteBufferAdd( const DRV_HANDLE handle, void* buffer, const size_t size, DRV_USART_BUFFER_HANDLE* bufferHandle);
+void DRV_USART_WriteBufferAdd( DRV_HANDLE handle,
+    void* buffer,
+    const size_t size,
+    DRV_USART_BUFFER_HANDLE* bufferHandle);
 
 // *****************************************************************************
 /* Function:
@@ -909,10 +856,7 @@ void DRV_USART_WriteBufferAdd( const DRV_HANDLE handle, void* buffer, const size
 
     MY_APP_OBJ myAppObj;
     uint8_t mybuffer[MY_BUFFER_SIZE];
-    DRV_USART_BUFFER_HANDLE bufferHandle;
-
-    // myUSARTHandle is the handle returned
-    // by the DRV_USART_Open function.
+    DRV_USART_BUFFER_HANDLE bufferHandle; 
 
     DRV_USART_ReadBufferAdd(
         myUSARThandle,
@@ -923,10 +867,9 @@ void DRV_USART_WriteBufferAdd( const DRV_HANDLE handle, void* buffer, const size
 
     if(bufferHandle == DRV_USART_BUFFER_HANDLE_INVALID)
     {
-        // Error handling here
+      
     }
-
-    // Event is received when the buffer is processed.
+  
     </code>
 
   Remarks:
@@ -937,7 +880,8 @@ void DRV_USART_WriteBufferAdd( const DRV_HANDLE handle, void* buffer, const size
 
 */
 
-void DRV_USART_ReadBufferAdd( const DRV_HANDLE handle, void* buffer, const size_t size, DRV_USART_BUFFER_HANDLE* const bufferHandle);
+void DRV_USART_ReadBufferAdd( DRV_HANDLE handle, void* buffer,const size_t size,
+                                          DRV_USART_BUFFER_HANDLE* bufferHandle);
 
 // *****************************************************************************
 /* Function:
@@ -975,23 +919,18 @@ void DRV_USART_ReadBufferAdd( const DRV_HANDLE handle, void* buffer, const size_
 
   Example:
     <code>
-    // myAppObj is an application specific object.
+ 
     MY_APP_OBJ myAppObj;
 
     uint8_t mybuffer[MY_BUFFER_SIZE];
-    DRV_USART_BUFFER_HANDLE bufferHandle;
-
-    // Event Processing Technique. Event is received when
-    // the buffer is processed.
+    DRV_USART_BUFFER_HANDLE bufferHandle;  
 
     void APP_USARTBufferEventHandler(
         DRV_USART_BUFFER_EVENT event,
         DRV_USART_BUFFER_HANDLE bufferHandle,
         uintptr_t context
     )
-    {
-        // The context handle was set to an application specific
-        // object. It is now retrievable easily in the event handler.
+    {  
 
         MY_APP_OBJ* myAppObj = (MY_APP_OBJ *)context;
         size_t processedBytes;
@@ -1000,15 +939,13 @@ void DRV_USART_ReadBufferAdd( const DRV_HANDLE handle, void* buffer, const size_
         {
             case DRV_USART_BUFFER_EVENT_COMPLETE:
             {
-                // This means the data was transferred.
+               
                 break;
             }
 
             case DRV_USART_BUFFER_EVENT_ERROR:
             {
-                // Error handling here.
-                // We can find out how many bytes have been processed in this
-                // buffer request prior to the error.
+              
                 processedBytes= DRV_USART_BufferCompletedBytesGet(bufferHandle);
                 break;
             }
@@ -1019,11 +956,7 @@ void DRV_USART_ReadBufferAdd( const DRV_HANDLE handle, void* buffer, const size_
             }
         }
     }
-
-    // myUSARTHandle is the handle returned
-    // by the DRV_USART_Open function.
-
-    // Client registers an event handler with driver. This is done once
+  
     DRV_USART_BufferEventHandlerSet(
         myUSARTHandle,
         APP_USARTBufferEventHandler,
@@ -1039,7 +972,7 @@ void DRV_USART_ReadBufferAdd( const DRV_HANDLE handle, void* buffer, const size_
 
     if(bufferHandle == DRV_USART_BUFFER_HANDLE_INVALID)
     {
-        // Error handling here
+     
     }
 
     </code>
@@ -1082,15 +1015,12 @@ size_t DRV_USART_BufferCompletedBytesGet( DRV_USART_BUFFER_HANDLE bufferHandle )
 
   Example:
   <code>
-    // myAppObj is an application specific object.
+  
     MY_APP_OBJ myAppObj;
 
     uint8_t mybuffer[MY_BUFFER_SIZE];
     DRV_USART_BUFFER_HANDLE bufferHandle;
-    DRV_USART_BUFFER_EVENT event;
-
-    // myUSARTHandle is the handle returned
-    // by the DRV_USART_Open function.
+    DRV_USART_BUFFER_EVENT event;  
 
     DRV_USART_ReadBufferAdd(
         myUSARThandle,
@@ -1101,16 +1031,12 @@ size_t DRV_USART_BufferCompletedBytesGet( DRV_USART_BUFFER_HANDLE bufferHandle )
 
     if(bufferHandle == DRV_USART_BUFFER_HANDLE_INVALID)
     {
-        // Error handling here
-    }
-
-    //Check the status of the buffer
-    //This call can be used to wait until the buffer is processed.
+     
+    } 
 
     while ((event = DRV_USART_BufferStatusGet(bufferHandle)) == DRV_USART_BUFFER_EVENT_PENDING);
 
-    //Buffer is processed, check the event variable to determine if the buffer request
-    //is executed successfully or not.
+ 
   </code>
 
   Remarks:
@@ -1147,19 +1073,16 @@ DRV_USART_BUFFER_EVENT DRV_USART_BufferStatusGet( const DRV_USART_BUFFER_HANDLE 
 
   Example:
     <code>
-    // myUSARTHandle is the handle returned by the DRV_USART_Open function.
-    // Use DRV_USART_WriteBufferAdd to queue write requests
-
-    // Application timeout function, where remove queued buffers.
+  
     void APP_TimeOut(void)
     {
         if(DRV_USART_WriteQueuePurge(myUSARThandle) == false)
         {
-            //Couldn't purge the write queue, try again.
+           
         }
         else
         {
-            //Queue purge successful.
+          
         }
     }
     </code>
@@ -1200,19 +1123,16 @@ bool DRV_USART_WriteQueuePurge( const DRV_HANDLE handle );
 
   Example:
     <code>
-    // myUSARTHandle is the handle returned by the DRV_USART_Open function.
-    // Use DRV_USART_ReadBufferAdd to queue read requests
-
-    // Application timeout function, where remove queued buffers.
+  
     void APP_TimeOut(void)
     {
         if(DRV_USART_ReadQueuePurge(myUSARThandle) == false)
         {
-            //Couldn't purge the read queue, try again.
+        
         }
         else
         {
-            //Queue purge successful.
+          
         }
     }
     </code>
@@ -1250,14 +1170,7 @@ bool DRV_USART_ReadQueuePurge( const DRV_HANDLE handle );
     false - error in running the API
 
   Example:
-    <code>
-
-    // myUSARTHandle is the handle returned
-    // by the DRV_USART_Open function.
-
-    // For non-DMA based transfers DRV_USART_BufferCompletedBytesGet() can be
-    // called to find out the number of bytes received before aborting the
-    // request.
+    <code>   
 
     uint32_t processedBytes;
 
@@ -1321,14 +1234,11 @@ bool DRV_USART_ReadAbort(const DRV_HANDLE handle);
     <code>
 
     MY_APP_OBJ myAppObj;
-    uint8_t myBuffer[MY_BUFFER_SIZE];
-
-    // myUSARTHandle is the handle returned
-    // by the DRV_USART_Open function.
+    uint8_t myBuffer[MY_BUFFER_SIZE];  
 
     if (DRV_USART_WriteBuffer(myUSARTHandle, myBuffer, MY_BUFFER_SIZE) == false)
     {
-        // Error handling here
+        
     }
     </code>
 
@@ -1336,7 +1246,7 @@ bool DRV_USART_ReadAbort(const DRV_HANDLE handle);
     This function is thread safe in a RTOS application.
     This function should not be called from an interrupt context.
 */
-bool DRV_USART_WriteBuffer( const DRV_HANDLE handle, void* buffer, const size_t size);
+bool DRV_USART_WriteBuffer( const DRV_HANDLE handle, void* buffer, const size_t numbytes);
 
 // *****************************************************************************
 /* Function:
@@ -1379,14 +1289,11 @@ bool DRV_USART_WriteBuffer( const DRV_HANDLE handle, void* buffer, const size_t 
     <code>
 
     MY_APP_OBJ myAppObj;
-    uint8_t myBuffer[MY_BUFFER_SIZE];
-
-    // myUSARTHandle is the handle returned
-    // by the DRV_USART_Open function.
+    uint8_t myBuffer[MY_BUFFER_SIZE]; 
 
     if (DRV_USART_ReadBuffer(myUSARTHandle, myBuffer, MY_BUFFER_SIZE) == false)
     {
-        // Error handling here
+       
     }
     </code>
 
@@ -1394,7 +1301,8 @@ bool DRV_USART_WriteBuffer( const DRV_HANDLE handle, void* buffer, const size_t 
     This function is thread safe in a RTOS application.
     This function should not be called from an interrupt context.
 */
-bool DRV_USART_ReadBuffer( const DRV_HANDLE handle, void* buffer, const size_t size);
+bool DRV_USART_ReadBuffer( const DRV_HANDLE handle, void* buffer, const size_t numbytes);
+
 
 #include "driver/usart/src/drv_usart_local.h"
 

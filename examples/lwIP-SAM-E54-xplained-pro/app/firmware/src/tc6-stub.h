@@ -51,17 +51,6 @@ Microchip or any third party.
  */
 bool TC6Stub_Init(uint8_t idx, uint8_t pMac[6]);
 
-/** \brief Checks if the LAN865x Int Pin was active. The information stays sticky until TC6Stub_ReleaseInt() is getting called.
- *  \param idx - The instance number of the hardware. Starting with 0 for the first hardware.
- *  \return true, the Int Pin has been seen active. false, Int Pin was not active.
- */
-bool TC6Stub_IntActive(uint8_t idx);
-
-/** \brief Clear the sticky Int Pin information.
- *  \note This function shall only be called, when TC6Stub_IntActive() had reported true.
- *  \param idx - The instance number of the hardware. Starting with 0 for the first hardware.
- */
-void TC6Stub_ReleaseInt(uint8_t idx);
 
 /** \brief Gets the current system time in milliseconds.
  * \return System ticks in milliseconds.
@@ -71,9 +60,17 @@ uint32_t TC6Stub_GetTick(void);
 /**
  * \brief Hardware implementation of SPI transfer function.
  * \param idx - The instance number of the hardware. Starting with 0 for the first hardware.
- * \param pTx - Pointer to the MOSI data. The pointer stays valid until user calls TC6_SpiBufferDone()
- * \param pRx - Pointer to the MISO Buffer. The pointer stays valid until user calls TC6_SpiBufferDone()
+ * \param pTx - Pointer to the MOSI data.
+ * \param pRx - Pointer to the MISO Buffer.
  * \param len - The length of both buffers (pTx and pRx). The entire length must be transfered via SPI.
  * \return true, if the SPI data was enqueued/transfered. false, there was an error.
  */
-bool TC6Stub_SpiTransaction(uint8_t idx, uint8_t *pTx, uint8_t *pRx, uint16_t len);
+bool TC6Stub_SpiTransaction(uint8_t idx, const uint8_t *pTx, uint8_t *pRx, uint16_t len);
+
+/**
+ * \brief Callback when ever the interrupt handling for the MAC-PHY interrupt pin needs to be enabled or disabled.
+ * \note This function must be implemented by the integrator.
+ * \param idx - The instance number of the hardware. Starting with 0 for the first hardware.
+ * \param enableInt - true, the INT-pin interrupt shall be enabled. false, the INT-pin interrupt shall be disabled.
+ */
+void TC6Stub_IntPinInterruptEnable(uint8_t idx, bool enableInt);
