@@ -7,6 +7,18 @@
 
  - First version with synchronous TC6 protocol driver support.
 
+## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.2
+### New Features
+- SAM V71 example provides interactive menu and benchmark result like the E54 noIP variant
+
+### Bugfixes
+- Updating all example projects to latest Harmony 3 components
+- Lowering all release mode settings to -O1 to avoid comercial compiler license warning
+- Providing TC6 version number in tc6.h
+- Printing PLCA-Node-ID at firmware start
+- Board instance can be chosen from Project Build dropdown list
+- Bugfixes for synchronous TC6 variant used in PIC18 firmware
+
 ## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.1
 ### New Features
 

@@ -65,7 +65,7 @@ Microchip or any third party.
 #define BOARD_INSTANCE              (0)
 #endif
 #define T1S_PLCA_ENABLE             (true)
-#define T1S_PLCA_NODE_ID            (BOARD_INSTANCE + 1)
+#define T1S_PLCA_NODE_ID            (BOARD_INSTANCE)
 #define T1S_PLCA_NODE_COUNT         (8)
 #define T1S_PLCA_BURST_COUNT        (0)
 #define T1S_PLCA_BURST_TIMER        (0x80)

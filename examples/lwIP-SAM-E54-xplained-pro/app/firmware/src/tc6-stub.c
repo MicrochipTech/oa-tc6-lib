@@ -163,7 +163,7 @@ uint32_t TC6Stub_GetTick(void)
     return systick.tickCounter;
 }
 
-bool TC6Stub_SpiTransaction(uint8_t idx, uint8_t *pTx, uint8_t *pRx, uint16_t len)
+bool TC6Stub_SpiTransaction(uint8_t idx, const uint8_t *pTx, uint8_t *pRx, uint16_t len)
 {
     DRV_SPI_TRANSFER_HANDLE transferHandle;
     Stub_Local_t *ps = &d[idx];
@@ -172,7 +172,7 @@ bool TC6Stub_SpiTransaction(uint8_t idx, uint8_t *pTx, uint8_t *pRx, uint16_t le
 
     if (ps->opened && !ps->busy) {
         ps->busy = true;
-        DRV_SPI_WriteReadTransferAdd(ps->handle, pTx, len, pRx, len, &transferHandle);
+        DRV_SPI_WriteReadTransferAdd(ps->handle, (uint8_t *)pTx, len, pRx, len, &transferHandle);
         if (transferHandle == DRV_SPI_TRANSFER_HANDLE_INVALID) {
             ps->busy = false;
         } else {

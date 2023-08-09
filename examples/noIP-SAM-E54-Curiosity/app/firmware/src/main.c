@@ -63,7 +63,7 @@ Microchip or any third party.
 #endif
 #define BOARD_INSTANCES_MAX         (4)
 #define T1S_PLCA_ENABLE             (true)
-#define T1S_PLCA_NODE_ID            (BOARD_INSTANCE + 1)
+#define T1S_PLCA_NODE_ID            (BOARD_INSTANCE)
 #define T1S_PLCA_NODE_COUNT         (8)
 #define T1S_PLCA_BURST_COUNT        (0)
 #define T1S_PLCA_BURST_TIMER        (0x80)
@@ -348,9 +348,8 @@ int main(void)
           ESC_CURSOR_X1Y1    \
           ESC_HIDE_CURSOR    \
           ESC_YELLOW         \
-          "=== NoIP SAM E54 10Base-T1S Demo " FIRMWARE_VERSION " (" \
-          __DATE__ " " __TIME__ " Board=%d ===" ESC_RESETCOLOR,
-          BOARD_INSTANCE);
+          "=== NoIP SAM E54 10BASE-T1S Demo " FIRMWARE_VERSION " (" \
+          __DATE__ " " __TIME__ ") ===%s" ESC_RESETCOLOR, MoveCursor(false));
 
     m.idxNoIp = TC6NoIP_Init(T1S_PLCA_ENABLE, T1S_PLCA_NODE_ID, T1S_PLCA_NODE_COUNT,
         T1S_PLCA_BURST_COUNT, T1S_PLCA_BURST_TIMER, MAC_PROMISCUOUS_MODE,

@@ -361,7 +361,7 @@ static void DoInitialization(TC6Reg_t *pReg)
         }
         /* Start with default settings */
         while (pReg->initialized && (i < TC6_MEMMAP_LENGTH)) {
-            i += TC6_MultipleRegisterAccess(pReg->pTC6, &TC6_MEMMAP[i], (TC6_MEMMAP_LENGTH - i));
+            i += TC6_MultipleRegisterAccess(pReg->pTC6, &TC6_MEMMAP[i], (uint16_t)(TC6_MEMMAP_LENGTH - i));
         }
         regVal = (1u == pReg->chipRev) ? 0x5F21ul : 0x3F31ul;
         while (!TC6_WriteRegister(pReg->pTC6, 0x000400D0, regVal, CONTROL_PROTECTION)) {

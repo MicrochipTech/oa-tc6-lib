@@ -87,6 +87,7 @@ typedef struct
     struct pbuf *pbuf;
     uint16_t rxLen;
     bool rxInvalid;
+    bool reinit;
 } TC6Lib_t;
 
 typedef struct
@@ -178,13 +179,18 @@ int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_
         ip_addr_set_zero(&ip);
         ip_addr_set_zero(&nm);
         ip_addr_set_zero(&gw);
-        PRINT("LwIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, DHCP, ChipRev=%d]\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], TC6Regs_GetChipRevision(lw->tc.tc6));
+        PRINT("LwIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, DHCP, ChipRev=%d", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], TC6Regs_GetChipRevision(lw->tc.tc6));
 #else
         ipaddr_aton(lw->ip.ipAddr, &ipAddr);
         ipaddr_aton(TC6LwIP_NETMASK, &nm);
         ipaddr_aton(TC6LwIP_GATEWAY, &gw);
-        PRINT("LwIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, IP='%s', ChipRev=%d]\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], lw->ip.ipAddr, TC6Regs_GetChipRevision(lw->tc.tc6));
+        PRINT("LwIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, IP='%s', ChipRev=%d", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], lw->ip.ipAddr, TC6Regs_GetChipRevision(lw->tc.tc6));
 #endif
+        if (enablePlca) {
+            PRINT(", PLCA-NodeId=%d]\r\n", nodeId);
+        } else {
+            PRINT(", CSMA/CD]\r\n");
+        }
         if (!netif_add(&lw->ip.netint, &ipAddr.u_addr.ip4, &nm.u_addr.ip4, &gw.u_addr.ip4, lw, lwIpInit, ethernet_input)) {
             TC6_ASSERT(false);
             PRINT("Could not add TC6 interface to lwIP!\r\n");
@@ -199,8 +205,18 @@ int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_
 
 void TC6LwIP_Service(void)
 {
+    uint16_t idx;
     sys_check_timeouts(); /* LWIP timers - ARP, DHCP, TCP, etc. */
     TC6Regs_CheckTimers();
+    for (idx = 0; idx < TC6_MAX_INSTANCES; idx++) {
+        TC6LwIP_t *lw = &mlw[idx];
+        if (LWIP_TC6_MAGIC != lw->magic) {
+            if (lw->tc.reinit) {
+                lw->tc.reinit = false;
+                TC6Regs_Reinit(lw->tc.tc6);
+            }
+        }
+    }
 }
 
 bool TC6LwIP_GetPlcaStatus(int8_t idx, bool *pStatus)
@@ -469,14 +485,14 @@ void TC6_CB_OnRxEthernetPacket(TC6_t *pInst, bool success, uint16_t len, uint64_
 
 void TC6_CB_OnError(TC6_t *pInst, TC6_Error_t err, void *pGlobalTag)
 {
-    bool reinit = false;
+    TC6LwIP_t *lw = GetContextTC6(pInst);
     switch (err) {
     case TC6Error_Succeeded:
         PRINT(ESC_GREEN "No error occurred" ESC_RESETCOLOR "\r\n");
         break;
     case TC6Error_NoHardware:
         PRINT(ESC_RED "MISO data implies that there is no MACPHY hardware available" ESC_RESETCOLOR "\r\n");
-        reinit = true;
+        lw->tc.reinit = true;
         break;
     case TC6Error_UnexpectedSv:
         PRINT(ESC_RED " Unexpected Start Valid Flag" ESC_RESETCOLOR "\r\n");
@@ -486,23 +502,23 @@ void TC6_CB_OnError(TC6_t *pInst, TC6_Error_t err, void *pGlobalTag)
         break;
     case TC6Error_BadChecksum:
         PRINT(ESC_RED "Checksum in footer is wrong" ESC_RESETCOLOR "\r\n");
-        reinit = true;
+        lw->tc.reinit = true;
         break;
     case TC6Error_UnexpectedCtrl:
         PRINT(ESC_RED "Unexpected control packet received" ESC_RESETCOLOR "\r\n");
-        reinit = true;
+        lw->tc.reinit = true;
         break;
     case TC6Error_BadTxData:
         PRINT(ESC_RED "Header Bad Flag received" ESC_RESETCOLOR "\r\n");
-        reinit = true;
+        lw->tc.reinit = true;
         break;
     case TC6Error_SyncLost:
         PRINT(ESC_RED "Sync Flag is no longer set" ESC_RESETCOLOR "\r\n");
-        reinit = true;
+        lw->tc.reinit = true;
         break;
     case TC6Error_SpiError:
         PRINT(ESC_RED "TC6 SPI Error" ESC_RESETCOLOR "\r\n");
-        reinit = true;
+        lw->tc.reinit = true;
         break;
     case TC6Error_ControlTxFail:
         PRINT(ESC_RED "TC6 Control Message Error" ESC_RESETCOLOR "\r\n");
@@ -510,9 +526,6 @@ void TC6_CB_OnError(TC6_t *pInst, TC6_Error_t err, void *pGlobalTag)
     default:
         PRINT(ESC_RED "Unknown TC6 error occurred" ESC_RESETCOLOR "\r\n");
         break;
-    }
-    if (reinit) {
-        TC6Regs_Reinit(pInst);
     }
 }
 
@@ -523,7 +536,7 @@ uint32_t TC6Regs_CB_GetTicksMs(void)
 
  void TC6Regs_CB_OnEvent(TC6_t *pInst, TC6Regs_Event_t event, void *pTag)
  {
-    bool reinit = false;
+    TC6LwIP_t *lw = GetContextTC6(pInst);
     switch(event)
     {
     case TC6Regs_Event_UnknownError:
@@ -543,7 +556,7 @@ uint32_t TC6Regs_CB_GetTicksMs(void)
         break;
     case TC6Regs_Event_Loss_of_Framing_Error:
         PRINT(ESC_RED "Loss_of_Framing_Error" ESC_RESETCOLOR "\r\n");
-        reinit = true;
+        lw->tc.reinit = true;
         break;
     case TC6Regs_Event_Header_Error:
         PRINT(ESC_RED "Header_Error" ESC_RESETCOLOR "\r\n");
@@ -571,11 +584,11 @@ uint32_t TC6Regs_CB_GetTicksMs(void)
         break;
     case TC6Regs_Event_RX_Non_Recoverable_Error:
         PRINT(ESC_RED "RX_Non_Recoverable_Error" ESC_RESETCOLOR "\r\n");
-        reinit = true;
+        lw->tc.reinit = true;
         break;
     case TC6Regs_Event_TX_Non_Recoverable_Error:
         PRINT(ESC_RED "TX_Non_Recoverable_Error" ESC_RESETCOLOR "\r\n");
-        reinit = true;
+        lw->tc.reinit = true;
         break;
     case TC6Regs_Event_FSM_State_Error:
         PRINT(ESC_RED "FSM_State_Error" ESC_RESETCOLOR "\r\n");
@@ -637,9 +650,6 @@ uint32_t TC6Regs_CB_GetTicksMs(void)
     case TC6Regs_Event_Unsupported_Hardware:
         PRINT(ESC_RED "Unsupported MAC-PHY hardware found" ESC_RESETCOLOR "\r\n");
         break;
-    }
-    if (reinit) {
-        TC6Regs_Reinit(pInst);
     }
  }
 

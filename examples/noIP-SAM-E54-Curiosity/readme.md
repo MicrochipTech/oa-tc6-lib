@@ -65,4 +65,3 @@ These settings are stored in a subsection inside the MAC-PHY settings.
     * Flow Control : None
 3. Build and Program the application using the MPLAB X IDE
     For optimum results, select "Release" Mode as build target, this requires fee-based XC32 compiler license.
-
