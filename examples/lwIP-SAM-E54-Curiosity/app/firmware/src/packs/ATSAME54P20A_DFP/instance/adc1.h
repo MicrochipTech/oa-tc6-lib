@@ -1,7 +1,7 @@
 /*
  * Instance header file for ATSAME54P20A
  *
- * Copyright (c) 2022 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2023 Microchip Technology Inc. and its subsidiaries.
  *
  * Subject to your compliance with these terms, you may use Microchip software and any derivatives
  * exclusively with Microchip products. It is your responsibility to comply with third party license
@@ -20,7 +20,7 @@
  *
  */
 
-/* file generated from device description version 2022-02-14T14:27:35Z */
+/* file generated from device description version 2023-03-17T09:50:08Z */
 #ifndef _SAME54_ADC1_INSTANCE_
 #define _SAME54_ADC1_INSTANCE_
 
@@ -32,12 +32,12 @@
 #define ADC1_DMAC_ID_SEQ                         (71)       /* Index of DMA SEQ trigger */
 #define ADC1_EXTCHANNEL_MSB                      (15)       /* Number of external channels */
 #define ADC1_GCLK_ID                             (41)       /* Index of Generic Clock */
+#define ADC1_INSTANCE_ID                         (104)      /* Instance index for ADC1 */
 #define ADC1_MASTER_SLAVE_MODE                   (2)        /* ADC Master/Slave Mode */
-#define ADC1_OPAMP2                              (0)        /* MUXPOS value to select OPAMP2 */
 #define ADC1_OPAMP01                             (0)        /* MUXPOS value to select OPAMP01 */
+#define ADC1_OPAMP2                              (0)        /* MUXPOS value to select OPAMP2 */
 #define ADC1_PTAT                                (28)       /* MUXPOS value to select PTAT */
 #define ADC1_TOUCH_IMPLEMENTED                   (0)        /* TOUCH implemented or not */
 #define ADC1_TOUCH_LINES_NUM                     (1)        /* Number of touch lines */
-#define ADC1_INSTANCE_ID                         (104)      /* Instance index for ADC1 */
 
 #endif /* _SAME54_ADC1_INSTANCE_ */

@@ -4,7 +4,7 @@
 
 
 project: app
-creation_date: 2023-07-20T13:54:58.140+02:00[Europe/Prague]    # ISO 8601 format: https://www.w3.org/TR/NOTE-datetime
+creation_date: 2023-08-09T14:23:08.274+02:00[Europe/Prague]    # ISO 8601 format: https://www.w3.org/TR/NOTE-datetime
 operating_system: Windows 10
 mhc_mode: Standalone            # [IDE|Standalone|Headless]
 mhc_version: NA
@@ -13,7 +13,7 @@ plugin_version: NA        # if MPLAB X plugin only
 compiler: xc32
 
 modules:
-    - {name: "core", version: "v3.11.1"}
-    - {name: "csp", version: "v3.14.0"}
-    - {name: "dev_packs", version: "v3.14.0"}
+    - {name: "core", version: "v3.13.1"}
+    - {name: "csp", version: "v3.17.0"}
+    - {name: "dev_packs", version: "v3.17.0"}
 

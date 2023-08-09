@@ -57,6 +57,7 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
+#define FIRMWARE_VERSION            TC6_LIB_VER_STRING
 
 #ifndef BOARD_INSTANCE
 #define BOARD_INSTANCE              (0)
@@ -157,9 +158,7 @@ void main(void)
     PRINT("\033[2J");      /* Clear Terminal */
     PRINT("\033[1;1H");    /* Set Cursor to x=1 y=1 */
     PRINT("\033[?25l");    /* Hide Cursor */
-    PRINT("\r==============================================\r\n");
-    PRINT("  PIC18 10BASE-T1S Temperature Demo V1.0.0\r\n");
-    PRINT("==============================================\r\n");
+    PRINT("PIC18 10BASE-T1S Temperature Demo " FIRMWARE_VERSION " (" __DATE__ " " __TIME__ ")\r\n");
 
     m.idxNoIp = TC6NoIP_Init(T1S_PLCA_ENABLE, T1S_PLCA_NODE_ID, T1S_PLCA_NODE_COUNT,
         T1S_PLCA_BURST_COUNT, T1S_PLCA_BURST_TIMER, MAC_PROMISCUOUS_MODE,

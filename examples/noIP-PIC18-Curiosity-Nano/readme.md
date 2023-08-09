@@ -2,6 +2,8 @@
 
 # Example on PIC18F57Q43 Curiosity Nano Evaluation Kit using the LAN865x 10BASE-T1S Ethernet MAC-PHY
 
+ - [ ] Do not use XC8 V2.41, it's known to not work with this application. Better go with the [Functional Safety V2.39](https://www.microchip.com/en-us/tools-resources/develop/mplab-xc-compilers/downloads-documentation#fusa)
+
 This example shows how to configure the LAN865x to be used in a 10BASE-T1S Multi-Drop Ethernet network. The project shows basic sending and receive functionality of temperature sensor data, using predefined Ethernet frames.
 
 ## Building The Application

@@ -1,35 +1,35 @@
 /**
- * PINS Generated Driver Source File 
- * 
+ * PINS Generated Driver Source File
+ *
  * @file      pins.c
- *            
+ *
  * @ingroup   pinsdriver
- *            
+ *
  * @brief     This is the generated driver source file for PINS driver.
- *            
+ *
  * @version   Driver Version 1.0.0
- *            
+ *
  * @skipline  Device : dsPIC33CK256MP508
 */
 
 /*
-© [2022] Microchip Technology Inc. and its subsidiaries.
+© [2023] Microchip Technology Inc. and its subsidiaries.
 
-    Subject to your compliance with these terms, you may use Microchip 
-    software and any derivatives exclusively with Microchip products. 
-    You are responsible for complying with 3rd party license terms  
-    applicable to your use of 3rd party software (including open source  
-    software) that may accompany Microchip software. SOFTWARE IS ?AS IS.? 
-    NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS 
-    SOFTWARE, INCLUDING ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT,  
-    MERCHANTABILITY, OR FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT 
-    WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE, 
-    INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY 
-    KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF 
-    MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE 
-    FORESEEABLE. TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP?S 
-    TOTAL LIABILITY ON ALL CLAIMS RELATED TO THE SOFTWARE WILL NOT 
-    EXCEED AMOUNT OF FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR 
+    Subject to your compliance with these terms, you may use Microchip
+    software and any derivatives exclusively with Microchip products.
+    You are responsible for complying with 3rd party license terms
+    applicable to your use of 3rd party software (including open source
+    software) that may accompany Microchip software. SOFTWARE IS ?AS IS.?
+    NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS
+    SOFTWARE, INCLUDING ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT,
+    MERCHANTABILITY, OR FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT
+    WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
+    INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY
+    KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF
+    MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+    FORESEEABLE. TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP?S
+    TOTAL LIABILITY ON ALL CLAIMS RELATED TO THE SOFTWARE WILL NOT
+    EXCEED AMOUNT OF FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR
     THIS SOFTWARE.
 */
 
@@ -114,7 +114,7 @@ void PINS_Initialize(void)
     /*******************************************************************************
     * Interrupt On Change: negative
     *******************************************************************************/
-    CNEN1Ebits.CNEN1E11 = 1; //Pin : RE11; 
+    CNEN1Ebits.CNEN1E11 = 1; //Pin : RE11;
 
     /****************************************************************************
      * Interrupt On Change: flag
@@ -143,14 +143,14 @@ void __attribute__ ((weak)) Ext_Int_CallBack(void)
 }
 
 void Ext_Int_SetInterruptHandler(void (* InterruptHandler)(void))
-{ 
+{
     IEC4bits.CNEIE = 0; //Disable CNEI interrupt
-    Ext_Int_InterruptHandler = InterruptHandler; 
+    Ext_Int_InterruptHandler = InterruptHandler;
     IEC4bits.CNEIE = 1; //Enable CNEI interrupt
 }
 
 void Ext_Int_SetIOCInterruptHandler(void *handler)
-{ 
+{
     Ext_Int_SetInterruptHandler(handler);
 }
 
@@ -159,14 +159,14 @@ void __attribute__ (( interrupt, no_auto_psv )) _CNEInterrupt (void)
 {
     if(CNFEbits.CNFE11 == 1)
     {
-        if(Ext_Int_InterruptHandler) 
-        { 
-            Ext_Int_InterruptHandler(); 
+        if(Ext_Int_InterruptHandler)
+        {
+            Ext_Int_InterruptHandler();
         }
-        
+
         CNFEbits.CNFE11 = 0;  //Clear flag for Pin - Ext_Int
     }
-    
+
     // Clear the flag
     IFS4bits.CNEIF = 0;
 }

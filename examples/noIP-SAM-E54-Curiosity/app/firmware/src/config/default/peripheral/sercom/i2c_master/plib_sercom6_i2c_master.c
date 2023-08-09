@@ -65,7 +65,7 @@
 #define SERCOM6_I2CM_BAUD_VALUE         (0x43U)
 
 
-static SERCOM_I2C_OBJ sercom6I2CObj;
+volatile static SERCOM_I2C_OBJ sercom6I2CObj;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -410,10 +410,12 @@ void SERCOM6_I2C_TransferAbort( void )
     }
 }
 
-void SERCOM6_I2C_InterruptHandler(void)
+void __attribute__((used)) SERCOM6_I2C_InterruptHandler(void)
 {
     if(SERCOM6_REGS->I2CM.SERCOM_INTENSET != 0U)
     {
+        uintptr_t context = sercom6I2CObj.context;
+
         /* Checks if the arbitration lost in multi-master scenario */
         if((SERCOM6_REGS->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_ARBLOST_Msk) == SERCOM_I2CM_STATUS_ARBLOST_Msk)
         {
@@ -462,8 +464,10 @@ void SERCOM6_I2C_InterruptHandler(void)
 
 
                 case SERCOM_I2C_STATE_TRANSFER_WRITE:
+                {
+                    size_t writeCount = sercom6I2CObj.writeCount;
 
-                    if (sercom6I2CObj.writeCount == (sercom6I2CObj.writeSize))
+                    if (writeCount == (sercom6I2CObj.writeSize))
                     {
                         if(sercom6I2CObj.readSize != 0U)
                         {
@@ -497,20 +501,25 @@ void SERCOM6_I2C_InterruptHandler(void)
                     /* Write next byte */
                     else
                     {
-                        SERCOM6_REGS->I2CM.SERCOM_DATA = sercom6I2CObj.writeBuffer[sercom6I2CObj.writeCount];
-                        sercom6I2CObj.writeCount++;
+                        SERCOM6_REGS->I2CM.SERCOM_DATA = sercom6I2CObj.writeBuffer[writeCount];
+                        writeCount++;
                         /* Wait for synchronization */
                             while((SERCOM6_REGS->I2CM.SERCOM_SYNCBUSY) != 0U)
                             {
                                 /* Do nothing */
                             }
+                        sercom6I2CObj.writeCount = writeCount;
                     }
+                }
 
                     break;
 
                 case SERCOM_I2C_STATE_TRANSFER_READ:
+                {
+                    size_t readCount = sercom6I2CObj.readCount;
 
-                    if(sercom6I2CObj.readCount == (sercom6I2CObj.readSize - 1U))
+
+                    if(readCount == (sercom6I2CObj.readSize - 1U))
                     {
                         /* Set NACK and send stop condition to the slave from master */
                         SERCOM6_REGS->I2CM.SERCOM_CTRLB |= SERCOM_I2CM_CTRLB_ACKACT_Msk | SERCOM_I2CM_CTRLB_CMD(3UL);
@@ -531,8 +540,11 @@ void SERCOM6_I2C_InterruptHandler(void)
                         }
 
                     /* Read the received data */
-                    sercom6I2CObj.readBuffer[sercom6I2CObj.readCount] = (uint8_t) SERCOM6_REGS->I2CM.SERCOM_DATA;
-                    sercom6I2CObj.readCount++;
+                    sercom6I2CObj.readBuffer[readCount] = (uint8_t) SERCOM6_REGS->I2CM.SERCOM_DATA;
+                    readCount++;
+
+                    sercom6I2CObj.readCount = readCount;
+                }
 
                     break;
 
@@ -563,7 +575,7 @@ void SERCOM6_I2C_InterruptHandler(void)
 
             if (sercom6I2CObj.callback != NULL)
             {
-                sercom6I2CObj.callback(sercom6I2CObj.context);
+                sercom6I2CObj.callback(context);
             }
         }
         /* Transfer Complete */
@@ -583,7 +595,7 @@ void SERCOM6_I2C_InterruptHandler(void)
 
             if(sercom6I2CObj.callback != NULL)
             {
-                sercom6I2CObj.callback(sercom6I2CObj.context);
+                sercom6I2CObj.callback(context);
             }
 
         }

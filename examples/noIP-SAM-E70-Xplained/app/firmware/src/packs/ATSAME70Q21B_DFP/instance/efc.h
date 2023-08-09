@@ -1,7 +1,7 @@
 /*
  * Instance header file for ATSAME70Q21B
  *
- * Copyright (c) 2022 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2023 Microchip Technology Inc. and its subsidiaries.
  *
  * Subject to your compliance with these terms, you may use Microchip software and any derivatives
  * exclusively with Microchip products. It is your responsibility to comply with third party license
@@ -20,15 +20,15 @@
  *
  */
 
-/* file generated from device description version 2022-04-21T07:53:48Z */
+/* file generated from device description version 2023-03-27T04:09:33Z */
 #ifndef _SAME70_EFC_INSTANCE_
 #define _SAME70_EFC_INSTANCE_
 
 
 /* ========== Instance Parameter definitions for EFC peripheral ========== */
 #define EFC_FLASH_SIZE                           (2097152)  
-#define EFC_PAGE_SIZE                            (512)      
 #define EFC_INSTANCE_ID                          (6)        
 #define EFC_PAGES_PR_REGION                      (32)       
+#define EFC_PAGE_SIZE                            (512)      
 
 #endif /* _SAME70_EFC_INSTANCE_ */

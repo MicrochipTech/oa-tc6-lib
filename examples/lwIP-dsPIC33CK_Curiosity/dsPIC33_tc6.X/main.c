@@ -57,6 +57,7 @@ Microchip or any third party.
 #include "mcc_generated_files/uart/uart1.h"
 #include "DMASPItransfer.h"/*THW220107 add include file */
 
+#include "tc6.h"
 #include "tc6-lwip.h"
 
 #include "udp_perf_client.h"
@@ -66,13 +67,13 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.1.1"
+#define FIRMWARE_VERSION            TC6_LIB_VER_STRING
 
 #ifndef BOARD_INSTANCE
 #define BOARD_INSTANCE              (0)
 #endif
 #define T1S_PLCA_ENABLE             (true)
-#define T1S_PLCA_NODE_ID            (BOARD_INSTANCE + 1)
+#define T1S_PLCA_NODE_ID            (BOARD_INSTANCE)
 #define T1S_PLCA_NODE_COUNT         (8)
 #define T1S_PLCA_BURST_COUNT        (0)
 #define T1S_PLCA_BURST_TIMER        (0x80)
@@ -122,6 +123,7 @@ static const uint8_t m_ip[] = {192, 168, 0, (100 + BOARD_INSTANCE)};
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                      PRIVATE FUNCTION PROTOTYPES                     */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
+
 static void CheckButton(uint8_t instance, bool newLevel, bool *oldLevel);
 static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus);
 
@@ -131,7 +133,6 @@ static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus);
 
 int main(void)
 {
-
     SYSTEM_Initialize();
 
     SysTick_Init();
@@ -144,7 +145,7 @@ int main(void)
           ESC_CURSOR_X1Y1    \
           ESC_HIDE_CURSOR    \
           ESC_YELLOW         \
-          "dsPIC33 Curiosity 10Base-T1S Demonstrator " \
+          "dsPIC33 Curiosity 10BASE-T1S Demonstrator " \
           FIRMWARE_VERSION   \
           " (" __DATE__ " " __TIME__ ")" \
           ESC_RESETCOLOR     \

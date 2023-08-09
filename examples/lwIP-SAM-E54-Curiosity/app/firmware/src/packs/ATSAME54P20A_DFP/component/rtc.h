@@ -1,7 +1,7 @@
 /*
  * Component description for RTC
  *
- * Copyright (c) 2022 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2023 Microchip Technology Inc. and its subsidiaries.
  *
  * Subject to your compliance with these terms, you may use Microchip software and any derivatives
  * exclusively with Microchip products. It is your responsibility to comply with third party license
@@ -20,7 +20,7 @@
  *
  */
 
-/* file generated from device description version 2022-02-14T14:27:35Z */
+/* file generated from device description version 2023-03-17T09:50:08Z */
 #ifndef _SAME54_RTC_COMPONENT_H_
 #define _SAME54_RTC_COMPONENT_H_
 
@@ -1250,15 +1250,6 @@
 #define RTC_MODE1_COMP_Msk                    _UINT16_(0xFFFF)                                     /* (RTC_MODE1_COMP) Register Mask  */
 
 
-/* -------- RTC_GP : (RTC Offset: 0x40) (R/W 32) General Purpose -------- */
-#define RTC_GP_RESETVALUE                     _UINT32_(0x00)                                       /*  (RTC_GP) General Purpose  Reset Value */
-
-#define RTC_GP_GP_Pos                         _UINT32_(0)                                          /* (RTC_GP) General Purpose Position */
-#define RTC_GP_GP_Msk                         (_UINT32_(0xFFFFFFFF) << RTC_GP_GP_Pos)              /* (RTC_GP) General Purpose Mask */
-#define RTC_GP_GP(value)                      (RTC_GP_GP_Msk & (_UINT32_(value) << RTC_GP_GP_Pos)) /* Assigment of value for GP in the RTC_GP register */
-#define RTC_GP_Msk                            _UINT32_(0xFFFFFFFF)                                 /* (RTC_GP) Register Mask  */
-
-
 /* -------- RTC_MODE2_ALARM0 : (RTC Offset: 0x20) (R/W 32) MODE2_ALARM Alarm n Value -------- */
 #define RTC_MODE2_ALARM0_RESETVALUE           _UINT32_(0x00)                                       /*  (RTC_MODE2_ALARM0) MODE2_ALARM Alarm n Value  Reset Value */
 
@@ -1359,6 +1350,15 @@
 #define RTC_MODE2_MASK1_SEL_MMDDHHMMSS        (RTC_MODE2_MASK1_SEL_MMDDHHMMSS_Val << RTC_MODE2_MASK1_SEL_Pos) /* (RTC_MODE2_MASK1) Match seconds, minutes, hours, days, and months only Position  */
 #define RTC_MODE2_MASK1_SEL_YYMMDDHHMMSS      (RTC_MODE2_MASK1_SEL_YYMMDDHHMMSS_Val << RTC_MODE2_MASK1_SEL_Pos) /* (RTC_MODE2_MASK1) Match seconds, minutes, hours, days, months, and years Position  */
 #define RTC_MODE2_MASK1_Msk                   _UINT8_(0x07)                                        /* (RTC_MODE2_MASK1) Register Mask  */
+
+
+/* -------- RTC_GP : (RTC Offset: 0x40) (R/W 32) General Purpose -------- */
+#define RTC_GP_RESETVALUE                     _UINT32_(0x00)                                       /*  (RTC_GP) General Purpose  Reset Value */
+
+#define RTC_GP_GP_Pos                         _UINT32_(0)                                          /* (RTC_GP) General Purpose Position */
+#define RTC_GP_GP_Msk                         (_UINT32_(0xFFFFFFFF) << RTC_GP_GP_Pos)              /* (RTC_GP) General Purpose Mask */
+#define RTC_GP_GP(value)                      (RTC_GP_GP_Msk & (_UINT32_(value) << RTC_GP_GP_Pos)) /* Assigment of value for GP in the RTC_GP register */
+#define RTC_GP_Msk                            _UINT32_(0xFFFFFFFF)                                 /* (RTC_GP) Register Mask  */
 
 
 /* -------- RTC_TAMPCTRL : (RTC Offset: 0x60) (R/W 32) Tamper Control -------- */
@@ -1576,15 +1576,15 @@
 #define RTC_MODE1_COMP1_REG_OFST       _UINT32_(0x22)      /* (RTC_MODE1_COMP1) MODE1 Compare n Value Offset */
 #define RTC_MODE1_COMP2_REG_OFST       _UINT32_(0x24)      /* (RTC_MODE1_COMP2) MODE1 Compare n Value Offset */
 #define RTC_MODE1_COMP3_REG_OFST       _UINT32_(0x26)      /* (RTC_MODE1_COMP3) MODE1 Compare n Value Offset */
+#define RTC_MODE2_ALARM0_REG_OFST      _UINT32_(0x20)      /* (RTC_MODE2_ALARM0) MODE2_ALARM Alarm n Value Offset */
+#define RTC_MODE2_MASK0_REG_OFST       _UINT32_(0x24)      /* (RTC_MODE2_MASK0) MODE2_ALARM Alarm n Mask Offset */
+#define RTC_MODE2_ALARM1_REG_OFST      _UINT32_(0x28)      /* (RTC_MODE2_ALARM1) MODE2_ALARM Alarm n Value Offset */
+#define RTC_MODE2_MASK1_REG_OFST       _UINT32_(0x2C)      /* (RTC_MODE2_MASK1) MODE2_ALARM Alarm n Mask Offset */
 #define RTC_GP_REG_OFST                _UINT32_(0x40)      /* (RTC_GP) General Purpose Offset */
 #define RTC_GP0_REG_OFST               _UINT32_(0x40)      /* (RTC_GP0) General Purpose Offset */
 #define RTC_GP1_REG_OFST               _UINT32_(0x44)      /* (RTC_GP1) General Purpose Offset */
 #define RTC_GP2_REG_OFST               _UINT32_(0x48)      /* (RTC_GP2) General Purpose Offset */
 #define RTC_GP3_REG_OFST               _UINT32_(0x4C)      /* (RTC_GP3) General Purpose Offset */
-#define RTC_MODE2_ALARM0_REG_OFST      _UINT32_(0x20)      /* (RTC_MODE2_ALARM0) MODE2_ALARM Alarm n Value Offset */
-#define RTC_MODE2_MASK0_REG_OFST       _UINT32_(0x24)      /* (RTC_MODE2_MASK0) MODE2_ALARM Alarm n Mask Offset */
-#define RTC_MODE2_ALARM1_REG_OFST      _UINT32_(0x28)      /* (RTC_MODE2_ALARM1) MODE2_ALARM Alarm n Value Offset */
-#define RTC_MODE2_MASK1_REG_OFST       _UINT32_(0x2C)      /* (RTC_MODE2_MASK1) MODE2_ALARM Alarm n Mask Offset */
 #define RTC_TAMPCTRL_REG_OFST          _UINT32_(0x60)      /* (RTC_TAMPCTRL) Tamper Control Offset */
 #define RTC_MODE0_TIMESTAMP_REG_OFST   _UINT32_(0x64)      /* (RTC_MODE0_TIMESTAMP) MODE0 Timestamp Offset */
 #define RTC_MODE1_TIMESTAMP_REG_OFST   _UINT32_(0x64)      /* (RTC_MODE1_TIMESTAMP) MODE1 Timestamp Offset */

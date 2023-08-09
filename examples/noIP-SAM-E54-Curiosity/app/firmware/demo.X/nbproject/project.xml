@@ -23,19 +23,19 @@
                     <type>2</type>
                 </confElem>
                 <confElem>
-                    <name>0</name>
+                    <name>release_node0</name>
                     <type>2</type>
                 </confElem>
                 <confElem>
-                    <name>1</name>
+                    <name>release_node1</name>
                     <type>2</type>
                 </confElem>
                 <confElem>
-                    <name>2</name>
+                    <name>release_node2</name>
                     <type>2</type>
                 </confElem>
                 <confElem>
-                    <name>3</name>
+                    <name>release_node3</name>
                     <type>2</type>
                 </confElem>
             </confList>

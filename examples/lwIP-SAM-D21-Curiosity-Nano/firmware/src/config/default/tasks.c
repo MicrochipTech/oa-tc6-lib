@@ -52,6 +52,7 @@
 
 #include "configuration.h"
 #include "definitions.h"
+#include "sys_tasks.h"
 
 
 
@@ -72,13 +73,13 @@
 void SYS_Tasks ( void )
 {
     /* Maintain system services */
-    
+
 
     /* Maintain Device Drivers */
-    
+
 
     /* Maintain Middleware & Other Libraries */
-    
+
 
     /* Maintain the application's state machine. */
         /* Call Application task APP. */

@@ -127,10 +127,8 @@
     <code>
     MAIN_RETURN main ( void )
     {
-        // Initialize the system
         SYS_Initialize(...);
-
-        // Main Loop
+        
         while(true)
         {
             SYS_Tasks();
@@ -163,10 +161,8 @@
     <code>
     MAIN_RETURN main ( void )
     {
-        // Initialize the system
         SYS_Initialize(...);
-
-        // Main Loop
+        
         while(true)
         {
             SYS_Tasks();

@@ -40,7 +40,7 @@
 *******************************************************************************/
 
 #ifndef PLIB_SPI0_MASTER_H
-#define PLIB_SPI0_MASTER__H
+#define PLIB_SPI0_MASTER_H
 
 #include "device.h"
 #include "plib_spi_master_common.h"
@@ -69,7 +69,7 @@ bool SPI0_IsTransmitterBusy( void );
 
 bool SPI0_IsBusy( void );
 
-void SPI0_CallbackRegister( const SPI_CALLBACK callback, uintptr_t context );
+void SPI0_CallbackRegister( SPI_CALLBACK callback, uintptr_t context );
 
 
 /* Provide C++ Compatibility */

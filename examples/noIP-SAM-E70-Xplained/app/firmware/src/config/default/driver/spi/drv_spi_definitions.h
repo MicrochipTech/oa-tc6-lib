@@ -144,15 +144,15 @@ typedef struct
 
 } DRV_SPI_TRANSFER_SETUP;
 
-typedef void (*DRV_SPI_PLIB_CALLBACK)( uintptr_t );
+typedef void (*DRV_SPI_PLIB_CALLBACK)( uintptr_t context);
 
-typedef bool (*DRV_SPI_PLIB_SETUP) (DRV_SPI_TRANSFER_SETUP *, uint32_t);
+typedef bool (*DRV_SPI_PLIB_SETUP) (DRV_SPI_TRANSFER_SETUP *setup, uint32_t spiSourceClock);
 
-typedef bool (*DRV_SPI_PLIB_WRITE_READ)(void*, size_t, void *, size_t);
+typedef bool (*DRV_SPI_PLIB_WRITE_READ)(void* pTransmitData, size_t txSize, void * pReceiveData, size_t rxSize);
 
 typedef bool (*DRV_SPI_PLIB_TRANSMITTER_IS_BUSY)(void);
 
-typedef void (* DRV_SPI_PLIB_CALLBACK_REGISTER)(DRV_SPI_PLIB_CALLBACK, uintptr_t);
+typedef void (* DRV_SPI_PLIB_CALLBACK_REGISTER)(DRV_SPI_PLIB_CALLBACK callBack, uintptr_t context);
 
 
 typedef struct

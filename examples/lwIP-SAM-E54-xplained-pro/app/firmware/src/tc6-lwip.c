@@ -182,13 +182,18 @@ int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_
         ip_addr_set_zero(&ip);
         ip_addr_set_zero(&nm);
         ip_addr_set_zero(&gw);
-        PRINT("LwIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, DHCP, ChipRev=%d]\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], TC6Regs_GetChipRevision(lw->tc.tc6));
+        PRINT("LwIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, DHCP, ChipRev=%d", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], TC6Regs_GetChipRevision(lw->tc.tc6));
 #else
         ipaddr_aton(lw->ip.ipAddr, &ipAddr);
         ipaddr_aton(TC6LwIP_NETMASK, &nm);
         ipaddr_aton(TC6LwIP_GATEWAY, &gw);
-        PRINT("LwIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, IP='%s', ChipRev=%d]\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], lw->ip.ipAddr, TC6Regs_GetChipRevision(lw->tc.tc6));
+        PRINT("LwIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, IP='%s', ChipRev=%d", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], lw->ip.ipAddr, TC6Regs_GetChipRevision(lw->tc.tc6));
 #endif
+        if (enablePlca) {
+            PRINT(", PLCA-NodeId=%d]\r\n", nodeId);
+        } else {
+            PRINT(", CSMA/CD]\r\n");
+        }
         if (!netif_add(&lw->ip.netint, &ipAddr.u_addr.ip4, &nm.u_addr.ip4, &gw.u_addr.ip4, lw, lwIpInit, ethernet_input)) {
             TC6_ASSERT(false);
             PRINT("Could not add TC6 interface to lwIP!\r\n");
@@ -442,6 +447,7 @@ void TC6_CB_OnRxEthernetSlice(TC6_t *pInst, const uint8_t *pRx, uint16_t offset,
         if (success && (lw->tc.pbuf || lw->tc.rxLen)) {
             TC6_ASSERT(false);
             lw->tc.rxInvalid = true;
+            pbuf_free(lw->tc.pbuf);
             success = false;
         }
 

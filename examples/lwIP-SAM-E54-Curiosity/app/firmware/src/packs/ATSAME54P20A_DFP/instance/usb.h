@@ -1,7 +1,7 @@
 /*
  * Instance header file for ATSAME54P20A
  *
- * Copyright (c) 2022 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2023 Microchip Technology Inc. and its subsidiaries.
  *
  * Subject to your compliance with these terms, you may use Microchip software and any derivatives
  * exclusively with Microchip products. It is your responsibility to comply with third party license
@@ -20,7 +20,7 @@
  *
  */
 
-/* file generated from device description version 2022-02-14T14:27:35Z */
+/* file generated from device description version 2023-03-17T09:50:08Z */
 #ifndef _SAME54_USB_INSTANCE_
 #define _SAME54_USB_INSTANCE_
 
@@ -36,6 +36,7 @@
 #define USB_GCLK_ID                              (10)       /* Index of Generic Clock */
 #define USB_INITIAL_CONTROL_QOS                  (3)        /* CONTROL QOS RESET value */
 #define USB_INITIAL_DATA_QOS                     (3)        /* DATA QOS RESET value */
+#define USB_INSTANCE_ID                          (32)       /* Instance index for USB */
 #define USB_MISSING_SOF_DET_IMPLEMENTED          (1)        /* 48 mHz xPLL feature implemented */
 #define USB_PIPE_NUM                             (8)        /* Number of USB pipes */
 #define USB_SYSTEM_CLOCK_IS_CKUSB                (0)        /* Dual (1'b0) or Single (1'b1) clock system */
@@ -43,6 +44,5 @@
 #define USB_2_AHB_RD_DATA_BITS                   (16)       /* 8, 16 or 32, here : 8-bits is required as UTMI interface should work in 8-bits mode */
 #define USB_2_AHB_RD_THRESHOLD                   (2)        /* as soon as there are 16 bytes-free inside the fifo, ahb read transfer is requested */
 #define USB_2_AHB_WR_DATA_BITS                   (8)        /* 8, 16 or 32 : here : 8-bits is required as UTMI interface should work in 8-bits mode */
-#define USB_INSTANCE_ID                          (32)       /* Instance index for USB */
 
 #endif /* _SAME54_USB_INSTANCE_ */

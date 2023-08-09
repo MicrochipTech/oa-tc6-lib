@@ -1,7 +1,7 @@
 /*
  * Instance header file for ATSAMV71Q21B
  *
- * Copyright (c) 2022 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2023 Microchip Technology Inc. and its subsidiaries.
  *
  * Subject to your compliance with these terms, you may use Microchip software and any derivatives
  * exclusively with Microchip products. It is your responsibility to comply with third party license
@@ -20,15 +20,15 @@
  *
  */
 
-/* file generated from device description version 2022-04-21T07:58:40Z */
+/* file generated from device description version 2023-03-27T04:11:11Z */
 #ifndef _SAMV71_HSMCI_INSTANCE_
 #define _SAMV71_HSMCI_INSTANCE_
 
 
 /* ========== Instance Parameter definitions for HSMCI peripheral ========== */
+#define HSMCI_CLOCK_ID                           (18)       
 #define HSMCI_DMAC_ID_RX                         (0)        
 #define HSMCI_DMAC_ID_TX                         (0)        
 #define HSMCI_INSTANCE_ID                        (18)       
-#define HSMCI_CLOCK_ID                           (18)       
 
 #endif /* _SAMV71_HSMCI_INSTANCE_ */

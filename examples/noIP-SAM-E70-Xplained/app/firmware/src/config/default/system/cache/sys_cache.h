@@ -410,7 +410,7 @@ void SYS_CACHE_CleanInvalidateDCache (void);
   Remarks:
     None.
 */
-void SYS_CACHE_InvalidateDCache_by_Addr (uint32_t *addr, int32_t size);
+void SYS_CACHE_InvalidateDCache_by_Addr (void *addr, int32_t size);
 
 /* Function:
     SYS_CACHE_CleanDCache_by_Addr (uint32_t *addr, int32_t size)
@@ -441,7 +441,7 @@ void SYS_CACHE_InvalidateDCache_by_Addr (uint32_t *addr, int32_t size);
   Remarks:
     None.
 */
-void SYS_CACHE_CleanDCache_by_Addr (uint32_t *addr, int32_t size);
+void SYS_CACHE_CleanDCache_by_Addr (void *addr, int32_t size);
 
 /* Function:
     SYS_CACHE_CleanInvalidateDCache_by_Addr (uint32_t *addr, int32_t size)
@@ -472,7 +472,7 @@ void SYS_CACHE_CleanDCache_by_Addr (uint32_t *addr, int32_t size);
   Remarks:
     None.
 */
-void SYS_CACHE_CleanInvalidateDCache_by_Addr (uint32_t *addr, int32_t size);
+void SYS_CACHE_CleanInvalidateDCache_by_Addr (void *addr, int32_t size);
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility

@@ -132,6 +132,13 @@ int8_t TC6NoIP_Init(bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t 
         }
     }
     if (success) {
+        uint8_t *mac = lw->tc.mac;
+        PRINT("NoIP-Init [MAC=%02X:%02X:%02X:%02X:%02X:%02X, ChipRev=%d", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], TC6Regs_GetChipRevision(lw->tc.tc6));
+        if (enablePlca) {
+            PRINT(", PLCA-NodeId=%d]\r\n", nodeId);
+        } else {
+            PRINT(", CSMA/CD]\r\n");
+        }
         lw->magic = NOIP_TC6_MAGIC;
     } else {
         TC6_Destroy(lw->tc.tc6);

@@ -56,7 +56,7 @@
 // *****************************************************************************
 void SYS_CACHE_EnableCaches (void)
 {
-    if ((INSTRUCTION_CACHE_IS_ENABLED() == 0) && (DATA_CACHE_IS_ENABLED() == 0)) // If Data and Instruction Caches are disabled
+    if ((INSTRUCTION_CACHE_IS_ENABLED() == 0U) && (DATA_CACHE_IS_ENABLED() == 0U)) // If Data and Instruction Caches are disabled
     {
         ICACHE_ENABLE();
         DCACHE_ENABLE();
@@ -65,7 +65,7 @@ void SYS_CACHE_EnableCaches (void)
 
 void SYS_CACHE_DisableCaches (void)
 {
-    if (INSTRUCTION_CACHE_IS_ENABLED() && DATA_CACHE_IS_ENABLED()) // If Data and Instruction Caches are enabled
+    if ((INSTRUCTION_CACHE_IS_ENABLED() != 0U) && (DATA_CACHE_IS_ENABLED() != 0U)) // If Data and Instruction Caches are enabled
     {
         DCACHE_DISABLE();
         ICACHE_DISABLE();
@@ -73,7 +73,7 @@ void SYS_CACHE_DisableCaches (void)
 }
 void SYS_CACHE_EnableICache (void)
 {
-    if (INSTRUCTION_CACHE_IS_ENABLED() == 0) // If Instruction Cache is disabled
+    if (INSTRUCTION_CACHE_IS_ENABLED() == 0U) // If Instruction Cache is disabled
     {
         ICACHE_ENABLE();
     }
@@ -81,7 +81,7 @@ void SYS_CACHE_EnableICache (void)
 
 void SYS_CACHE_DisableICache (void)
 {
-    if (INSTRUCTION_CACHE_IS_ENABLED()) // If Instruction Cache is enabled
+    if (INSTRUCTION_CACHE_IS_ENABLED() != 0U) // If Instruction Cache is enabled
     {
         ICACHE_DISABLE();
     }
@@ -89,7 +89,7 @@ void SYS_CACHE_DisableICache (void)
 
 void SYS_CACHE_InvalidateICache (void)
 {
-    if (INSTRUCTION_CACHE_IS_ENABLED()) // If Instruction Cache is enabled
+    if (INSTRUCTION_CACHE_IS_ENABLED() != 0U) // If Instruction Cache is enabled
     {
         ICACHE_INVALIDATE();
     }
@@ -97,7 +97,7 @@ void SYS_CACHE_InvalidateICache (void)
 
 void SYS_CACHE_EnableDCache (void)
 {
-    if (DATA_CACHE_IS_ENABLED() == 0) // If Data Cache is disabled
+    if (DATA_CACHE_IS_ENABLED() == 0U) // If Data Cache is disabled
     {
         DCACHE_ENABLE();
     }
@@ -105,7 +105,7 @@ void SYS_CACHE_EnableDCache (void)
 
 void SYS_CACHE_DisableDCache (void)
 {
-    if (DATA_CACHE_IS_ENABLED()) // If Data Cache is enabled
+    if (DATA_CACHE_IS_ENABLED() != 0U) // If Data Cache is enabled
     {
         DCACHE_DISABLE();
     }
@@ -113,7 +113,7 @@ void SYS_CACHE_DisableDCache (void)
 
 void SYS_CACHE_InvalidateDCache (void)
 {
-    if (DATA_CACHE_IS_ENABLED()) // If Data Cache is enabled
+    if (DATA_CACHE_IS_ENABLED() != 0U) // If Data Cache is enabled
     {
         DCACHE_INVALIDATE();
     }
@@ -121,40 +121,44 @@ void SYS_CACHE_InvalidateDCache (void)
 
 void SYS_CACHE_CleanDCache (void)
 {
-    if (DATA_CACHE_IS_ENABLED()) // If Data Cache is enabled
+    if (DATA_CACHE_IS_ENABLED() != 0U) // If Data Cache is enabled
     {
         DCACHE_CLEAN();
     }
 }
 
-void SYS_CACHE_CleanInvalidateDCache (void)
+void SYS_CACHE_InvalidateDCache_by_Addr (void *addr, int32_t size)
 {
-    if (DATA_CACHE_IS_ENABLED()) // If Data Cache is enabled
-    {
-        DCACHE_CLEAN_INVALIDATE();
-    }
-}
-
-void SYS_CACHE_InvalidateDCache_by_Addr (uint32_t *addr, int32_t size)
-{
-    if (DATA_CACHE_IS_ENABLED()) // If Data Cache is enabled
+    if (DATA_CACHE_IS_ENABLED() != 0U) // If Data Cache is enabled
     {
         DCACHE_INVALIDATE_BY_ADDR(addr, size);
     }
 }
 
-void SYS_CACHE_CleanDCache_by_Addr (uint32_t *addr, int32_t size)
+void SYS_CACHE_CleanDCache_by_Addr (void *addr, int32_t size)
 {
-    if (DATA_CACHE_IS_ENABLED()) // If Data Cache is enabled
+    if (DATA_CACHE_IS_ENABLED() != 0U) // If Data Cache is enabled
     {
         DCACHE_CLEAN_BY_ADDR(addr, size);
     }
 }
 
-void SYS_CACHE_CleanInvalidateDCache_by_Addr (uint32_t *addr, int32_t size)
+/* MISRA C-2012 Rule 5.1 deviated:1 Deviation record ID -  H3_MISRAC_2012_R_5_1_DR_1 */
+
+void SYS_CACHE_CleanInvalidateDCache (void)
 {
-    if (DATA_CACHE_IS_ENABLED()) // If Data Cache is enabled
+    if (DATA_CACHE_IS_ENABLED() != 0U) // If Data Cache is enabled
+    {
+        DCACHE_CLEAN_INVALIDATE();
+    }
+}
+
+void SYS_CACHE_CleanInvalidateDCache_by_Addr (void *addr, int32_t size)
+{
+    if (DATA_CACHE_IS_ENABLED() != 0U) // If Data Cache is enabled
     {
         DCACHE_CLEAN_INVALIDATE_BY_ADDR(addr, size);
     }
 }
+
+/* MISRAC 2012 deviation block end */

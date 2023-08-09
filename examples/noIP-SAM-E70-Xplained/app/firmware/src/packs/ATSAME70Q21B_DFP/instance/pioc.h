@@ -1,7 +1,7 @@
 /*
  * Instance header file for ATSAME70Q21B
  *
- * Copyright (c) 2022 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2023 Microchip Technology Inc. and its subsidiaries.
  *
  * Subject to your compliance with these terms, you may use Microchip software and any derivatives
  * exclusively with Microchip products. It is your responsibility to comply with third party license
@@ -20,13 +20,13 @@
  *
  */
 
-/* file generated from device description version 2022-04-21T07:53:48Z */
+/* file generated from device description version 2023-03-27T04:09:33Z */
 #ifndef _SAME70_PIOC_INSTANCE_
 #define _SAME70_PIOC_INSTANCE_
 
 
 /* ========== Instance Parameter definitions for PIOC peripheral ========== */
-#define PIOC_INSTANCE_ID                         (12)       
 #define PIOC_CLOCK_ID                            (12)       
+#define PIOC_INSTANCE_ID                         (12)       
 
 #endif /* _SAME70_PIOC_INSTANCE_ */

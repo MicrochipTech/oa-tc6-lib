@@ -1,7 +1,7 @@
 /*
  * Component description for USB
  *
- * Copyright (c) 2022 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2023 Microchip Technology Inc. and its subsidiaries.
  *
  * Subject to your compliance with these terms, you may use Microchip software and any derivatives
  * exclusively with Microchip products. It is your responsibility to comply with third party license
@@ -20,7 +20,7 @@
  *
  */
 
-/* file generated from device description version 2022-02-14T14:27:35Z */
+/* file generated from device description version 2023-03-17T09:50:08Z */
 #ifndef _SAME54_USB_COMPONENT_H_
 #define _SAME54_USB_COMPONENT_H_
 
@@ -160,10 +160,7 @@
 #define USB_DEVICE_EPCFG_EPTYPE1_Pos          _UINT8_(4)                                           /* (USB_DEVICE_EPCFG) End Point Type1 Position */
 #define USB_DEVICE_EPCFG_EPTYPE1_Msk          (_UINT8_(0x7) << USB_DEVICE_EPCFG_EPTYPE1_Pos)       /* (USB_DEVICE_EPCFG) End Point Type1 Mask */
 #define USB_DEVICE_EPCFG_EPTYPE1(value)       (USB_DEVICE_EPCFG_EPTYPE1_Msk & (_UINT8_(value) << USB_DEVICE_EPCFG_EPTYPE1_Pos)) /* Assigment of value for EPTYPE1 in the USB_DEVICE_EPCFG register */
-#define USB_DEVICE_EPCFG_NYETDIS_Pos          _UINT8_(7)                                           /* (USB_DEVICE_EPCFG) NYET Token Disable Position */
-#define USB_DEVICE_EPCFG_NYETDIS_Msk          (_UINT8_(0x1) << USB_DEVICE_EPCFG_NYETDIS_Pos)       /* (USB_DEVICE_EPCFG) NYET Token Disable Mask */
-#define USB_DEVICE_EPCFG_NYETDIS(value)       (USB_DEVICE_EPCFG_NYETDIS_Msk & (_UINT8_(value) << USB_DEVICE_EPCFG_NYETDIS_Pos)) /* Assigment of value for NYETDIS in the USB_DEVICE_EPCFG register */
-#define USB_DEVICE_EPCFG_Msk                  _UINT8_(0xF7)                                        /* (USB_DEVICE_EPCFG) Register Mask  */
+#define USB_DEVICE_EPCFG_Msk                  _UINT8_(0x77)                                        /* (USB_DEVICE_EPCFG) Register Mask  */
 
 
 /* -------- USB_DEVICE_EPSTATUSCLR : (USB Offset: 0x04) ( /W 8) DEVICE_ENDPOINT End Point Pipe Status Clear -------- */
@@ -592,27 +589,11 @@
 #define USB_DEVICE_CTRLB_SPDCONF(value)       (USB_DEVICE_CTRLB_SPDCONF_Msk & (_UINT16_(value) << USB_DEVICE_CTRLB_SPDCONF_Pos)) /* Assigment of value for SPDCONF in the USB_DEVICE_CTRLB register */
 #define   USB_DEVICE_CTRLB_SPDCONF_FS_Val     _UINT16_(0x0)                                        /* (USB_DEVICE_CTRLB) FS : Full Speed  */
 #define   USB_DEVICE_CTRLB_SPDCONF_LS_Val     _UINT16_(0x1)                                        /* (USB_DEVICE_CTRLB) LS : Low Speed  */
-#define   USB_DEVICE_CTRLB_SPDCONF_HS_Val     _UINT16_(0x2)                                        /* (USB_DEVICE_CTRLB) HS : High Speed capable  */
-#define   USB_DEVICE_CTRLB_SPDCONF_HSTM_Val   _UINT16_(0x3)                                        /* (USB_DEVICE_CTRLB) HSTM: High Speed Test Mode (force high-speed mode for test mode)  */
 #define USB_DEVICE_CTRLB_SPDCONF_FS           (USB_DEVICE_CTRLB_SPDCONF_FS_Val << USB_DEVICE_CTRLB_SPDCONF_Pos) /* (USB_DEVICE_CTRLB) FS : Full Speed Position  */
 #define USB_DEVICE_CTRLB_SPDCONF_LS           (USB_DEVICE_CTRLB_SPDCONF_LS_Val << USB_DEVICE_CTRLB_SPDCONF_Pos) /* (USB_DEVICE_CTRLB) LS : Low Speed Position  */
-#define USB_DEVICE_CTRLB_SPDCONF_HS           (USB_DEVICE_CTRLB_SPDCONF_HS_Val << USB_DEVICE_CTRLB_SPDCONF_Pos) /* (USB_DEVICE_CTRLB) HS : High Speed capable Position  */
-#define USB_DEVICE_CTRLB_SPDCONF_HSTM         (USB_DEVICE_CTRLB_SPDCONF_HSTM_Val << USB_DEVICE_CTRLB_SPDCONF_Pos) /* (USB_DEVICE_CTRLB) HSTM: High Speed Test Mode (force high-speed mode for test mode) Position  */
 #define USB_DEVICE_CTRLB_NREPLY_Pos           _UINT16_(4)                                          /* (USB_DEVICE_CTRLB) No Reply Position */
 #define USB_DEVICE_CTRLB_NREPLY_Msk           (_UINT16_(0x1) << USB_DEVICE_CTRLB_NREPLY_Pos)       /* (USB_DEVICE_CTRLB) No Reply Mask */
 #define USB_DEVICE_CTRLB_NREPLY(value)        (USB_DEVICE_CTRLB_NREPLY_Msk & (_UINT16_(value) << USB_DEVICE_CTRLB_NREPLY_Pos)) /* Assigment of value for NREPLY in the USB_DEVICE_CTRLB register */
-#define USB_DEVICE_CTRLB_TSTJ_Pos             _UINT16_(5)                                          /* (USB_DEVICE_CTRLB) Test mode J Position */
-#define USB_DEVICE_CTRLB_TSTJ_Msk             (_UINT16_(0x1) << USB_DEVICE_CTRLB_TSTJ_Pos)         /* (USB_DEVICE_CTRLB) Test mode J Mask */
-#define USB_DEVICE_CTRLB_TSTJ(value)          (USB_DEVICE_CTRLB_TSTJ_Msk & (_UINT16_(value) << USB_DEVICE_CTRLB_TSTJ_Pos)) /* Assigment of value for TSTJ in the USB_DEVICE_CTRLB register */
-#define USB_DEVICE_CTRLB_TSTK_Pos             _UINT16_(6)                                          /* (USB_DEVICE_CTRLB) Test mode K Position */
-#define USB_DEVICE_CTRLB_TSTK_Msk             (_UINT16_(0x1) << USB_DEVICE_CTRLB_TSTK_Pos)         /* (USB_DEVICE_CTRLB) Test mode K Mask */
-#define USB_DEVICE_CTRLB_TSTK(value)          (USB_DEVICE_CTRLB_TSTK_Msk & (_UINT16_(value) << USB_DEVICE_CTRLB_TSTK_Pos)) /* Assigment of value for TSTK in the USB_DEVICE_CTRLB register */
-#define USB_DEVICE_CTRLB_TSTPCKT_Pos          _UINT16_(7)                                          /* (USB_DEVICE_CTRLB) Test packet mode Position */
-#define USB_DEVICE_CTRLB_TSTPCKT_Msk          (_UINT16_(0x1) << USB_DEVICE_CTRLB_TSTPCKT_Pos)      /* (USB_DEVICE_CTRLB) Test packet mode Mask */
-#define USB_DEVICE_CTRLB_TSTPCKT(value)       (USB_DEVICE_CTRLB_TSTPCKT_Msk & (_UINT16_(value) << USB_DEVICE_CTRLB_TSTPCKT_Pos)) /* Assigment of value for TSTPCKT in the USB_DEVICE_CTRLB register */
-#define USB_DEVICE_CTRLB_OPMODE2_Pos          _UINT16_(8)                                          /* (USB_DEVICE_CTRLB) Specific Operational Mode Position */
-#define USB_DEVICE_CTRLB_OPMODE2_Msk          (_UINT16_(0x1) << USB_DEVICE_CTRLB_OPMODE2_Pos)      /* (USB_DEVICE_CTRLB) Specific Operational Mode Mask */
-#define USB_DEVICE_CTRLB_OPMODE2(value)       (USB_DEVICE_CTRLB_OPMODE2_Msk & (_UINT16_(value) << USB_DEVICE_CTRLB_OPMODE2_Pos)) /* Assigment of value for OPMODE2 in the USB_DEVICE_CTRLB register */
 #define USB_DEVICE_CTRLB_GNAK_Pos             _UINT16_(9)                                          /* (USB_DEVICE_CTRLB) Global NAK Position */
 #define USB_DEVICE_CTRLB_GNAK_Msk             (_UINT16_(0x1) << USB_DEVICE_CTRLB_GNAK_Pos)         /* (USB_DEVICE_CTRLB) Global NAK Mask */
 #define USB_DEVICE_CTRLB_GNAK(value)          (USB_DEVICE_CTRLB_GNAK_Msk & (_UINT16_(value) << USB_DEVICE_CTRLB_GNAK_Pos)) /* Assigment of value for GNAK in the USB_DEVICE_CTRLB register */
@@ -622,16 +603,11 @@
 #define   USB_DEVICE_CTRLB_LPMHDSK_NO_Val     _UINT16_(0x0)                                        /* (USB_DEVICE_CTRLB) No handshake. LPM is not supported  */
 #define   USB_DEVICE_CTRLB_LPMHDSK_ACK_Val    _UINT16_(0x1)                                        /* (USB_DEVICE_CTRLB) ACK  */
 #define   USB_DEVICE_CTRLB_LPMHDSK_NYET_Val   _UINT16_(0x2)                                        /* (USB_DEVICE_CTRLB) NYET  */
-#define   USB_DEVICE_CTRLB_LPMHDSK_STALL_Val  _UINT16_(0x3)                                        /* (USB_DEVICE_CTRLB) STALL  */
 #define USB_DEVICE_CTRLB_LPMHDSK_NO           (USB_DEVICE_CTRLB_LPMHDSK_NO_Val << USB_DEVICE_CTRLB_LPMHDSK_Pos) /* (USB_DEVICE_CTRLB) No handshake. LPM is not supported Position  */
 #define USB_DEVICE_CTRLB_LPMHDSK_ACK          (USB_DEVICE_CTRLB_LPMHDSK_ACK_Val << USB_DEVICE_CTRLB_LPMHDSK_Pos) /* (USB_DEVICE_CTRLB) ACK Position  */
 #define USB_DEVICE_CTRLB_LPMHDSK_NYET         (USB_DEVICE_CTRLB_LPMHDSK_NYET_Val << USB_DEVICE_CTRLB_LPMHDSK_Pos) /* (USB_DEVICE_CTRLB) NYET Position  */
-#define USB_DEVICE_CTRLB_LPMHDSK_STALL        (USB_DEVICE_CTRLB_LPMHDSK_STALL_Val << USB_DEVICE_CTRLB_LPMHDSK_Pos) /* (USB_DEVICE_CTRLB) STALL Position  */
-#define USB_DEVICE_CTRLB_Msk                  _UINT16_(0x0FFF)                                     /* (USB_DEVICE_CTRLB) Register Mask  */
+#define USB_DEVICE_CTRLB_Msk                  _UINT16_(0x0E1F)                                     /* (USB_DEVICE_CTRLB) Register Mask  */
 
-#define USB_DEVICE_CTRLB_OPMODE_Pos           _UINT16_(8)                                          /* (USB_DEVICE_CTRLB Position) Specific Operational Mode */
-#define USB_DEVICE_CTRLB_OPMODE_Msk           (_UINT16_(0x1) << USB_DEVICE_CTRLB_OPMODE_Pos)       /* (USB_DEVICE_CTRLB Mask) OPMODE */
-#define USB_DEVICE_CTRLB_OPMODE(value)        (USB_DEVICE_CTRLB_OPMODE_Msk & (_UINT16_(value) << USB_DEVICE_CTRLB_OPMODE_Pos)) 
 
 /* -------- USB_HOST_CTRLB : (USB Offset: 0x08) (R/W 16) HOST Control B -------- */
 #define USB_HOST_CTRLB_RESETVALUE             _UINT16_(0x00)                                       /*  (USB_HOST_CTRLB) HOST Control B  Reset Value */
@@ -642,19 +618,11 @@
 #define USB_HOST_CTRLB_SPDCONF_Pos            _UINT16_(2)                                          /* (USB_HOST_CTRLB) Speed Configuration for Host Position */
 #define USB_HOST_CTRLB_SPDCONF_Msk            (_UINT16_(0x3) << USB_HOST_CTRLB_SPDCONF_Pos)        /* (USB_HOST_CTRLB) Speed Configuration for Host Mask */
 #define USB_HOST_CTRLB_SPDCONF(value)         (USB_HOST_CTRLB_SPDCONF_Msk & (_UINT16_(value) << USB_HOST_CTRLB_SPDCONF_Pos)) /* Assigment of value for SPDCONF in the USB_HOST_CTRLB register */
-#define   USB_HOST_CTRLB_SPDCONF_NORMAL_Val   _UINT16_(0x0)                                        /* (USB_HOST_CTRLB) Normal mode: the host starts in full-speed mode and performs a high-speed reset to switch to the high speed mode if the downstream peripheral is high-speed capable.  */
-#define   USB_HOST_CTRLB_SPDCONF_FS_Val       _UINT16_(0x3)                                        /* (USB_HOST_CTRLB) Full-speed: the host remains in full-speed mode whatever is the peripheral speed capability. Relevant in UTMI mode only.  */
-#define USB_HOST_CTRLB_SPDCONF_NORMAL         (USB_HOST_CTRLB_SPDCONF_NORMAL_Val << USB_HOST_CTRLB_SPDCONF_Pos) /* (USB_HOST_CTRLB) Normal mode: the host starts in full-speed mode and performs a high-speed reset to switch to the high speed mode if the downstream peripheral is high-speed capable. Position  */
-#define USB_HOST_CTRLB_SPDCONF_FS             (USB_HOST_CTRLB_SPDCONF_FS_Val << USB_HOST_CTRLB_SPDCONF_Pos) /* (USB_HOST_CTRLB) Full-speed: the host remains in full-speed mode whatever is the peripheral speed capability. Relevant in UTMI mode only. Position  */
+#define   USB_HOST_CTRLB_SPDCONF_NORMAL_Val   _UINT16_(0x0)                                        /* (USB_HOST_CTRLB) Low and Full Speed capable  */
+#define USB_HOST_CTRLB_SPDCONF_NORMAL         (USB_HOST_CTRLB_SPDCONF_NORMAL_Val << USB_HOST_CTRLB_SPDCONF_Pos) /* (USB_HOST_CTRLB) Low and Full Speed capable Position  */
 #define USB_HOST_CTRLB_AUTORESUME_Pos         _UINT16_(4)                                          /* (USB_HOST_CTRLB) Auto Resume Enable Position */
 #define USB_HOST_CTRLB_AUTORESUME_Msk         (_UINT16_(0x1) << USB_HOST_CTRLB_AUTORESUME_Pos)     /* (USB_HOST_CTRLB) Auto Resume Enable Mask */
 #define USB_HOST_CTRLB_AUTORESUME(value)      (USB_HOST_CTRLB_AUTORESUME_Msk & (_UINT16_(value) << USB_HOST_CTRLB_AUTORESUME_Pos)) /* Assigment of value for AUTORESUME in the USB_HOST_CTRLB register */
-#define USB_HOST_CTRLB_TSTJ_Pos               _UINT16_(5)                                          /* (USB_HOST_CTRLB) Test mode J Position */
-#define USB_HOST_CTRLB_TSTJ_Msk               (_UINT16_(0x1) << USB_HOST_CTRLB_TSTJ_Pos)           /* (USB_HOST_CTRLB) Test mode J Mask */
-#define USB_HOST_CTRLB_TSTJ(value)            (USB_HOST_CTRLB_TSTJ_Msk & (_UINT16_(value) << USB_HOST_CTRLB_TSTJ_Pos)) /* Assigment of value for TSTJ in the USB_HOST_CTRLB register */
-#define USB_HOST_CTRLB_TSTK_Pos               _UINT16_(6)                                          /* (USB_HOST_CTRLB) Test mode K Position */
-#define USB_HOST_CTRLB_TSTK_Msk               (_UINT16_(0x1) << USB_HOST_CTRLB_TSTK_Pos)           /* (USB_HOST_CTRLB) Test mode K Mask */
-#define USB_HOST_CTRLB_TSTK(value)            (USB_HOST_CTRLB_TSTK_Msk & (_UINT16_(value) << USB_HOST_CTRLB_TSTK_Pos)) /* Assigment of value for TSTK in the USB_HOST_CTRLB register */
 #define USB_HOST_CTRLB_SOFE_Pos               _UINT16_(8)                                          /* (USB_HOST_CTRLB) Start of Frame Generation Enable Position */
 #define USB_HOST_CTRLB_SOFE_Msk               (_UINT16_(0x1) << USB_HOST_CTRLB_SOFE_Pos)           /* (USB_HOST_CTRLB) Start of Frame Generation Enable Mask */
 #define USB_HOST_CTRLB_SOFE(value)            (USB_HOST_CTRLB_SOFE_Msk & (_UINT16_(value) << USB_HOST_CTRLB_SOFE_Pos)) /* Assigment of value for SOFE in the USB_HOST_CTRLB register */
@@ -667,7 +635,7 @@
 #define USB_HOST_CTRLB_L1RESUME_Pos           _UINT16_(11)                                         /* (USB_HOST_CTRLB) Send L1 Resume Position */
 #define USB_HOST_CTRLB_L1RESUME_Msk           (_UINT16_(0x1) << USB_HOST_CTRLB_L1RESUME_Pos)       /* (USB_HOST_CTRLB) Send L1 Resume Mask */
 #define USB_HOST_CTRLB_L1RESUME(value)        (USB_HOST_CTRLB_L1RESUME_Msk & (_UINT16_(value) << USB_HOST_CTRLB_L1RESUME_Pos)) /* Assigment of value for L1RESUME in the USB_HOST_CTRLB register */
-#define USB_HOST_CTRLB_Msk                    _UINT16_(0x0F7E)                                     /* (USB_HOST_CTRLB) Register Mask  */
+#define USB_HOST_CTRLB_Msk                    _UINT16_(0x0F1E)                                     /* (USB_HOST_CTRLB) Register Mask  */
 
 
 /* -------- USB_DEVICE_DADD : (USB Offset: 0x0A) (R/W 8) DEVICE Device Address -------- */
@@ -702,19 +670,17 @@
 #define USB_DEVICE_STATUS_SPEED(value)        (USB_DEVICE_STATUS_SPEED_Msk & (_UINT8_(value) << USB_DEVICE_STATUS_SPEED_Pos)) /* Assigment of value for SPEED in the USB_DEVICE_STATUS register */
 #define   USB_DEVICE_STATUS_SPEED_FS_Val      _UINT8_(0x0)                                         /* (USB_DEVICE_STATUS) Full-speed mode  */
 #define   USB_DEVICE_STATUS_SPEED_LS_Val      _UINT8_(0x1)                                         /* (USB_DEVICE_STATUS) Low-speed mode  */
-#define   USB_DEVICE_STATUS_SPEED_HS_Val      _UINT8_(0x2)                                         /* (USB_DEVICE_STATUS) High-speed mode  */
 #define USB_DEVICE_STATUS_SPEED_FS            (USB_DEVICE_STATUS_SPEED_FS_Val << USB_DEVICE_STATUS_SPEED_Pos) /* (USB_DEVICE_STATUS) Full-speed mode Position  */
 #define USB_DEVICE_STATUS_SPEED_LS            (USB_DEVICE_STATUS_SPEED_LS_Val << USB_DEVICE_STATUS_SPEED_Pos) /* (USB_DEVICE_STATUS) Low-speed mode Position  */
-#define USB_DEVICE_STATUS_SPEED_HS            (USB_DEVICE_STATUS_SPEED_HS_Val << USB_DEVICE_STATUS_SPEED_Pos) /* (USB_DEVICE_STATUS) High-speed mode Position  */
 #define USB_DEVICE_STATUS_LINESTATE_Pos       _UINT8_(6)                                           /* (USB_DEVICE_STATUS) USB Line State Status Position */
 #define USB_DEVICE_STATUS_LINESTATE_Msk       (_UINT8_(0x3) << USB_DEVICE_STATUS_LINESTATE_Pos)    /* (USB_DEVICE_STATUS) USB Line State Status Mask */
 #define USB_DEVICE_STATUS_LINESTATE(value)    (USB_DEVICE_STATUS_LINESTATE_Msk & (_UINT8_(value) << USB_DEVICE_STATUS_LINESTATE_Pos)) /* Assigment of value for LINESTATE in the USB_DEVICE_STATUS register */
-#define   USB_DEVICE_STATUS_LINESTATE_0_Val   _UINT8_(0x0)                                         /* (USB_DEVICE_STATUS) SE0/RESET  */
-#define   USB_DEVICE_STATUS_LINESTATE_1_Val   _UINT8_(0x1)                                         /* (USB_DEVICE_STATUS) FS-J or LS-K State  */
-#define   USB_DEVICE_STATUS_LINESTATE_2_Val   _UINT8_(0x2)                                         /* (USB_DEVICE_STATUS) FS-K or LS-J State  */
-#define USB_DEVICE_STATUS_LINESTATE_0         (USB_DEVICE_STATUS_LINESTATE_0_Val << USB_DEVICE_STATUS_LINESTATE_Pos) /* (USB_DEVICE_STATUS) SE0/RESET Position  */
-#define USB_DEVICE_STATUS_LINESTATE_1         (USB_DEVICE_STATUS_LINESTATE_1_Val << USB_DEVICE_STATUS_LINESTATE_Pos) /* (USB_DEVICE_STATUS) FS-J or LS-K State Position  */
-#define USB_DEVICE_STATUS_LINESTATE_2         (USB_DEVICE_STATUS_LINESTATE_2_Val << USB_DEVICE_STATUS_LINESTATE_Pos) /* (USB_DEVICE_STATUS) FS-K or LS-J State Position  */
+#define   USB_DEVICE_STATUS_LINESTATE_SE0RESET_Val _UINT8_(0x0)                                         /* (USB_DEVICE_STATUS) SE0/RESET  */
+#define   USB_DEVICE_STATUS_LINESTATE_FSJLSK_Val _UINT8_(0x1)                                         /* (USB_DEVICE_STATUS) FS-J or LS-K State  */
+#define   USB_DEVICE_STATUS_LINESTATE_FSKLSJ_Val _UINT8_(0x2)                                         /* (USB_DEVICE_STATUS) FS-K or LS-J State  */
+#define USB_DEVICE_STATUS_LINESTATE_SE0RESET  (USB_DEVICE_STATUS_LINESTATE_SE0RESET_Val << USB_DEVICE_STATUS_LINESTATE_Pos) /* (USB_DEVICE_STATUS) SE0/RESET Position  */
+#define USB_DEVICE_STATUS_LINESTATE_FSJLSK    (USB_DEVICE_STATUS_LINESTATE_FSJLSK_Val << USB_DEVICE_STATUS_LINESTATE_Pos) /* (USB_DEVICE_STATUS) FS-J or LS-K State Position  */
+#define USB_DEVICE_STATUS_LINESTATE_FSKLSJ    (USB_DEVICE_STATUS_LINESTATE_FSKLSJ_Val << USB_DEVICE_STATUS_LINESTATE_Pos) /* (USB_DEVICE_STATUS) FS-K or LS-J State Position  */
 #define USB_DEVICE_STATUS_Msk                 _UINT8_(0xCC)                                        /* (USB_DEVICE_STATUS) Register Mask  */
 
 
@@ -756,28 +722,22 @@
 /* -------- USB_DEVICE_FNUM : (USB Offset: 0x10) ( R/ 16) DEVICE Device Frame Number -------- */
 #define USB_DEVICE_FNUM_RESETVALUE            _UINT16_(0x00)                                       /*  (USB_DEVICE_FNUM) DEVICE Device Frame Number  Reset Value */
 
-#define USB_DEVICE_FNUM_MFNUM_Pos             _UINT16_(0)                                          /* (USB_DEVICE_FNUM) Micro Frame Number Position */
-#define USB_DEVICE_FNUM_MFNUM_Msk             (_UINT16_(0x7) << USB_DEVICE_FNUM_MFNUM_Pos)         /* (USB_DEVICE_FNUM) Micro Frame Number Mask */
-#define USB_DEVICE_FNUM_MFNUM(value)          (USB_DEVICE_FNUM_MFNUM_Msk & (_UINT16_(value) << USB_DEVICE_FNUM_MFNUM_Pos)) /* Assigment of value for MFNUM in the USB_DEVICE_FNUM register */
 #define USB_DEVICE_FNUM_FNUM_Pos              _UINT16_(3)                                          /* (USB_DEVICE_FNUM) Frame Number Position */
 #define USB_DEVICE_FNUM_FNUM_Msk              (_UINT16_(0x7FF) << USB_DEVICE_FNUM_FNUM_Pos)        /* (USB_DEVICE_FNUM) Frame Number Mask */
 #define USB_DEVICE_FNUM_FNUM(value)           (USB_DEVICE_FNUM_FNUM_Msk & (_UINT16_(value) << USB_DEVICE_FNUM_FNUM_Pos)) /* Assigment of value for FNUM in the USB_DEVICE_FNUM register */
 #define USB_DEVICE_FNUM_FNCERR_Pos            _UINT16_(15)                                         /* (USB_DEVICE_FNUM) Frame Number CRC Error Position */
 #define USB_DEVICE_FNUM_FNCERR_Msk            (_UINT16_(0x1) << USB_DEVICE_FNUM_FNCERR_Pos)        /* (USB_DEVICE_FNUM) Frame Number CRC Error Mask */
 #define USB_DEVICE_FNUM_FNCERR(value)         (USB_DEVICE_FNUM_FNCERR_Msk & (_UINT16_(value) << USB_DEVICE_FNUM_FNCERR_Pos)) /* Assigment of value for FNCERR in the USB_DEVICE_FNUM register */
-#define USB_DEVICE_FNUM_Msk                   _UINT16_(0xBFFF)                                     /* (USB_DEVICE_FNUM) Register Mask  */
+#define USB_DEVICE_FNUM_Msk                   _UINT16_(0xBFF8)                                     /* (USB_DEVICE_FNUM) Register Mask  */
 
 
 /* -------- USB_HOST_FNUM : (USB Offset: 0x10) (R/W 16) HOST Host Frame Number -------- */
 #define USB_HOST_FNUM_RESETVALUE              _UINT16_(0x00)                                       /*  (USB_HOST_FNUM) HOST Host Frame Number  Reset Value */
 
-#define USB_HOST_FNUM_MFNUM_Pos               _UINT16_(0)                                          /* (USB_HOST_FNUM) Micro Frame Number Position */
-#define USB_HOST_FNUM_MFNUM_Msk               (_UINT16_(0x7) << USB_HOST_FNUM_MFNUM_Pos)           /* (USB_HOST_FNUM) Micro Frame Number Mask */
-#define USB_HOST_FNUM_MFNUM(value)            (USB_HOST_FNUM_MFNUM_Msk & (_UINT16_(value) << USB_HOST_FNUM_MFNUM_Pos)) /* Assigment of value for MFNUM in the USB_HOST_FNUM register */
 #define USB_HOST_FNUM_FNUM_Pos                _UINT16_(3)                                          /* (USB_HOST_FNUM) Frame Number Position */
 #define USB_HOST_FNUM_FNUM_Msk                (_UINT16_(0x7FF) << USB_HOST_FNUM_FNUM_Pos)          /* (USB_HOST_FNUM) Frame Number Mask */
 #define USB_HOST_FNUM_FNUM(value)             (USB_HOST_FNUM_FNUM_Msk & (_UINT16_(value) << USB_HOST_FNUM_FNUM_Pos)) /* Assigment of value for FNUM in the USB_HOST_FNUM register */
-#define USB_HOST_FNUM_Msk                     _UINT16_(0x3FFF)                                     /* (USB_HOST_FNUM) Register Mask  */
+#define USB_HOST_FNUM_Msk                     _UINT16_(0x3FF8)                                     /* (USB_HOST_FNUM) Register Mask  */
 
 
 /* -------- USB_HOST_FLENHIGH : (USB Offset: 0x12) ( R/ 8) HOST Host Frame Length -------- */
@@ -795,9 +755,6 @@
 #define USB_DEVICE_INTENCLR_SUSPEND_Pos       _UINT16_(0)                                          /* (USB_DEVICE_INTENCLR) Suspend Interrupt Enable Position */
 #define USB_DEVICE_INTENCLR_SUSPEND_Msk       (_UINT16_(0x1) << USB_DEVICE_INTENCLR_SUSPEND_Pos)   /* (USB_DEVICE_INTENCLR) Suspend Interrupt Enable Mask */
 #define USB_DEVICE_INTENCLR_SUSPEND(value)    (USB_DEVICE_INTENCLR_SUSPEND_Msk & (_UINT16_(value) << USB_DEVICE_INTENCLR_SUSPEND_Pos)) /* Assigment of value for SUSPEND in the USB_DEVICE_INTENCLR register */
-#define USB_DEVICE_INTENCLR_MSOF_Pos          _UINT16_(1)                                          /* (USB_DEVICE_INTENCLR) Micro Start of Frame Interrupt Enable in High Speed Mode Position */
-#define USB_DEVICE_INTENCLR_MSOF_Msk          (_UINT16_(0x1) << USB_DEVICE_INTENCLR_MSOF_Pos)      /* (USB_DEVICE_INTENCLR) Micro Start of Frame Interrupt Enable in High Speed Mode Mask */
-#define USB_DEVICE_INTENCLR_MSOF(value)       (USB_DEVICE_INTENCLR_MSOF_Msk & (_UINT16_(value) << USB_DEVICE_INTENCLR_MSOF_Pos)) /* Assigment of value for MSOF in the USB_DEVICE_INTENCLR register */
 #define USB_DEVICE_INTENCLR_SOF_Pos           _UINT16_(2)                                          /* (USB_DEVICE_INTENCLR) Start Of Frame Interrupt Enable Position */
 #define USB_DEVICE_INTENCLR_SOF_Msk           (_UINT16_(0x1) << USB_DEVICE_INTENCLR_SOF_Pos)       /* (USB_DEVICE_INTENCLR) Start Of Frame Interrupt Enable Mask */
 #define USB_DEVICE_INTENCLR_SOF(value)        (USB_DEVICE_INTENCLR_SOF_Msk & (_UINT16_(value) << USB_DEVICE_INTENCLR_SOF_Pos)) /* Assigment of value for SOF in the USB_DEVICE_INTENCLR register */
@@ -822,7 +779,7 @@
 #define USB_DEVICE_INTENCLR_LPMSUSP_Pos       _UINT16_(9)                                          /* (USB_DEVICE_INTENCLR) Link Power Management Suspend Interrupt Enable Position */
 #define USB_DEVICE_INTENCLR_LPMSUSP_Msk       (_UINT16_(0x1) << USB_DEVICE_INTENCLR_LPMSUSP_Pos)   /* (USB_DEVICE_INTENCLR) Link Power Management Suspend Interrupt Enable Mask */
 #define USB_DEVICE_INTENCLR_LPMSUSP(value)    (USB_DEVICE_INTENCLR_LPMSUSP_Msk & (_UINT16_(value) << USB_DEVICE_INTENCLR_LPMSUSP_Pos)) /* Assigment of value for LPMSUSP in the USB_DEVICE_INTENCLR register */
-#define USB_DEVICE_INTENCLR_Msk               _UINT16_(0x03FF)                                     /* (USB_DEVICE_INTENCLR) Register Mask  */
+#define USB_DEVICE_INTENCLR_Msk               _UINT16_(0x03FD)                                     /* (USB_DEVICE_INTENCLR) Register Mask  */
 
 
 /* -------- USB_HOST_INTENCLR : (USB Offset: 0x14) (R/W 16) HOST Host Interrupt Enable Clear -------- */
@@ -861,9 +818,6 @@
 #define USB_DEVICE_INTENSET_SUSPEND_Pos       _UINT16_(0)                                          /* (USB_DEVICE_INTENSET) Suspend Interrupt Enable Position */
 #define USB_DEVICE_INTENSET_SUSPEND_Msk       (_UINT16_(0x1) << USB_DEVICE_INTENSET_SUSPEND_Pos)   /* (USB_DEVICE_INTENSET) Suspend Interrupt Enable Mask */
 #define USB_DEVICE_INTENSET_SUSPEND(value)    (USB_DEVICE_INTENSET_SUSPEND_Msk & (_UINT16_(value) << USB_DEVICE_INTENSET_SUSPEND_Pos)) /* Assigment of value for SUSPEND in the USB_DEVICE_INTENSET register */
-#define USB_DEVICE_INTENSET_MSOF_Pos          _UINT16_(1)                                          /* (USB_DEVICE_INTENSET) Micro Start of Frame Interrupt Enable in High Speed Mode Position */
-#define USB_DEVICE_INTENSET_MSOF_Msk          (_UINT16_(0x1) << USB_DEVICE_INTENSET_MSOF_Pos)      /* (USB_DEVICE_INTENSET) Micro Start of Frame Interrupt Enable in High Speed Mode Mask */
-#define USB_DEVICE_INTENSET_MSOF(value)       (USB_DEVICE_INTENSET_MSOF_Msk & (_UINT16_(value) << USB_DEVICE_INTENSET_MSOF_Pos)) /* Assigment of value for MSOF in the USB_DEVICE_INTENSET register */
 #define USB_DEVICE_INTENSET_SOF_Pos           _UINT16_(2)                                          /* (USB_DEVICE_INTENSET) Start Of Frame Interrupt Enable Position */
 #define USB_DEVICE_INTENSET_SOF_Msk           (_UINT16_(0x1) << USB_DEVICE_INTENSET_SOF_Pos)       /* (USB_DEVICE_INTENSET) Start Of Frame Interrupt Enable Mask */
 #define USB_DEVICE_INTENSET_SOF(value)        (USB_DEVICE_INTENSET_SOF_Msk & (_UINT16_(value) << USB_DEVICE_INTENSET_SOF_Pos)) /* Assigment of value for SOF in the USB_DEVICE_INTENSET register */
@@ -888,7 +842,7 @@
 #define USB_DEVICE_INTENSET_LPMSUSP_Pos       _UINT16_(9)                                          /* (USB_DEVICE_INTENSET) Link Power Management Suspend Interrupt Enable Position */
 #define USB_DEVICE_INTENSET_LPMSUSP_Msk       (_UINT16_(0x1) << USB_DEVICE_INTENSET_LPMSUSP_Pos)   /* (USB_DEVICE_INTENSET) Link Power Management Suspend Interrupt Enable Mask */
 #define USB_DEVICE_INTENSET_LPMSUSP(value)    (USB_DEVICE_INTENSET_LPMSUSP_Msk & (_UINT16_(value) << USB_DEVICE_INTENSET_LPMSUSP_Pos)) /* Assigment of value for LPMSUSP in the USB_DEVICE_INTENSET register */
-#define USB_DEVICE_INTENSET_Msk               _UINT16_(0x03FF)                                     /* (USB_DEVICE_INTENSET) Register Mask  */
+#define USB_DEVICE_INTENSET_Msk               _UINT16_(0x03FD)                                     /* (USB_DEVICE_INTENSET) Register Mask  */
 
 
 /* -------- USB_HOST_INTENSET : (USB Offset: 0x18) (R/W 16) HOST Host Interrupt Enable Set -------- */
@@ -927,9 +881,6 @@
 #define USB_DEVICE_INTFLAG_SUSPEND_Pos        _UINT16_(0)                                          /* (USB_DEVICE_INTFLAG) Suspend Position */
 #define USB_DEVICE_INTFLAG_SUSPEND_Msk        (_UINT16_(0x1) << USB_DEVICE_INTFLAG_SUSPEND_Pos)    /* (USB_DEVICE_INTFLAG) Suspend Mask */
 #define USB_DEVICE_INTFLAG_SUSPEND(value)     (USB_DEVICE_INTFLAG_SUSPEND_Msk & (_UINT16_(value) << USB_DEVICE_INTFLAG_SUSPEND_Pos)) /* Assigment of value for SUSPEND in the USB_DEVICE_INTFLAG register */
-#define USB_DEVICE_INTFLAG_MSOF_Pos           _UINT16_(1)                                          /* (USB_DEVICE_INTFLAG) Micro Start of Frame in High Speed Mode Position */
-#define USB_DEVICE_INTFLAG_MSOF_Msk           (_UINT16_(0x1) << USB_DEVICE_INTFLAG_MSOF_Pos)       /* (USB_DEVICE_INTFLAG) Micro Start of Frame in High Speed Mode Mask */
-#define USB_DEVICE_INTFLAG_MSOF(value)        (USB_DEVICE_INTFLAG_MSOF_Msk & (_UINT16_(value) << USB_DEVICE_INTFLAG_MSOF_Pos)) /* Assigment of value for MSOF in the USB_DEVICE_INTFLAG register */
 #define USB_DEVICE_INTFLAG_SOF_Pos            _UINT16_(2)                                          /* (USB_DEVICE_INTFLAG) Start Of Frame Position */
 #define USB_DEVICE_INTFLAG_SOF_Msk            (_UINT16_(0x1) << USB_DEVICE_INTFLAG_SOF_Pos)        /* (USB_DEVICE_INTFLAG) Start Of Frame Mask */
 #define USB_DEVICE_INTFLAG_SOF(value)         (USB_DEVICE_INTFLAG_SOF_Msk & (_UINT16_(value) << USB_DEVICE_INTFLAG_SOF_Pos)) /* Assigment of value for SOF in the USB_DEVICE_INTFLAG register */
@@ -954,7 +905,7 @@
 #define USB_DEVICE_INTFLAG_LPMSUSP_Pos        _UINT16_(9)                                          /* (USB_DEVICE_INTFLAG) Link Power Management Suspend Position */
 #define USB_DEVICE_INTFLAG_LPMSUSP_Msk        (_UINT16_(0x1) << USB_DEVICE_INTFLAG_LPMSUSP_Pos)    /* (USB_DEVICE_INTFLAG) Link Power Management Suspend Mask */
 #define USB_DEVICE_INTFLAG_LPMSUSP(value)     (USB_DEVICE_INTFLAG_LPMSUSP_Msk & (_UINT16_(value) << USB_DEVICE_INTFLAG_LPMSUSP_Pos)) /* Assigment of value for LPMSUSP in the USB_DEVICE_INTFLAG register */
-#define USB_DEVICE_INTFLAG_Msk                _UINT16_(0x03FF)                                     /* (USB_DEVICE_INTFLAG) Register Mask  */
+#define USB_DEVICE_INTFLAG_Msk                _UINT16_(0x03FD)                                     /* (USB_DEVICE_INTFLAG) Register Mask  */
 
 
 /* -------- USB_HOST_INTFLAG : (USB Offset: 0x1C) (R/W 16) HOST Host Interrupt Flag -------- */
