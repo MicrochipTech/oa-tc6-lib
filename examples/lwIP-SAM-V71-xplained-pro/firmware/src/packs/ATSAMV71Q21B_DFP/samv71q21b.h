@@ -1,7 +1,7 @@
 /*
  * Header file for ATSAMV71Q21B
  *
- * Copyright (c) 2022 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2023 Microchip Technology Inc. and its subsidiaries.
  *
  * Subject to your compliance with these terms, you may use Microchip software and any derivatives
  * exclusively with Microchip products. It is your responsibility to comply with third party license
@@ -20,7 +20,7 @@
  *
  */
 
-/* File generated from device description version 2022-04-21T07:58:40Z */
+/* File generated from device description version 2023-03-27T04:11:11Z */
 #ifndef _SAMV71Q21B_H_
 #define _SAMV71Q21B_H_
 
@@ -679,7 +679,7 @@ void GMAC_Q5_Handler               ( void );
 #define SYSTEM_SIZE                    _UINT32_(0x10000000)    /* 262144kB Memory segment type: io */
 #define QSPIMEM_SIZE                   _UINT32_(0x20000000)    /* 524288kB Memory segment type: other */
 #define AXIMX_SIZE                     _UINT32_(0x00100000)    /* 1024kB Memory segment type: other */
-#define ITCM_SIZE                      _UINT32_(0x00200000)    /* 2048kB Memory segment type: other */
+#define ITCM_SIZE                      _UINT32_(0x00020000)    /*  128kB Memory segment type: other */
 #define IFLASH_SIZE                    _UINT32_(0x00200000)    /* 2048kB Memory segment type: flash */
 #define IFLASH_PAGE_SIZE               _UINT32_(       512)
 #define IFLASH_NB_OF_PAGES             _UINT32_(      4096)

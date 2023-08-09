@@ -51,6 +51,7 @@ Microchip or any third party.
 
 #include "lwip/apps/lwiperf.h"
 
+#include "tc6.h"
 #include "tc6-lwip.h"
 
 #include "pwm_driver.h"
@@ -60,13 +61,13 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.1.1"
+#define FIRMWARE_VERSION            TC6_LIB_VER_STRING
 
 #ifndef BOARD_INSTANCE
 #define BOARD_INSTANCE              (0)
 #endif
 #define T1S_PLCA_ENABLE             (true)
-#define T1S_PLCA_NODE_ID            (BOARD_INSTANCE + 1)
+#define T1S_PLCA_NODE_ID            (BOARD_INSTANCE)
 #define T1S_PLCA_NODE_COUNT         (8)
 #define T1S_PLCA_BURST_COUNT        (0)
 #define T1S_PLCA_BURST_TIMER        (0x80)
@@ -117,7 +118,7 @@ static const char welcomeString[] = ESC_CLEAR_TERMINAL \
           ESC_CURSOR_X1Y1    \
           ESC_HIDE_CURSOR    \
           ESC_YELLOW        \
-          "=== SAM D21 10Base-T1S Demo " FIRMWARE_VERSION "(" \
+          "=== SAM D21 10BASE-T1S Demo " FIRMWARE_VERSION "(" \
           __DATE__ " " __TIME__
           ") ===" ESC_RESETCOLOR "\r\n";
 

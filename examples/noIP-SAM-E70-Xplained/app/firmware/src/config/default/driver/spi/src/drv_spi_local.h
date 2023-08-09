@@ -39,8 +39,8 @@
 *******************************************************************************/
 //DOM-IGNORE-END
 
-#ifndef _DRV_SPI_LOCAL_H
-#define _DRV_SPI_LOCAL_H
+#ifndef DRV_SPI_LOCAL_H
+#define DRV_SPI_LOCAL_H
 
 // *****************************************************************************
 // *****************************************************************************
@@ -58,15 +58,15 @@
 // *****************************************************************************
 
 /* SPI Driver Handle Macros*/
-#define DRV_SPI_INDEX_MASK                      (0x000000FF)
+#define DRV_SPI_INDEX_MASK                      (0x000000FFU)
 
-#define DRV_SPI_INSTANCE_MASK                   (0x0000FF00)
+#define DRV_SPI_INSTANCE_MASK                   (0x0000FF00U)
 
-#define DRV_SPI_TOKEN_MAX                       (0xFFFF)
+#define DRV_SPI_TOKEN_MAX                       (0xFFFFU)
 
 
-#define _USE_FREQ_CONFIGURED_IN_CLOCK_MANAGER       0
-#define NULL_INDEX                                  0xFF
+#define USE_FREQ_CONFIGURED_IN_CLOCK_MANAGER    (0)
+#define NULL_INDEX                              (0xFF)
 
 // *****************************************************************************
 /* SPI Client-Specific Driver Status
@@ -135,7 +135,7 @@ typedef enum
     None.
 */
 
-typedef struct _DRV_SPI_TRANSFER_OBJ
+typedef struct DRV_SPI_TRANSFER_OBJ_T
 {
     /* True if object is allocated */
     bool                            inUse;
@@ -167,7 +167,7 @@ typedef struct _DRV_SPI_TRANSFER_OBJ
     DRV_SPI_TRANSFER_HANDLE         transferHandle;
 
     /* Next buffer pointer */
-    struct _DRV_SPI_TRANSFER_OBJ*   next;
+    struct DRV_SPI_TRANSFER_OBJ_T*   next;
 
 } DRV_SPI_TRANSFER_OBJ;
 
@@ -302,7 +302,7 @@ typedef struct
     None.
 */
 
-typedef struct _DRV_SPI_CLIENT_OBJ
+typedef struct DRV_SPI_CLIENT_OBJ_T
 {
     /* The hardware instance index associated with the client */
     SYS_MODULE_INDEX                drvIndex;
@@ -332,4 +332,4 @@ typedef struct _DRV_SPI_CLIENT_OBJ
 
 } DRV_SPI_CLIENT_OBJ;
 
-#endif //#ifndef _DRV_SPI_LOCAL_H
+#endif //#ifndef DRV_SPI_LOCAL_H

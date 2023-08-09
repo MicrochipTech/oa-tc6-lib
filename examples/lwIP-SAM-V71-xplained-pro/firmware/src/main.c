@@ -51,6 +51,7 @@ Microchip or any third party.
 
 #include "lwip/apps/lwiperf.h"
 
+#include "tc6.h"
 #include "tc6-lwip.h"
 #include "tc6-stub.h"
 #include "udp_perf_client.h"
@@ -59,11 +60,13 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.1.1"
+#define FIRMWARE_VERSION            TC6_LIB_VER_STRING
 
+#ifndef BOARD_INSTANCE
 #define BOARD_INSTANCE              (0)
+#endif
 #define T1S_PLCA_ENABLE             (true)
-#define T1S_PLCA_NODE_ID            (BOARD_INSTANCE + 1)
+#define T1S_PLCA_NODE_ID            (BOARD_INSTANCE)
 #define T1S_PLCA_NODE_COUNT         (8)
 #define T1S_PLCA_BURST_COUNT        (0)
 #define T1S_PLCA_BURST_TIMER        (0x80)
@@ -308,7 +311,6 @@ static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus)
         PRINT(ESC_RED "PLCA status register read failed" ESC_RESETCOLOR "\r\n");
     }
 }
-
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                  CALLBACK FUNCTION FROM LWIP iperf                   */

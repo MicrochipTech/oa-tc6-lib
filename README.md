@@ -40,7 +40,7 @@ The following applications are provided to demonstrate the typical or interestin
 Those applications have no deep integration of the TC6 protocol driver into MPLAB® Harmony 3. If this is desired, please refer to the official LAN865x MPLAB Harmony v3 driver and example applications in the corresponding repository:
 - [MPLAB® Harmony 3 - 10BASE-T1S-Examples](https://github.com/Microchip-MPLAB-Harmony/net_10base_t1s)
 
-Note: Please refer to ANXXXX provided on the Microchip LAN865x product websites:
+Note: Please refer to AN4964 provided on the Microchip LAN865x product websites:
 - [LAN8650](https://www.microchip.com/en-us/product/lan8650)
 - [LAN8651](https://www.microchip.com/en-us/product/lan8651)
 

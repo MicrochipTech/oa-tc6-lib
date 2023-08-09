@@ -197,14 +197,13 @@ typedef enum
         {
             case DRV_SPI_TRANSFER_EVENT_COMPLETE:
             {
-                // Handle the completed transfer.
                 break;
             }
 
             case DRV_SPI_TRANSFER_EVENT_ERROR:
             default:
             {
-                // Handle error.
+                
                 break;
             }
         }
@@ -285,69 +284,57 @@ typedef void (*DRV_SPI_TRANSFER_EVENT_HANDLER )( DRV_SPI_TRANSFER_EVENT event, D
 
   Example:
     <code>
-    // The following code snippet shows an example SPI driver initialization.
+    The following code snippet shows an example SPI driver initialization.
 
     SYS_MODULE_OBJ   objectHandle;
 
     const DRV_SPI_PLIB_INTERFACE drvSPI0PlibAPI = {
 
-        // SPI PLIB Setup
+        
         .setup = (DRV_SPI_PLIB_SETUP)SPI0_TransferSetup,
 
-        // SPI PLIB WriteRead function
+        
         .writeRead = (DRV_SPI_PLIB_WRITE_READ)SPI0_WriteRead,
 
-        // SPI PLIB Transfer Status function
+        
         .isBusy = (DRV_SPI_PLIB_IS_BUSY)SPI0_IsBusy,
 
-        // SPI PLIB Callback Register
+        
         .callbackRegister = (DRV_SPI_PLIB_CALLBACK_REGISTER)SPI0_CallbackRegister,
     };
 
     const DRV_SPI_INIT drvSPI0InitData = {
 
-        // SPI PLIB API
+       
         .spiPlib = &drvSPI0PlibAPI,
 
         .remapDataBits = drvSPI0remapDataBits,
         .remapClockPolarity = drvSPI0remapClockPolarity,
         .remapClockPhase = drvSPI0remapClockPhase,
-
-
-        /// SPI Number of clients
+        
         .numClients = DRV_SPI_CLIENTS_NUMBER_IDX0,
-
-        // SPI Client Objects Pool
+        
         .clientObjPool = (uintptr_t)&drvSPI0ClientObjPool[0],
-
-        // DMA Channel for Transmit
+        
         .dmaChannelTransmit = DRV_SPI_XMIT_DMA_CH_IDX0,
-
-        // DMA Channel for Receive
+        
         .dmaChannelReceive  = DRV_SPI_RCV_DMA_CH_IDX0,
-
-        // SPI Transmit Register
+       
         .spiTransmitAddress =  (void *)&(SPI0_REGS->SPI_TDR),
-
-        // SPI Receive Register
-        .spiReceiveAddress  = (void *)&(SPI0_REGS->SPI_RDR),
-
-        // Interrupt source is DMA
+        
+        .spiReceiveAddress  = (void *)&(SPI0_REGS->SPI_RDR),        
 
        .interruptSource = XDMAC_IRQn,
-
-
-        // SPI Queue Size
+        
         .queueSize = DRV_SPI_QUEUE_SIZE_IDX0,
-
-        // SPI Transfer Objects Pool
+        
         .transferObjPool = (uintptr_t)&drvSPI0TransferObjPool[0],
     };
 
     objectHandle = DRV_SPI_Initialize(DRV_SPI_INDEX_0,(SYS_MODULE_INIT*)&drvSPI0InitData);
     if (objectHandle == SYS_MODULE_OBJ_INVALID)
     {
-        // Handle error
+       
     }
     </code>
 
@@ -357,7 +344,7 @@ typedef void (*DRV_SPI_TRANSFER_EVENT_HANDLER )( DRV_SPI_TRANSFER_EVENT event, D
     - This routine will NEVER block for hardware access.
 */
 
-SYS_MODULE_OBJ DRV_SPI_Initialize( const SYS_MODULE_INDEX index, const SYS_MODULE_INIT * const init );
+SYS_MODULE_OBJ DRV_SPI_Initialize( const SYS_MODULE_INDEX drvIndex, const SYS_MODULE_INIT * const init );
 
 // *****************************************************************************
 /* Function:
@@ -385,14 +372,14 @@ SYS_MODULE_OBJ DRV_SPI_Initialize( const SYS_MODULE_INDEX index, const SYS_MODUL
 
   Example:
     <code>
-    SYS_MODULE_OBJ      object;     // Returned from DRV_SPI_Initialize
+    SYS_MODULE_OBJ      object;     Returned from DRV_SPI_Initialize
     SYS_STATUS          spiStatus;
 
     spiStatus = DRV_SPI_Status(object);
     if (spiStatus == SYS_STATUS_READY)
     {
-        // This means now the driver can be opened using the
-        // DRV_SPI_Open() function.
+        
+        
     }
     </code>
 
@@ -463,9 +450,7 @@ SYS_STATUS DRV_SPI_Status( SYS_MODULE_OBJ object);
     handle = DRV_SPI_Open(DRV_SPI_INDEX_0, DRV_IO_INTENT_EXCLUSIVE);
     if (handle == DRV_HANDLE_INVALID)
     {
-        // Unable to open the driver
-        // May be the driver is not initialized or the initialization
-        // is not complete.
+        
     }
     </code>
 
@@ -474,7 +459,7 @@ SYS_STATUS DRV_SPI_Status( SYS_MODULE_OBJ object);
     - This routine will NEVER block waiting for hardware.
 */
 
-DRV_HANDLE DRV_SPI_Open(const SYS_MODULE_INDEX index, const DRV_IO_INTENT ioIntent);
+DRV_HANDLE DRV_SPI_Open(const SYS_MODULE_INDEX drvIndex, const DRV_IO_INTENT ioIntent);
 
 // *****************************************************************************
 /* Function:
@@ -501,7 +486,7 @@ DRV_HANDLE DRV_SPI_Open(const SYS_MODULE_INDEX index, const DRV_IO_INTENT ioInte
 
   Example:
     <code>
-    // 'handle', returned from the DRV_SPI_Open
+    
 
     DRV_SPI_Close(handle);
 
@@ -511,7 +496,7 @@ DRV_HANDLE DRV_SPI_Open(const SYS_MODULE_INDEX index, const DRV_IO_INTENT ioInte
     None.
 */
 
-void DRV_SPI_Close( const DRV_HANDLE handle);
+void DRV_SPI_Close( DRV_HANDLE handle);
 
 // *****************************************************************************
 /*
@@ -545,7 +530,7 @@ void DRV_SPI_Close( const DRV_HANDLE handle);
 
   Example:
     <code>
-        // mySPIHandle is the handle returned by the DRV_SPI_Open function.
+       
         DRV_SPI_TRANSFER_SETUP setup;
 
         setup.baudRateInHz = 10000000;
@@ -562,7 +547,7 @@ void DRV_SPI_Close( const DRV_HANDLE handle);
     None.
 
 */
-bool DRV_SPI_TransferSetup ( DRV_HANDLE handle, DRV_SPI_TRANSFER_SETUP * setup );
+bool DRV_SPI_TransferSetup ( const DRV_HANDLE handle, DRV_SPI_TRANSFER_SETUP * setup );
 
 // *****************************************************************************
 // *****************************************************************************
@@ -653,17 +638,17 @@ bool DRV_SPI_TransferSetup ( DRV_HANDLE handle, DRV_SPI_TRANSFER_SETUP * setup )
     uint8_t myRxBuffer[MY_RX_BUFFER_SIZE];
     DRV_SPI_TRANSFER_HANDLE transferHandle;
 
-    // mySPIHandle is the handle returned by the DRV_SPI_Open function.
+   
 
     DRV_SPI_WriteReadTransferAdd(mySPIhandle, myTxBuffer, MY_TX_BUFFER_SIZE,
                                     myRxBuffer, MY_RX_BUFFER_SIZE, &transferHandle);
 
     if(transferHandle == DRV_SPI_TRANSFER_HANDLE_INVALID)
     {
-        // Error handling here
+       
     }
 
-    // Event is received when the transfer is processed.
+   
     </code>
 
   Remarks:
@@ -673,6 +658,7 @@ bool DRV_SPI_TransferSetup ( DRV_HANDLE handle, DRV_SPI_TRANSFER_SETUP * setup )
       driver instance or event handler of any other peripheral.
     - It should not be called directly in any ISR.
 */
+/* MISRA C-2012 Rule 8.6 deviated:9 Deviation record ID -  H3_MISRAC_2012_R_8_6_DR_1 */
 
 void DRV_SPI_WriteReadTransferAdd(
     const   DRV_HANDLE  handle,
@@ -747,16 +733,16 @@ void DRV_SPI_WriteReadTransferAdd(
     uint8_t myTxBuffer[MY_TX_BUFFER_SIZE];
     DRV_SPI_TRANSFER_HANDLE transferHandle;
 
-    // mySPIHandle is the handle returned by the DRV_SPI_Open function.
+   
 
     DRV_SPI_WriteTransferAdd(mySPIhandle, myTxBuffer, MY_TX_BUFFER_SIZE, &transferHandle);
 
     if(transferHandle == DRV_SPI_TRANSFER_HANDLE_INVALID)
     {
-        // Error handling here
+        
     }
 
-    // Event is received when the transfer is processed.
+    
     </code>
 
   Remarks:
@@ -840,17 +826,16 @@ void DRV_SPI_WriteTransferAdd(
     MY_APP_OBJ myAppObj;
     uint8_t myRxBuffer[MY_RX_BUFFER_SIZE];
     DRV_SPI_TRANSFER_HANDLE transferHandle;
-
-    // mySPIHandle is the handle returned by the DRV_SPI_Open function.
+    
 
     DRV_SPI_ReadTransferAdd(mySPIhandle, myRxBuffer, MY_RX_BUFFER_SIZE, &transferHandle);
 
     if(transferHandle == DRV_SPI_TRANSFER_HANDLE_INVALID)
     {
-        // Error handling here
+        
     }
 
-    // Event is received when the transfer is processed.
+    
     </code>
 
   Remarks:
@@ -915,34 +900,31 @@ void DRV_SPI_ReadTransferAdd(
 
   Example:
     <code>
-    // myAppObj is an application specific state data object.
+    
     MY_APP_OBJ myAppObj;
 
     uint8_t myTxBuffer[MY_TX_BUFFER_SIZE];
     uint8_t myRxBuffer[MY_RX_BUFFER_SIZE];
     DRV_SPI_TRANSFER_HANDLE transferHandle;
-
-
-    // Event is received when the transfer is completed.
+    
 
     void APP_SPITransferEventHandler(DRV_SPI_TRANSFER_EVENT event,
             DRV_SPI_TRANSFER_HANDLE handle, uintptr_t context)
     {
-        // The context handle was set to an application specific
-        // object. It is now retrievable easily in the event handler.
+        
         MY_APP_OBJ myAppObj = (MY_APP_OBJ *) context;
 
         switch(event)
         {
             case DRV_SPI_TRANSFER_EVENT_COMPLETE:
             {
-                // This means the data was transferred.
+                
                 break;
             }
 
             case DRV_SPI_TRANSFER_EVENT_ERROR:
             {
-                // Error handling here.
+                
                 break;
             }
 
@@ -951,11 +933,7 @@ void DRV_SPI_ReadTransferAdd(
                 break;
             }
         }
-    }
-
-    // mySPIHandle is the handle returned by the DRV_SPI_Open function.
-
-    // Client registers an event handler with driver. This is done once
+    }   
 
     DRV_SPI_TransferEventHandlerSet( mySPIHandle, APP_SPITransferEventHandler,
                                      (uintptr_t)&myAppObj );
@@ -966,7 +944,7 @@ void DRV_SPI_ReadTransferAdd(
 
     if(transferHandle == DRV_SPI_TRANSFER_HANDLE_INVALID)
     {
-        // Error handling here
+        
     }
     </code>
 
@@ -1003,24 +981,21 @@ void DRV_SPI_TransferEventHandlerSet( const DRV_HANDLE handle, const DRV_SPI_TRA
 
   Example:
   <code>
-    // myAppObj is an application specific object.
+   
     MY_APP_OBJ myAppObj;
 
     uint8_t mybuffer[MY_BUFFER_SIZE];
     DRV_SPI_TRANSFER_HANDLE transferHandle;
-    DRV_SPI_TRANSFER_EVENT event;
-
-    // mySPIHandle is the handle returned by the DRV_SPI_Open function.
+    DRV_SPI_TRANSFER_EVENT event;    
 
     DRV_SPI_ReadTransferAdd( mySPIhandle, myBuffer, MY_RECEIVE_SIZE, &transferHandle);
 
     if(transferHandle == DRV_SPI_TRANSFER_HANDLE_INVALID)
     {
-        // Error handling here
+       
     }
 
-    //Check the status of the transfer request
-    //This call can be used to wait until the transfer is completed.
+
     event  = DRV_SPI_TransferStatusGet(transferHandle);
   </code>
 
@@ -1083,13 +1058,11 @@ DRV_SPI_TRANSFER_EVENT DRV_SPI_TransferStatusGet(const DRV_SPI_TRANSFER_HANDLE t
     <code>
 
     MY_APP_OBJ myAppObj;
-    uint8_t myTxBuffer[MY_TX_BUFFER_SIZE];
-
-    // mySPIHandle is the handle returned by the DRV_SPI_Open function.
+    uint8_t myTxBuffer[MY_TX_BUFFER_SIZE]; 
 
     if (DRV_SPI_WriteTransfer(mySPIhandle, myTxBuffer, MY_TX_BUFFER_SIZE) == false)
     {
-        // Handle error here
+       
     }
     </code>
 
@@ -1145,13 +1118,11 @@ bool DRV_SPI_WriteTransfer(const DRV_HANDLE handle, void* pTransmitData,  size_t
     <code>
 
     MY_APP_OBJ myAppObj;
-    uint8_t myRxBuffer[MY_RX_BUFFER_SIZE];
-
-    // mySPIHandle is the handle returned by the DRV_SPI_Open function.
+    uint8_t myRxBuffer[MY_RX_BUFFER_SIZE]; 
 
     if (DRV_SPI_ReadTransfer(mySPIhandle, myRxBuffer, MY_RX_BUFFER_SIZE) == false)
     {
-        // Handle error here
+     
     }
     </code>
 
@@ -1223,14 +1194,12 @@ bool DRV_SPI_ReadTransfer(const DRV_HANDLE handle, void* pReceiveData,  size_t r
 
     MY_APP_OBJ myAppObj;
     uint8_t myTxBuffer[MY_TX_BUFFER_SIZE];
-    uint8_t myRxBuffer[MY_RX_BUFFER_SIZE];
-
-    // mySPIHandle is the handle returned by the DRV_SPI_Open function.
+    uint8_t myRxBuffer[MY_RX_BUFFER_SIZE]; 
 
     if (DRV_SPI_WriteReadTransfer(mySPIhandle, myTxBuffer, MY_TX_BUFFER_SIZE,
                                     myRxBuffer, MY_RX_BUFFER_SIZE) == false)
     {
-        // Handle error here
+       
     }
 
     </code>
@@ -1273,9 +1242,7 @@ bool DRV_SPI_WriteReadTransfer(
     - false - failed to acquire driver instance in exclusive mode
 
   Example:
-    <code>
-
-    // mySPIHandle is the handle returned by the DRV_SPI_Open function.
+    <code> 
 
     bool DRV_SPI_Lock( mySPIHandle, true );
 
@@ -1293,6 +1260,7 @@ bool DRV_SPI_WriteReadTransfer(
 */
 bool DRV_SPI_Lock( const DRV_HANDLE handle, bool lock );
 
+/* MISRAC 2012 deviation block end */
 //DOM-IGNORE-BEGIN
 #ifdef __cplusplus
 }

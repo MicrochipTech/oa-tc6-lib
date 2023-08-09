@@ -38,37 +38,42 @@
 * THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
 *******************************************************************************/
 #include <stddef.h>
+#include <string.h>
 #include "definitions.h"
+
+#define BUF_CNT (DRV_USART_QUEUE_SIZE_IDX0)
+#define BUF_LEN (128)
 
 extern int read(int handle, void *buffer, unsigned int len);
 extern int write(int handle, void * buffer, size_t count);
 
+static DRV_HANDLE m_handle = DRV_HANDLE_INVALID;
+static uint8_t m_buf[BUF_CNT][BUF_LEN];
+static volatile uint8_t m_pos = 0;
 
 int read(int handle, void *buffer, unsigned int len)
 {
-    int nChars = 0;
-    bool success = false;
-    (void)len;
-    if ((handle == 0)  && (len > 0))
-    {
-        do
-        {
-            success = USART1_Read(buffer, 1);
-        }while( !success);
-        nChars = 1;
-    }
-    return nChars;
+   return -1;
 }
 
 int write(int handle, void * buffer, size_t count)
 {
-   bool success = false;
-   if (handle == 1)
-   {
-       do
-       {
-           success = USART1_Write(buffer, count);
-       }while( !success);
-   }
-   return count;
+    int result = -1;
+    if (DRV_HANDLE_INVALID == m_handle) {
+        m_handle = DRV_USART_Open(0u, DRV_IO_INTENT_EXCLUSIVE);
+    }
+    if (DRV_HANDLE_INVALID != m_handle) {
+        DRV_USART_BUFFER_HANDLE transferHandle = DRV_USART_BUFFER_HANDLE_INVALID;
+        uint16_t cpyLen = count;
+        if (cpyLen > BUF_LEN) {
+            cpyLen = BUF_LEN;
+        }
+        memcpy(m_buf[m_pos], buffer, cpyLen);
+        DRV_USART_WriteBufferAdd(m_handle, m_buf[m_pos], cpyLen, &transferHandle);
+        if (transferHandle != DRV_USART_BUFFER_HANDLE_INVALID) {
+            m_pos = (m_pos + 1) % BUF_CNT;
+            result = cpyLen;
+        }
+    }
+    return result;
 }

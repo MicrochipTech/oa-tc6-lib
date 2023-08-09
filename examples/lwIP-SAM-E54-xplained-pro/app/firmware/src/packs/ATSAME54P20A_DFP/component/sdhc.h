@@ -1,7 +1,7 @@
 /*
  * Component description for SDHC
  *
- * Copyright (c) 2022 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2023 Microchip Technology Inc. and its subsidiaries.
  *
  * Subject to your compliance with these terms, you may use Microchip software and any derivatives
  * exclusively with Microchip products. It is your responsibility to comply with third party license
@@ -20,7 +20,7 @@
  *
  */
 
-/* file generated from device description version 2022-02-14T14:27:35Z */
+/* file generated from device description version 2023-03-17T09:50:08Z */
 #ifndef _SAME54_SDHC_COMPONENT_H_
 #define _SAME54_SDHC_COMPONENT_H_
 
@@ -672,10 +672,10 @@
 #define SDHC_EISTR_EMMC_BOOTAE_Pos            _UINT16_(12)                                         /* (SDHC_EISTR) Boot Acknowledge Error Position */
 #define SDHC_EISTR_EMMC_BOOTAE_Msk            (_UINT16_(0x1) << SDHC_EISTR_EMMC_BOOTAE_Pos)        /* (SDHC_EISTR) Boot Acknowledge Error Mask */
 #define SDHC_EISTR_EMMC_BOOTAE(value)         (SDHC_EISTR_EMMC_BOOTAE_Msk & (_UINT16_(value) << SDHC_EISTR_EMMC_BOOTAE_Pos))
-#define   SDHC_EISTR_EMMC_BOOTAE_0_Val        _UINT16_(0x0)                                        /* (SDHC_EISTR) FIFO contains at least one byte  */
-#define   SDHC_EISTR_EMMC_BOOTAE_1_Val        _UINT16_(0x1)                                        /* (SDHC_EISTR) FIFO is empty  */
-#define SDHC_EISTR_EMMC_BOOTAE_0              (SDHC_EISTR_EMMC_BOOTAE_0_Val << SDHC_EISTR_EMMC_BOOTAE_Pos) /* (SDHC_EISTR) FIFO contains at least one byte Position  */
-#define SDHC_EISTR_EMMC_BOOTAE_1              (SDHC_EISTR_EMMC_BOOTAE_1_Val << SDHC_EISTR_EMMC_BOOTAE_Pos) /* (SDHC_EISTR) FIFO is empty Position  */
+#define   SDHC_EISTR_EMMC_BOOTAE_FIFONOTEMPTY_Val _UINT16_(0x0)                                        /* (SDHC_EISTR) FIFO contains at least one byte  */
+#define   SDHC_EISTR_EMMC_BOOTAE_FIFOEMPTY_Val _UINT16_(0x1)                                        /* (SDHC_EISTR) FIFO is empty  */
+#define SDHC_EISTR_EMMC_BOOTAE_FIFONOTEMPTY   (SDHC_EISTR_EMMC_BOOTAE_FIFONOTEMPTY_Val << SDHC_EISTR_EMMC_BOOTAE_Pos) /* (SDHC_EISTR) FIFO contains at least one byte Position  */
+#define SDHC_EISTR_EMMC_BOOTAE_FIFOEMPTY      (SDHC_EISTR_EMMC_BOOTAE_FIFOEMPTY_Val << SDHC_EISTR_EMMC_BOOTAE_Pos) /* (SDHC_EISTR) FIFO is empty Position  */
 #define SDHC_EISTR_EMMC_Msk                   _UINT16_(0x1000)                                      /* (SDHC_EISTR_EMMC) Register Mask  */
 
 
@@ -1548,12 +1548,12 @@
 
 
 /* -------- SDHC_SISR : (SDHC Offset: 0xFC) ( R/ 16) Slot Interrupt Status -------- */
-#define SDHC_SISR_RESETVALUE                  _UINT16_(0x20000)                                    /*  (SDHC_SISR) Slot Interrupt Status  Reset Value */
+#define SDHC_SISR_RESETVALUE                  _UINT16_(0x00)                                       /*  (SDHC_SISR) Slot Interrupt Status  Reset Value */
 
-#define SDHC_SISR_INTSSL_Pos                  _UINT16_(0)                                          /* (SDHC_SISR) Interrupt Signal for Each Slot Position */
-#define SDHC_SISR_INTSSL_Msk                  (_UINT16_(0x1) << SDHC_SISR_INTSSL_Pos)              /* (SDHC_SISR) Interrupt Signal for Each Slot Mask */
+#define SDHC_SISR_INTSSL_Pos                  _UINT16_(0)                                          /* (SDHC_SISR) Interrupt Signal for Each SDHC Slot Position */
+#define SDHC_SISR_INTSSL_Msk                  (_UINT16_(0x3) << SDHC_SISR_INTSSL_Pos)              /* (SDHC_SISR) Interrupt Signal for Each SDHC Slot Mask */
 #define SDHC_SISR_INTSSL(value)               (SDHC_SISR_INTSSL_Msk & (_UINT16_(value) << SDHC_SISR_INTSSL_Pos)) /* Assigment of value for INTSSL in the SDHC_SISR register */
-#define SDHC_SISR_Msk                         _UINT16_(0x0001)                                     /* (SDHC_SISR) Register Mask  */
+#define SDHC_SISR_Msk                         _UINT16_(0x0003)                                     /* (SDHC_SISR) Register Mask  */
 
 
 /* -------- SDHC_HCVR : (SDHC Offset: 0xFE) ( R/ 16) Host Controller Version -------- */
@@ -1566,6 +1566,15 @@
 #define SDHC_HCVR_VVER_Msk                    (_UINT16_(0xFF) << SDHC_HCVR_VVER_Pos)               /* (SDHC_HCVR) Vendor Version Mask */
 #define SDHC_HCVR_VVER(value)                 (SDHC_HCVR_VVER_Msk & (_UINT16_(value) << SDHC_HCVR_VVER_Pos)) /* Assigment of value for VVER in the SDHC_HCVR register */
 #define SDHC_HCVR_Msk                         _UINT16_(0xFFFF)                                     /* (SDHC_HCVR) Register Mask  */
+
+
+/* -------- SDHC_APSR : (SDHC Offset: 0x200) ( R/ 32) Additional Present State Register -------- */
+#define SDHC_APSR_RESETVALUE                  _UINT32_(0x0F)                                       /*  (SDHC_APSR) Additional Present State Register  Reset Value */
+
+#define SDHC_APSR_HDATLL_Pos                  _UINT32_(0)                                          /* (SDHC_APSR) High Line Level Position */
+#define SDHC_APSR_HDATLL_Msk                  (_UINT32_(0xF) << SDHC_APSR_HDATLL_Pos)              /* (SDHC_APSR) High Line Level Mask */
+#define SDHC_APSR_HDATLL(value)               (SDHC_APSR_HDATLL_Msk & (_UINT32_(value) << SDHC_APSR_HDATLL_Pos)) /* Assigment of value for HDATLL in the SDHC_APSR register */
+#define SDHC_APSR_Msk                         _UINT32_(0x0000000F)                                 /* (SDHC_APSR) Register Mask  */
 
 
 /* -------- SDHC_MC1R : (SDHC Offset: 0x204) (R/W 8) MMC Control 1 -------- */
@@ -1717,6 +1726,7 @@
 #define SDHC_PVR7_REG_OFST             _UINT32_(0x6E)      /* (SDHC_PVR7) Preset Value n Offset */
 #define SDHC_SISR_REG_OFST             _UINT32_(0xFC)      /* (SDHC_SISR) Slot Interrupt Status Offset */
 #define SDHC_HCVR_REG_OFST             _UINT32_(0xFE)      /* (SDHC_HCVR) Host Controller Version Offset */
+#define SDHC_APSR_REG_OFST             _UINT32_(0x200)     /* (SDHC_APSR) Additional Present State Register Offset */
 #define SDHC_MC1R_REG_OFST             _UINT32_(0x204)     /* (SDHC_MC1R) MMC Control 1 Offset */
 #define SDHC_MC2R_REG_OFST             _UINT32_(0x205)     /* (SDHC_MC2R) MMC Control 2 Offset */
 #define SDHC_ACR_REG_OFST              _UINT32_(0x208)     /* (SDHC_ACR) AHB Control Offset */
@@ -1766,7 +1776,8 @@ typedef struct
   __I   uint8_t                        Reserved4[0x8C];
   __I   uint16_t                       SDHC_SISR;          /**< Offset: 0xFC (R/   16) Slot Interrupt Status */
   __I   uint16_t                       SDHC_HCVR;          /**< Offset: 0xFE (R/   16) Host Controller Version */
-  __I   uint8_t                        Reserved5[0x104];
+  __I   uint8_t                        Reserved5[0x100];
+  __I   uint32_t                       SDHC_APSR;          /**< Offset: 0x200 (R/   32) Additional Present State Register */
   __IO  uint8_t                        SDHC_MC1R;          /**< Offset: 0x204 (R/W  8) MMC Control 1 */
   __O   uint8_t                        SDHC_MC2R;          /**< Offset: 0x205 ( /W  8) MMC Control 2 */
   __I   uint8_t                        Reserved6[0x02];

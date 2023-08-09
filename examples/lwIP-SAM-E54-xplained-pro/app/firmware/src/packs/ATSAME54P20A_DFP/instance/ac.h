@@ -1,7 +1,7 @@
 /*
  * Instance header file for ATSAME54P20A
  *
- * Copyright (c) 2022 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2023 Microchip Technology Inc. and its subsidiaries.
  *
  * Subject to your compliance with these terms, you may use Microchip software and any derivatives
  * exclusively with Microchip products. It is your responsibility to comply with third party license
@@ -20,7 +20,7 @@
  *
  */
 
-/* file generated from device description version 2022-02-14T14:27:35Z */
+/* file generated from device description version 2023-03-17T09:50:08Z */
 #ifndef _SAME54_AC_INSTANCE_
 #define _SAME54_AC_INSTANCE_
 
@@ -29,9 +29,9 @@
 #define AC_COMPCTRL_MUXNEG_OPAMP                 (7)        /* OPAMP selection for MUXNEG */
 #define AC_GCLK_ID                               (32)       /* Index of Generic Clock */
 #define AC_IMPLEMENTS_VDBLR                      (0)        /* VDoubler implemented ? */
+#define AC_INSTANCE_ID                           (72)       /* Instance index for AC */
 #define AC_NUM_CMP                               (2)        /* Number of comparators */
 #define AC_PAIRS                                 (1)        /* Number of pairs of comparators */
 #define AC_SPEED_LEVELS                          (2)        /* Number of speed values */
-#define AC_INSTANCE_ID                           (72)       /* Instance index for AC */
 
 #endif /* _SAME54_AC_INSTANCE_ */

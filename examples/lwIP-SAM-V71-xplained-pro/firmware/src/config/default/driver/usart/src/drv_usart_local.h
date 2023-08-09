@@ -75,11 +75,11 @@
 */
 
 /* USART Driver Handle Macros*/
-#define DRV_USART_INDEX_MASK                      (0x000000FF)
+#define DRV_USART_INDEX_MASK                      (0x000000FFU)
 
-#define DRV_USART_INSTANCE_MASK                   (0x0000FF00)
+#define DRV_USART_INSTANCE_MASK                   (0x0000FF00U)
 
-#define DRV_USART_TOKEN_MAX                       (0xFFFF)
+#define DRV_USART_TOKEN_MAX                       (0xFFFFU)
 
 // *****************************************************************************
 /* USART Driver Buffer States
@@ -149,7 +149,7 @@ typedef enum
     None.
 */
 
-typedef struct _DRV_USART_BUFFER_OBJ
+typedef struct DRV_USART_BUFFER_OBJ_T
 {
     /* Handle to the client that owns this buffer object when it was queued */
     DRV_HANDLE                      clientHandle;
@@ -167,7 +167,7 @@ typedef struct _DRV_USART_BUFFER_OBJ
     volatile size_t                 nCount;
 
     /* Next buffer pointer */
-    struct _DRV_USART_BUFFER_OBJ*   next;
+    struct DRV_USART_BUFFER_OBJ_T*   next;
 
     /* Current state of the buffer */
     DRV_USART_BUFFER_STATE          currentState;
@@ -284,7 +284,7 @@ typedef struct
 
 } DRV_USART_OBJ;
 
-typedef struct _DRV_USART_CLIENT_OBJ
+typedef struct DRV_USART_CLIENT_OBJ_T
 {
     /* The hardware instance index associated with the client */
     SYS_MODULE_INDEX                    drvIndex;

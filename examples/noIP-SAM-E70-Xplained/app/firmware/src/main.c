@@ -49,32 +49,36 @@ Microchip or any third party.
 #include <stdio.h>                      // printf
 #include <string.h>                     // memset, memcpy
 #include "definitions.h"                // SYS function prototypes
+#include "tc6.h"
 #include "tc6-noip.h"
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define FIRMWARE_VERSION            "V3.1.1"
+#define FIRMWARE_VERSION            TC6_LIB_VER_STRING
 
 #ifndef BOARD_INSTANCE
 #define BOARD_INSTANCE              (0)
 #endif
+#define BOARD_INSTANCES_MAX         (4)
 #define T1S_PLCA_ENABLE             (true)
-#define T1S_PLCA_NODE_ID            (BOARD_INSTANCE + 1)
+#define T1S_PLCA_NODE_ID            (BOARD_INSTANCE)
 #define T1S_PLCA_NODE_COUNT         (8)
 #define T1S_PLCA_BURST_COUNT        (0)
 #define T1S_PLCA_BURST_TIMER        (0x80)
 #define MAC_PROMISCUOUS_MODE        (false)
 #define MAC_TX_CUT_THROUGH          (true)
 #define MAC_RX_CUT_THROUGH          (true)
-#define DELAY_BEACON_CHECK          (1000)
+#define DELAY_BEACON_CHECK          (2000)
+#define DELAY_STAT_PRINT            (1000)
 #define DELAY_LED                   (333)
 
 #define UDP_PAYLOAD_OFFSET          (42)
 
 #define ESC_CLEAR_TERMINAL          "\033[2J"
 #define ESC_CURSOR_X1Y1             "\033[1;1H"
+#define ESC_CURSOR_STAT             "\033[2;1H"
 #define ESC_HIDE_CURSOR             "\033[?25l"
 #define ESC_CLEAR_LINE              "\033[2K"
 #define ESC_RESETCOLOR              "\033[0m"
@@ -82,6 +86,8 @@ Microchip or any third party.
 #define ESC_RED                     "\033[0;31m"
 #define ESC_YELLOW                  "\033[1;33m"
 #define ESC_BLUE                    "\033[0;36m"
+
+#define MAX_PRINT_LINES             (30)
 
 #define PRINT(...)                  printf(__VA_ARGS__)
 
@@ -97,16 +103,28 @@ Microchip or any third party.
 
 typedef struct
 {
-    uint32_t nextCycle;
+    uint32_t packetCntCurrent;
+    uint32_t packetCntTotal;
+    uint32_t byteCntCurrent;
+    uint32_t byteCntTotal;
+    uint32_t previousVal;
+    uint32_t errors;
+} MainStats_t;
+
+typedef struct
+{
+    MainStats_t stats[BOARD_INSTANCES_MAX];
+    uint32_t nextStat;
     uint32_t nextBeaconCheck;
     uint32_t nextLed;
     uint32_t iperfTx;
-    uint32_t txData;
     int8_t idxNoIp;
     bool button1;
     bool button2;
+    bool gotBeaconState;
     bool lastBeaconState;
     bool txBusy;
+    bool allowTxStress;
 } MainLocal_t;
 
 static MainLocal_t m;
@@ -115,11 +133,11 @@ extern SYSTICK_OBJECT systick; /* Instanced in plib_systick.c */
 
 /* Frame (1512 bytes) */
 static uint8_t iperf[] = {
-    0x00, 0x80, 0xC2, 0x00, 0x01, (T1S_PLCA_NODE_ID + 1u), 0x00, 0x80, /* ..)CI..P */
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x80, /* ..)CI..P */
     0xC2, 0x00, 0x01, T1S_PLCA_NODE_ID, 0x08, 0x00, 0x45, 0x00, /* V.....E. */
     0x05, 0xda, 0xf5, 0x36, 0x00, 0x00, 0x80, 0x11, /* ...6.... */
     0xc4, 0x09, 0xc0, 0xa8, 0x7d, 0x01, 0xc0, 0xa8, /* ....}... */
-    0x7d, 0x80, 0xc6, 0x38, 0x13, 0x89, 0x05, 0xc6, /* }..8.... */
+    0x7d, 0xFF, 0xc6, 0x38, 0x13, 0x89, 0x05, 0xc6, /* }..8.... */
     0xc9, 0x7b, 0x00, 0x00, 0x00, 0x08, 0x60, 0xf8, /* .{....`. */
     0x7f, 0x17, 0x00, 0x08, 0xed, 0xe5, 0x00, 0x00, /* ........ */
     0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, /* ........ */
@@ -310,6 +328,10 @@ static uint8_t iperf[] = {
 /*                      PRIVATE FUNCTION PROTOTYPES                     */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
+static char *MoveCursor(bool newLine);
+static void PrintMenu(void);
+static void CheckUartInput(void);
+static void PrintStat(void);
 static void SendIperfPacket(void);
 static void CheckButton(uint8_t instance, bool newLevel, bool *oldLevel);
 static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus);
@@ -328,19 +350,23 @@ int main(void)
           ESC_CURSOR_X1Y1    \
           ESC_HIDE_CURSOR    \
           ESC_YELLOW         \
-          "=== NoIP SAM E70 10Base-T1S Demo " FIRMWARE_VERSION " (" \
-          __DATE__ " " __TIME__ ") ===" ESC_RESETCOLOR "\r\n");
+          "=== NoIP SAM E70 10BASE-T1S Demo " FIRMWARE_VERSION " (" \
+          __DATE__ " " __TIME__ ") ===%s" ESC_RESETCOLOR, MoveCursor(false));
 
     m.idxNoIp = TC6NoIP_Init(T1S_PLCA_ENABLE, T1S_PLCA_NODE_ID, T1S_PLCA_NODE_COUNT,
         T1S_PLCA_BURST_COUNT, T1S_PLCA_BURST_TIMER, MAC_PROMISCUOUS_MODE,
         MAC_TX_CUT_THROUGH, MAC_RX_CUT_THROUGH);
 
     if (m.idxNoIp < 0) {
-        PRINT(ESC_RED "Failed to initialize TC6 noIP Driver" ESC_RESETCOLOR "\r\n");
+        PRINT(ESC_RED "%sFailed to initialize TC6 noIP Driver" ESC_RESETCOLOR "\r\n", MoveCursor(true));
         goto ERROR;
     }
 
+    m.nextStat = DELAY_STAT_PRINT;
     m.nextBeaconCheck = DELAY_BEACON_CHECK;
+    m.allowTxStress = false;
+
+    PrintMenu();
 
     while (true) {
         uint32_t now;
@@ -350,16 +376,21 @@ int main(void)
         TC6NoIP_Service();
         SendIperfPacket();
         now = systick.tickCounter;
-        if (now > m.nextBeaconCheck) {
+        if (now > m.nextStat) {
+            m.nextStat = now + DELAY_STAT_PRINT;
+            PrintStat();
+        }
+        if (DELAY_BEACON_CHECK && now > m.nextBeaconCheck) {
             m.nextBeaconCheck = now + DELAY_BEACON_CHECK;
             if (!TC6NoIP_GetPlcaStatus(m.idxNoIp, OnPlcaStatus)) {
-                printf(ESC_RED "GetPlcaStatus failed" ESC_RESETCOLOR "\r\n");
+                PRINT(ESC_RED "%sGetPlcaStatus failed" ESC_RESETCOLOR "\r\n", MoveCursor(true));
             }
         }
         if (now > m.nextLed) {
             m.nextLed = now + DELAY_LED;
             GPIO_USER_LED_1_Toggle();
         }
+        CheckUartInput();
         CheckButton(0, GPIO_USER_BUTTON_1_Get(), &m.button1);
     }
 ERROR:
@@ -378,6 +409,91 @@ ERROR:
 /*                  PRIVATE  FUNCTION IMPLEMENTATIONS                   */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
+static char *MoveCursor(bool newLine)
+{
+    static uint8_t lineNr = 0;
+    static char escseq[16];
+    if (newLine) {
+        lineNr = (lineNr + 1) % MAX_PRINT_LINES;
+        snprintf(escseq, sizeof(escseq), "\033[%d;1H" ESC_CLEAR_LINE, (lineNr + 5 + BOARD_INSTANCES_MAX));
+    } else {
+        snprintf(escseq, sizeof(escseq), "\033[%d;1H", (lineNr + 5 + BOARD_INSTANCES_MAX));
+    }
+    return escseq;
+}
+
+static void PrintMenu(void)
+{
+    PRINT("%s=== Available Keys ===", MoveCursor(true));
+    PRINT("%s m - print this menu", MoveCursor(true));
+    PRINT("%s r - soft reset", MoveCursor(true));
+    PRINT("%s c - clear screen", MoveCursor(true));
+    PRINT("%s s - clear statisitcs", MoveCursor(true));
+    PRINT("%s i - toggle stress tx test", MoveCursor(true));
+    PRINT("%s======================\r\n", MoveCursor(true));
+}
+
+static void CheckUartInput(void)
+{
+    static uint8_t m_rx = 0;
+
+    if (m_rx && USART1_ReadCountGet()) {
+        switch(m_rx) {
+            case 'M':
+            case 'm':
+                PrintMenu();
+                break;
+            case 'R':
+            case 'r':
+                __NVIC_SystemReset();
+                while(true);
+                break;
+            case 'C':
+            case 'c':
+                PRINT(ESC_CLEAR_TERMINAL ESC_CURSOR_X1Y1 ESC_HIDE_CURSOR);
+                break;
+            case 'S':
+            case 's':
+                memset(m.stats, 0, sizeof(m.stats));
+                break;
+            case 'I':
+            case 'i':
+                m.allowTxStress = !m.allowTxStress;
+                PRINT("%sStress is %s\r\n", MoveCursor(true), m.allowTxStress ? "enabled" : "disabled");
+                break;
+            default:
+                PRINT("%sUnknown key='%c'(0x%X)\r\n", MoveCursor(true), m_rx, m_rx);
+                break;
+        }
+    }
+    if (!USART1_ReadIsBusy()) {
+        USART1_Read(&m_rx, 1);
+    }
+}
+
+static void PrintStat(void)
+{
+    uint32_t totalSpeed = 0;
+    uint32_t totalPackets = 0;
+    uint8_t i;
+    PRINT(ESC_CURSOR_STAT);
+    for (i = 0; i < BOARD_INSTANCES_MAX; i++) {
+        if (m.stats[i].packetCntTotal) {
+            uint32_t curSpeed = (8 * m.stats[i].byteCntCurrent / 1000);
+            PRINT(ESC_CLEAR_LINE "[%d] Speed=%ld kbit/s Rate=%ld 1/s Packet-Total=%ld Bytes-Total=%ld Errors=%ld\r\n",
+                i, curSpeed, m.stats[i].packetCntCurrent, m.stats[i].packetCntTotal, m.stats[i].byteCntTotal,
+                m.stats[i].errors);
+            totalSpeed += curSpeed;
+            totalPackets += m.stats[i].packetCntCurrent;
+            m.stats[i].byteCntCurrent = 0;
+            m.stats[i].packetCntCurrent = 0;
+        } else {
+            PRINT(ESC_CLEAR_LINE "\r\n");
+        }
+    }
+    PRINT(ESC_CLEAR_LINE "[TOTAL] Speed=%ld kbit/s Rate=%ld 1/s%s", totalSpeed, totalPackets, MoveCursor(false));
+}
+
 static void OnSendIperf(void *pDummy, const uint8_t *pTx, uint16_t len, uint32_t idx, void *pDummy2)
 {
     m.txBusy = false;
@@ -385,16 +501,21 @@ static void OnSendIperf(void *pDummy, const uint8_t *pTx, uint16_t len, uint32_t
 
 static void SendIperfPacket(void)
 {
-    if (!m.txBusy) {
+    if (m.allowTxStress && !m.txBusy) {
+        uint32_t len = sizeof(iperf);
         uint16_t i = UDP_PAYLOAD_OFFSET;
+        iperf[i++] = BOARD_INSTANCE;
         iperf[i++] = (m.iperfTx >> 24) & 0xFF;
         iperf[i++] = (m.iperfTx >> 16) & 0xFF;
         iperf[i++] = (m.iperfTx >> 8) & 0xFF;
         iperf[i++] = (m.iperfTx) & 0xFF;
         m.txBusy = true;
-        if (TC6NoIP_SendEthernetPacket(m.idxNoIp, iperf, sizeof(iperf), OnSendIperf)) {
+        if (TC6NoIP_SendEthernetPacket(m.idxNoIp, iperf, len, OnSendIperf)) {
             m.iperfTx++;
-            m.txData += sizeof(iperf);
+            m.stats[BOARD_INSTANCE].packetCntCurrent++;
+            m.stats[BOARD_INSTANCE].packetCntTotal++;
+            m.stats[BOARD_INSTANCE].byteCntCurrent += len;
+            m.stats[BOARD_INSTANCE].byteCntTotal += len;
         } else {
             m.txBusy = false;
         }
@@ -414,17 +535,18 @@ static void CheckButton(uint8_t instance, bool newLevel, bool *oldLevel)
 static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus)
 {
     if (success) {
-        if (plcaStatus != m.lastBeaconState) {
+        if (!m.gotBeaconState || (plcaStatus != m.lastBeaconState)) {
+            m.gotBeaconState = true;
             m.lastBeaconState = plcaStatus;
             if (plcaStatus) {
-                PRINT(ESC_GREEN "PLCA Mode active" ESC_RESETCOLOR "\r\n");
+                PRINT(ESC_GREEN "%sPLCA Mode active" ESC_RESETCOLOR "\r\n", MoveCursor(true));
             } else {
-                PRINT(ESC_RED "CSMA/CD fallback" ESC_RESETCOLOR "\r\n");
+                PRINT(ESC_RED "%sCSMA/CD fallback" ESC_RESETCOLOR "\r\n", MoveCursor(true));
             }
         }
         m.lastBeaconState = plcaStatus;
     } else {
-        PRINT(ESC_RED "PLCA status register read failed" ESC_RESETCOLOR "\r\n");
+        PRINT(ESC_RED "%sPLCA status register read failed" ESC_RESETCOLOR "\r\n", MoveCursor(true));
     }
 }
 
@@ -434,5 +556,28 @@ static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus)
 
 void TC6NoIP_CB_OnEthernetReceive(int8_t idx, const uint8_t *pRx, uint16_t len)
 {
-    /* PRINT("RX len=%d\r\n", len); */
+    if (len >= (UDP_PAYLOAD_OFFSET + 5)) {
+        uint16_t i = UDP_PAYLOAD_OFFSET;
+        uint8_t idx = pRx[i++];
+        if (idx < BOARD_INSTANCES_MAX) {
+            uint32_t val = 0;
+            uint32_t previous = m.stats[idx].previousVal;
+            val |= pRx[i++] << 24;
+            val |= pRx[i++] << 16;
+            val |= pRx[i++] << 8;
+            val |= pRx[i++];
+
+            if (previous) {
+                if ((previous + 1) != val) {
+                    m.stats[idx].errors++;
+                }
+            }
+            m.stats[idx].previousVal = val;
+
+            m.stats[idx].byteCntCurrent += len;
+            m.stats[idx].byteCntTotal += len;
+            m.stats[idx].packetCntCurrent++;
+            m.stats[idx].packetCntTotal++;
+        }
+    }
 }

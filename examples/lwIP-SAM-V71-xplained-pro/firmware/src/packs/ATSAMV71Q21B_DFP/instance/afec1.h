@@ -1,7 +1,7 @@
 /*
  * Instance header file for ATSAMV71Q21B
  *
- * Copyright (c) 2022 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2023 Microchip Technology Inc. and its subsidiaries.
  *
  * Subject to your compliance with these terms, you may use Microchip software and any derivatives
  * exclusively with Microchip products. It is your responsibility to comply with third party license
@@ -20,15 +20,15 @@
  *
  */
 
-/* file generated from device description version 2022-04-21T07:58:40Z */
+/* file generated from device description version 2023-03-27T04:11:11Z */
 #ifndef _SAMV71_AFEC1_INSTANCE_
 #define _SAMV71_AFEC1_INSTANCE_
 
 
 /* ========== Instance Parameter definitions for AFEC1 peripheral ========== */
+#define AFEC1_CLOCK_ID                           (40)       
 #define AFEC1_DMAC_ID_RX                         (36)       
 #define AFEC1_INSTANCE_ID                        (40)       
-#define AFEC1_CLOCK_ID                           (40)       
 #define AFEC1_TRGSEL_AFEC_TRIG0                  (0x0)      /* External ADC Trigger Input (AFE1_ADTRG Pin) */
 #define AFEC1_TRGSEL_AFEC_TRIG1                  (0x1)      /* TC1 Channel 0 Output (TIOA3) */
 #define AFEC1_TRGSEL_AFEC_TRIG2                  (0x2)      /* TC1 Channel 1 Output (TIOA4) */

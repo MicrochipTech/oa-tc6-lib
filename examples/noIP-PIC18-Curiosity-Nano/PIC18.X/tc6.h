@@ -52,6 +52,11 @@ extern "C" {
 /*                            DEFINITIONS                               */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
+#define TC6_LIB_VER_MAJOR  (3U)
+#define TC6_LIB_VER_MINOR  (1U)
+#define TC6_LIB_VER_BUGFIX (2U)
+#define TC6_LIB_VER_STRING "V3.1.2-sync"
+
 struct TC6_t;
 typedef struct TC6_t TC6_t;
 

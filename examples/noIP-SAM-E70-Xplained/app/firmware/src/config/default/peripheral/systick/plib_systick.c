@@ -42,7 +42,7 @@
 #include "interrupts.h"
 #include "plib_systick.h"
 
-SYSTICK_OBJECT systick;
+volatile SYSTICK_OBJECT systick;
 
 void SYSTICK_TimerInitialize ( void )
 {
@@ -188,14 +188,17 @@ void SYSTICK_TimerCallbackSet ( SYSTICK_CALLBACK callback, uintptr_t context )
    systick.context = context;
 }
 
-void SysTick_Handler(void)
+void __attribute__((used)) SysTick_Handler(void)
 {
+   /* Additional temporary variable used to prevent MISRA violations (Rule 13.x) */
+   uintptr_t context = systick.context;
+
    /* Reading control register clears the count flag */
-   uint32_t sysCtrl = SysTick->CTRL;
+   (void)SysTick->CTRL;
+
    systick.tickCounter++;
    if(systick.callback != NULL)
    {
-       systick.callback(systick.context);
+       systick.callback(context);
    }
-   (void)sysCtrl;
 }

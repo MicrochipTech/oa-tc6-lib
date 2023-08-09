@@ -82,11 +82,13 @@ typedef struct
     uint8_t intReported;
     uint8_t idx;
     bool opened;
-    bool busy;
+    volatile bool busy;
     volatile uint8_t macValid;
 } Stub_Local_t;
 
 static Stub_Local_t d[TC6_MAX_INSTANCES] = { 0 };
+
+static EIC_PIN INT_PINS[] = { EIC_PIN_7, EIC_PIN_0 };
 
 extern SYSTICK_OBJECT systick; /* Instanced in plib_systick.c */
 
@@ -116,20 +118,18 @@ bool TC6Stub_Init(uint8_t idx, uint8_t pMac[6])
         if (GetMacAddress(ps)) {
             memcpy(pMac, ps->mac, 6u);
         } else {
+            PRINT("Using fallback MAC address, instance=%d\r\n", idx);
             memcpy(pMac, FALLBACK_MAC, 6u);
         }
         switch (idx) {
         case FIRST_TC6_INSTANCE:
-            EIC_CallbackRegister(EIC_PIN_7, IntHandler, (uintptr_t)ps);
-            TC6_RESET_1_Clear();
-            SYSTICK_DelayMs(10);
+            EIC_CallbackRegister(INT_PINS[idx], IntHandler, (uintptr_t)ps);
             TC6_RESET_1_Set();
             SYSTICK_DelayMs(10);
             break;
 #if (DRV_SPI_INSTANCES_NUMBER > 1)
         case SECOND_TC6_INSTANCE:
-            TC6_RESET_2_Clear();
-            SYSTICK_DelayMs(10);
+            EIC_CallbackRegister(INT_PINS[idx], IntHandler, (uintptr_t)ps);
             TC6_RESET_2_Set();
             SYSTICK_DelayMs(10);
             break;

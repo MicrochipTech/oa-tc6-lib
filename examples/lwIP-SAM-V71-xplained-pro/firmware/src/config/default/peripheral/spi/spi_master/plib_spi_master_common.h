@@ -54,6 +54,14 @@
 
 #endif
 
+
+#define    SPI_CHIP_SELECT_NPCS0            (SPI_MR_PCS_NPCS0_Val)
+#define    SPI_CHIP_SELECT_NPCS1            (SPI_MR_PCS_NPCS1_Val)
+#define    SPI_CHIP_SELECT_NPCS2            (SPI_MR_PCS_NPCS2_Val)
+#define    SPI_CHIP_SELECT_NPCS3            (SPI_MR_PCS_NPCS3_Val)
+
+typedef uint8_t SPI_CHIP_SELECT;
+
 typedef enum
 {
     SPI_CLOCK_PHASE_TRAILING_EDGE = 0 << SPI_CSR_NCPHA_Pos,
@@ -91,14 +99,7 @@ typedef enum
 
 }SPI_DATA_BITS;
 
-typedef enum
-{
-    SPI_CHIP_SELECT_NPCS0 = SPI_MR_PCS_NPCS0_Val,
-    SPI_CHIP_SELECT_NPCS1 = SPI_MR_PCS_NPCS1_Val,
-    SPI_CHIP_SELECT_NPCS2 = SPI_MR_PCS_NPCS2_Val,
-    SPI_CHIP_SELECT_NPCS3 = SPI_MR_PCS_NPCS3_Val,
 
-}SPI_CHIP_SELECT;
 
 typedef struct
 {
