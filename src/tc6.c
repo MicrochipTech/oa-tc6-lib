@@ -161,7 +161,7 @@ static void waitForTXC(TC6_t *g, uint16_t waitLen);
 static uint16_t mk_ctrl_req(bool wnr, bool aid, uint32_t addr, uint8_t num_regs, const uint32_t *regs, uint8_t *buff, uint16_t size_of_buff);
 static uint16_t mk_secure_ctrl_req(bool wnr, bool aid, uint32_t addr, uint8_t num_regs, const uint32_t *regs, uint8_t *buff, uint16_t size_of_buff);
 static uint16_t read_rx_ctrl_buffer(const uint8_t *rx_buf, uint16_t rx_buf_size, uint32_t *regs_buf, uint8_t regs_buf_size, bool secure);
-static bool pollRxData(TC6_t *g);
+static bool pollRxData(TC6_t *g, bool forceEmpty);
 static void parseRxData(TC6_t *g, const uint8_t *buff, uint16_t buf_len);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -196,7 +196,7 @@ bool TC6_HandleMacPhyInterrupt(uint8_t tc6instance)
     bool success = false;
     if (tc6instance < TC6_MAX_INSTANCES) {
         TC6_t *g = &m_tc6[tc6instance];
-        success = pollRxData(g);
+        success = pollRxData(g, true);
     }
     return success;
 }
@@ -231,7 +231,7 @@ void TC6_EnableData(TC6_t *g, bool enable)
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     g->enableData = enable;
     if (g->enableData) {
-        pollRxData(g);
+        pollRxData(g, true);
     }
 }
 
@@ -319,12 +319,12 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
             TC6_ASSERT(offsetEth <= totalLen);
             if (offsetEth == totalLen) {
                 SET_VAL(HDR_EV, 1u, pSpi);
-                SET_VAL(HDR_EBO, (toCopyLen - 1u), pSpi);
+                SET_VAL(HDR_EBO, (uint8_t)(toCopyLen - 1u), pSpi);
             }
             SET_VAL(HDR_P, get_parity(pSpi), pSpi);
         }
         while(!spiDataTransaction(g, chunks));
-        pollRxData(g);
+        pollRxData(g, false);
         success = true;
     } else {
         success = false;
@@ -580,12 +580,9 @@ static void addEmptyChunks(TC6_t *g, uint16_t chunkCnt)
 
 static bool spiDataTransaction(TC6_t *g, uint16_t chunkCnt)
 {
-    uint16_t bufLen;
-    uint16_t chunks = chunkCnt;
+    uint16_t bufLen = (chunkCnt * TC6_CHUNK_BUF_SIZE);
     bool success = false;
-    TC6_ASSERT(g && (TC6_MAGIC == g->magic) && chunkCnt);
-    TC6_ASSERT(chunks <= TC6_CHUNKS_XACT);
-    bufLen = (chunks * TC6_CHUNK_BUF_SIZE);
+    TC6_ASSERT(g && (TC6_MAGIC == g->magic) && chunkCnt);;
     success = TC6_CB_OnSpiTransaction(g->instance, g->bufMOSI, g->bufMISO, bufLen, g->gTag);
     TC6_ASSERT(TC6_MAGIC == g->magic);
     if (success) {
@@ -668,9 +665,9 @@ static uint16_t mk_ctrl_req(bool wnr, bool aid, uint32_t addr,
         SET_VAL(HDR_C_DNC, 0, tx_buf);
         SET_VAL(HDR_C_WNR, wnr, tx_buf);
         SET_VAL(HDR_C_AID, aid, tx_buf);
-        SET_VAL(HDR_C_MMS, (addr >> 16), tx_buf);
-        SET_VAL(HDR_C_ADDR_HI, (addr >> 8), tx_buf);
-        SET_VAL(HDR_C_ADDR_LO, addr, tx_buf);
+        SET_VAL(HDR_C_MMS, (uint8_t)(addr >> 16), tx_buf);
+        SET_VAL(HDR_C_ADDR_HI, (uint8_t)(addr >> 8), tx_buf);
+        SET_VAL(HDR_C_ADDR_LO, (uint8_t)addr, tx_buf);
         SET_VAL(HDR_C_LEN, (num_regs - 1u), tx_buf);
         SET_VAL(HDR_C_P, get_parity(tx_buf), tx_buf);
     }
@@ -710,9 +707,9 @@ static uint16_t mk_secure_ctrl_req(bool wnr, bool aid, uint32_t addr,
         SET_VAL(HDR_C_DNC, 0, tx_buf);
         SET_VAL(HDR_C_WNR, wnr, tx_buf);
         SET_VAL(HDR_C_AID, aid, tx_buf);
-        SET_VAL(HDR_C_MMS, (addr >> 16), tx_buf);
-        SET_VAL(HDR_C_ADDR_HI, (addr >> 8), tx_buf);
-        SET_VAL(HDR_C_ADDR_LO, addr, tx_buf);
+        SET_VAL(HDR_C_MMS, (uint8_t)(addr >> 16), tx_buf);
+        SET_VAL(HDR_C_ADDR_HI, (uint8_t)(addr >> 8), tx_buf);
+        SET_VAL(HDR_C_ADDR_LO, (uint8_t)addr, tx_buf);
         SET_VAL(HDR_C_LEN, (num_regs - 1u), tx_buf);
         SET_VAL(HDR_C_P, get_parity(tx_buf), tx_buf);
     }
@@ -736,8 +733,12 @@ static uint16_t read_rx_ctrl_buffer(const uint8_t *rx_buf, uint16_t rx_buf_size,
 
         src = rx_buf;
         for (i = 0; i < num; i++) {
+            uint32_t normal;
+            uint32_t inverted;
             src = &src[8];
-            if (net2value(src) != ~net2value(&src[4])) {
+            normal = net2value(src);
+            inverted = ~net2value(&src[4]);
+            if (normal != inverted) {
                 num = 0;
             }
         }
@@ -856,19 +857,19 @@ static inline void process_rx(TC6_t *g, const uint8_t *buff, uint16_t buf_len)
     }
 }
 
-static bool pollRxData(TC6_t *g)
+static bool pollRxData(TC6_t *g, bool forceEmpty)
 {
     bool success = false;
     if ((TC6_MAGIC == g->magic) && (g->enableData)) {
-        uint8_t rca = TC6_CHUNKS_PER_ISR;
-        do {
+        uint8_t rca = (forceEmpty ? TC6_CHUNKS_PER_ISR : g->rca);
+        while (0u != rca) {
             if (rca > TC6_CHUNKS_XACT) {
                 rca = TC6_CHUNKS_XACT;
             }
             addEmptyChunks(g, rca);
             while (!spiDataTransaction(g, rca));
             rca = g->rca;
-        } while (0u != rca);
+        }
         success = true;
     }
     return success;
