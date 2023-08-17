@@ -345,30 +345,30 @@ bool TC6_SendRawEthernetPacket(TC6_t *g, const uint8_t *pTx, uint16_t len, uint8
     return success;
 }
 
-bool TC6_ReadRegister(TC6_t *g, uint32_t addr, uint32_t *value, bool protected)
+bool TC6_ReadRegister(TC6_t *g, uint32_t addr, uint32_t *value, bool secure)
 {
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     return accessRegisters(g, MemOp_Read, addr
         , value
-        , protected
+        , secure
         , 0    /* mask */);
 }
 
-bool TC6_WriteRegister(TC6_t *g, uint32_t addr, uint32_t value, bool protected)
+bool TC6_WriteRegister(TC6_t *g, uint32_t addr, uint32_t value, bool secure)
 {
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     return accessRegisters(g, MemOp_Write, addr
         , &value
-        , protected
+        , secure
         , 0    /* mask */);
 }
 
-bool TC6_ReadModifyWriteRegister(TC6_t *g, uint32_t addr, uint32_t value, uint32_t mask, bool protected)
+bool TC6_ReadModifyWriteRegister(TC6_t *g, uint32_t addr, uint32_t value, uint32_t mask, bool secure)
 {
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     return accessRegisters(g, MemOp_ReadModifyWrite, addr
         , &value
-        , protected
+        , secure
         , mask);
 }
 
