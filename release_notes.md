@@ -2,6 +2,11 @@
 
 # OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release Notes
 
+## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.3
+### Bugfixes
+
+ - Renamed "protected" parameter into "secure", so C++ compilers do not throw keyword error.
+
 ## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.2
 ### New Features
 - SAM V71 example provides interactive menu and benchmark result like the E54 noIP variant
