@@ -54,8 +54,8 @@ extern "C" {
 
 #define TC6_LIB_VER_MAJOR  (3U)
 #define TC6_LIB_VER_MINOR  (1U)
-#define TC6_LIB_VER_BUGFIX (2U)
-#define TC6_LIB_VER_STRING "V3.1.2"
+#define TC6_LIB_VER_BUGFIX (3U)
+#define TC6_LIB_VER_STRING "V3.1.3"
 
 struct TC6_t;
 typedef struct TC6_t TC6_t;
@@ -187,35 +187,35 @@ bool TC6_SendRawEthernetSegments(TC6_t *pInst, const TC6_RawTxSegment *pSegments
 /** \brief Reads from MAC / Phy registers
  *  \param pInst - The pointer returned by TC6_Init.
  *  \param addr - The 32 Bit register offset.
- *  \param protected - true, enables protected control data transmission (normal + inverted data). false, no protection feature is used.
+ *  \param secure - true, enables protected control data transmission (normal + inverted data). false, no protection feature is used.
  *  \param rxCallback - Pointer to a callback handler. May left NULL.
  *  \param pTag - Any pointer. Will be given back in given rxCallback. May left NULL.
  *  \return true, on success. false, otherwise.
  */
-bool TC6_ReadRegister(TC6_t *pInst, uint32_t addr, bool protected, TC6_RegCallback_t rxCallback, void *pTag);
+bool TC6_ReadRegister(TC6_t *pInst, uint32_t addr, bool secure, TC6_RegCallback_t rxCallback, void *pTag);
 
 /** \brief Writes to MAC / Phy registers
  *  \param pInst - The pointer returned by TC6_Init.
  *  \param addr - The 32 Bit register offset.
  *  \param value - The new 32 Bit register value.
- *  \param protected - true, enables protected control data transmission (normal + inverted data). false, no protection feature is used.
+ *  \param secure - true, enables protected control data transmission (normal + inverted data). false, no protection feature is used.
  *  \param txCallback - Pointer to a callback handler. May left NULL.
  *  \param pTag - Any pointer. Will be given back in given txCallback. May left NULL.
  *  \return true, on success. false, otherwise.
  */
-bool TC6_WriteRegister(TC6_t *pInst, uint32_t addr, uint32_t value, bool protected, TC6_RegCallback_t txCallback, void *pTag);
+bool TC6_WriteRegister(TC6_t *pInst, uint32_t addr, uint32_t value, bool secure, TC6_RegCallback_t txCallback, void *pTag);
 
 /** \brief Reads, modifies and writes back the changed value to MAC / Phy registers
  *  \param pInst - The pointer returned by TC6_Init.
  *  \param addr - The 32 Bit register offset.
  *  \param value - The 32 Bit register bit values to be changed. This value will be set to register only if mask on the corresponding position is set to 1.
  *  \param mask - The 32 Bit register bit mask. Only Bits set to 1 will be changed accordingly to value.
- *  \param protected - true, enables protected control data transmission (normal + inverted data). false, no protection feature is used.
+ *  \param secure - true, enables protected control data transmission (normal + inverted data). false, no protection feature is used.
  *  \param modifyCallback - Pointer to a callback handler. May left NULL.
  *  \param pTag - Any pointer. Will be given back in given modifyCallback. May left NULL.
  *  \return true, on success. false, otherwise.
  */
-bool TC6_ReadModifyWriteRegister(TC6_t *pInst, uint32_t addr, uint32_t value, uint32_t mask, bool protected, TC6_RegCallback_t modifyCallback, void *pTag);
+bool TC6_ReadModifyWriteRegister(TC6_t *pInst, uint32_t addr, uint32_t value, uint32_t mask, bool secure, TC6_RegCallback_t modifyCallback, void *pTag);
 
 /** \brief Execute a list of register commands
  *  \param pInst - The pointer returned by TC6_Init.

@@ -407,34 +407,34 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
     return success;
 }
 
-bool TC6_ReadRegister(TC6_t *g, uint32_t addr, bool protected, TC6_RegCallback_t rxCallback, void *tag)
+bool TC6_ReadRegister(TC6_t *g, uint32_t addr, bool secure, TC6_RegCallback_t rxCallback, void *tag)
 {
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     return accessRegisters(g, REGISTER_OP_READ, addr
         , 0    /* value */
-        , protected
+        , secure
         , 0    /* mask */
         , rxCallback
         , tag);
 }
 
-bool TC6_WriteRegister(TC6_t *g, uint32_t addr, uint32_t value, bool protected, TC6_RegCallback_t txCallback, void *tag)
+bool TC6_WriteRegister(TC6_t *g, uint32_t addr, uint32_t value, bool secure, TC6_RegCallback_t txCallback, void *tag)
 {
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     return accessRegisters(g, REGISTER_OP_WRITE, addr
         , value
-        , protected
+        , secure
         , 0    /* mask */
         , txCallback
         , tag);
 }
 
-bool TC6_ReadModifyWriteRegister(TC6_t *g, uint32_t addr, uint32_t value, uint32_t mask, bool protected, TC6_RegCallback_t modifyCallback, void *tag)
+bool TC6_ReadModifyWriteRegister(TC6_t *g, uint32_t addr, uint32_t value, uint32_t mask, bool secure, TC6_RegCallback_t modifyCallback, void *tag)
 {
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     return accessRegisters(g, REGISTER_OP_READWRITE_STAGE1, addr
         , value
-        , protected
+        , secure
         , mask
         , modifyCallback
         , tag);
