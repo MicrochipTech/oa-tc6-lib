@@ -13,6 +13,7 @@ Please contact the Microchip support in case of issues and questions.
 
 - [10BASE-T1S Support](https://www.microchip.com/support)
 - [OPEN Alliance TC6 - 10BASE-T1x MAC-PHY Serial Interface specification](https://www.opensig.org/Automotive-Ethernet-Specifications)
+- [10Base-T1x MAC-PHY Serial Interface Protocol Analyzer for Saleae Logic](https://github.com/MicrochipTech/oa-tc6-saleae-extension)
 
 # Contents Summary
 
