@@ -237,7 +237,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="expand-pragma-config" value="false"/>
         <property key="extra-include-directories"
-                  value="src\config;src\port\include;src\src\include;src\src\include\ipv4;src\src\include\lwip;src\src\include\netif"/>
+                  value="src/config;src/port/include;src/src/include;src/src/include/ipv4;src/src/include/lwip;src/src/include/netif"/>
         <property key="isolate-each-function" value="false"/>
         <property key="keep-inline" value="false"/>
         <property key="oXC16gcc-align-arr" value="false"/>
@@ -870,7 +870,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="expand-pragma-config" value="false"/>
         <property key="extra-include-directories"
-                  value="src\config;src\port\include;src\src\include;src\src\include\ipv4;src\src\include\lwip;src\src\include\netif"/>
+                  value="src/config;src/port/include;src/src/include;src/src/include/ipv4;src/src/include/lwip;src/src/include/netif"/>
         <property key="isolate-each-function" value="false"/>
         <property key="keep-inline" value="false"/>
         <property key="oXC16gcc-align-arr" value="false"/>

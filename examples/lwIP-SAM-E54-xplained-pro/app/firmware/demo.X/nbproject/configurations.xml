@@ -61,12 +61,12 @@
               <logicalFolder name="f3" displayName="spi_master" projectFiles="true">
                 <itemPath>../src/config/default/peripheral/sercom/spi_master/plib_sercom_spi_master_common.h</itemPath>
                 <itemPath>../src/config/default/peripheral/sercom/spi_master/plib_sercom6_spi_master.h</itemPath>
-                <itemPath>..\src\config\default\peripheral\sercom\spi_master\plib_sercom4_spi_master.h</itemPath>
+                <itemPath>../src/config/default/peripheral/sercom/spi_master/plib_sercom4_spi_master.h</itemPath>
                 <itemPath>../src/config/default/peripheral/sercom/spi_master/plib_sercom4_spi_master.h</itemPath>
               </logicalFolder>
               <logicalFolder name="f1" displayName="usart" projectFiles="true">
                 <itemPath>../src/config/default/peripheral/sercom/usart/plib_sercom_usart_common.h</itemPath>
-                <itemPath>..\src\config\default\peripheral\sercom\usart\plib_sercom2_usart.h</itemPath>
+                <itemPath>../src/config/default/peripheral/sercom/usart/plib_sercom2_usart.h</itemPath>
                 <itemPath>../src/config/default/peripheral/sercom/usart/plib_sercom2_usart.h</itemPath>
               </logicalFolder>
             </logicalFolder>
@@ -299,7 +299,7 @@
               </logicalFolder>
               <logicalFolder name="f3" displayName="spi_master" projectFiles="true">
                 <itemPath>../src/config/default/peripheral/sercom/spi_master/plib_sercom6_spi_master.c</itemPath>
-                <itemPath>..\src\config\default\peripheral\sercom\spi_master\plib_sercom4_spi_master.c</itemPath>
+                <itemPath>../src/config/default/peripheral/sercom/spi_master/plib_sercom4_spi_master.c</itemPath>
               </logicalFolder>
               <logicalFolder name="f1" displayName="usart" projectFiles="true">
                 <itemPath>../src/config/default/peripheral/sercom/usart/plib_sercom2_usart.c</itemPath>
@@ -364,7 +364,7 @@
         <itemPath>../src/config/default/default.mhc/settings.yml</itemPath>
       </logicalFolder>
       <itemPath>Makefile</itemPath>
-      <itemPath>..\src\config\default\harmony-manifest-success.yml</itemPath>
+      <itemPath>../src/config/default/harmony-manifest-success.yml</itemPath>
       <itemPath>../src/config/default/pin_configurations.csv</itemPath>
       <itemPath>demo.mc3</itemPath>
     </logicalFolder>
@@ -483,7 +483,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\..\..\..\..\libtc6\inc;..\..\..\liblwip.X\src\cfg;..\..\..\liblwip.X\src\include;..\..\..\libtc6.X\cfg"/>
+                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../../../../../libtc6/inc;../../../liblwip.X/src/cfg;../../../liblwip.X/src/include;../../../libtc6.X/cfg"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
@@ -1377,7 +1377,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\..\..\liblwip.X\src\include;..\..\..\liblwip.X\src\cfg;..\..\..\libtc6.X\cfg;..\..\..\..\..\libtc6\inc"/>
+                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../../../liblwip.X/src/include;../../../liblwip.X/src/cfg;../../../libtc6.X/cfg;../../../../../libtc6/inc"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
@@ -2258,7 +2258,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\..\..\liblwip.X\src\include;..\..\..\liblwip.X\src\cfg;..\..\..\libtc6.X\cfg;..\..\..\..\..\libtc6\inc"/>
+                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../../../liblwip.X/src/include;../../../liblwip.X/src/cfg;../../../libtc6.X/cfg;../../../../../libtc6/inc"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
@@ -3139,7 +3139,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\..\..\liblwip.X\src\include;..\..\..\liblwip.X\src\cfg;..\..\..\libtc6.X\cfg;..\..\..\..\..\libtc6\inc"/>
+                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../../../liblwip.X/src/include;../../../liblwip.X/src/cfg;../../../libtc6.X/cfg;../../../../../libtc6/inc"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
@@ -4020,7 +4020,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\..\..\liblwip.X\src\include;..\..\..\liblwip.X\src\cfg;..\..\..\libtc6.X\cfg;..\..\..\..\..\libtc6\inc"/>
+                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../../../liblwip.X/src/include;../../../liblwip.X/src/cfg;../../../libtc6.X/cfg;../../../../../libtc6/inc"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
