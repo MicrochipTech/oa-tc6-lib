@@ -201,7 +201,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="expand-pragma-config" value="false"/>
         <property key="extra-include-directories"
-                  value="..\liblwip.X\src\config;..\liblwip.X\src\port\include;..\liblwip.X\src\src\include;..\liblwip.X\src\src\include\ipv4;..\libtc6.X\cfg;..\..\..\libtc6\inc"/>
+                  value="../liblwip.X/src/config;../liblwip.X/src/port/include;../liblwip.X/src/src/include;../liblwip.X/src/src/include/ipv4;../libtc6.X/cfg;../../../libtc6/inc"/>
         <property key="isolate-each-function" value="false"/>
         <property key="keep-inline" value="false"/>
         <property key="oXC16gcc-align-arr" value="false"/>
@@ -741,7 +741,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="expand-pragma-config" value="false"/>
         <property key="extra-include-directories"
-                  value="..\liblwip.X\src\config;..\liblwip.X\src\port\include;..\liblwip.X\src\src\include;..\liblwip.X\src\src\include\ipv4;..\libtc6.X\cfg;..\..\..\libtc6\inc"/>
+                  value="../liblwip.X/src/config;../liblwip.X/src/port/include;../liblwip.X/src/src/include;../liblwip.X/src/src/include/ipv4;../libtc6.X/cfg;../../../libtc6/inc"/>
         <property key="isolate-each-function" value="false"/>
         <property key="keep-inline" value="false"/>
         <property key="oXC16gcc-align-arr" value="false"/>
@@ -1277,7 +1277,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="expand-pragma-config" value="false"/>
         <property key="extra-include-directories"
-                  value="..\liblwip.X\src\config;..\liblwip.X\src\port\include;..\liblwip.X\src\src\include;..\liblwip.X\src\src\include\ipv4;..\libtc6.X\cfg;..\..\..\libtc6\inc"/>
+                  value="../liblwip.X/src/config;../liblwip.X/src/port/include;../liblwip.X/src/src/include;../liblwip.X/src/src/include/ipv4;../libtc6.X/cfg;../../../libtc6/inc"/>
         <property key="isolate-each-function" value="false"/>
         <property key="keep-inline" value="false"/>
         <property key="oXC16gcc-align-arr" value="false"/>
@@ -1813,7 +1813,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="expand-pragma-config" value="false"/>
         <property key="extra-include-directories"
-                  value="..\liblwip.X\src\config;..\liblwip.X\src\port\include;..\liblwip.X\src\src\include;..\liblwip.X\src\src\include\ipv4;..\libtc6.X\cfg;..\..\..\libtc6\inc"/>
+                  value="../liblwip.X/src/config;../liblwip.X/src/port/include;../liblwip.X/src/src/include;../liblwip.X/src/src/include/ipv4;../libtc6.X/cfg;../../../libtc6/inc"/>
         <property key="isolate-each-function" value="false"/>
         <property key="keep-inline" value="false"/>
         <property key="oXC16gcc-align-arr" value="false"/>
@@ -2349,7 +2349,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="expand-pragma-config" value="false"/>
         <property key="extra-include-directories"
-                  value="..\liblwip.X\src\config;..\liblwip.X\src\port\include;..\liblwip.X\src\src\include;..\liblwip.X\src\src\include\ipv4;..\libtc6.X\cfg;..\..\..\libtc6\inc"/>
+                  value="../liblwip.X/src/config;../liblwip.X/src/port/include;../liblwip.X/src/src/include;../liblwip.X/src/src/include/ipv4;../libtc6.X/cfg;../../../libtc6/inc"/>
         <property key="isolate-each-function" value="false"/>
         <property key="keep-inline" value="false"/>
         <property key="oXC16gcc-align-arr" value="false"/>

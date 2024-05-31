@@ -447,7 +447,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAMD21G17D_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\..\..\..\libtc6\inc;..\..\liblwip.X\src\cfg;..\..\liblwip.X\src\include;..\..\libtc6.X\cfg;..\src\pwm_driver"/>
+                  value="../src;../src/config/default;../src/packs/ATSAMD21G17D_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../../../../libtc6/inc;../../liblwip.X/src/cfg;../../liblwip.X/src/include;../../libtc6.X/cfg;../src/pwm_driver"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="false"/>
@@ -565,7 +565,7 @@
       </C32CPP>
       <C32Global>
         <property key="common-include-directories"
-                  value="..\src\weather;..\src\spi_driver;..\src\ws2812b_driver"/>
+                  value="../src/weather;../src/spi_driver;../src/ws2812b_driver"/>
         <property key="gp-relative-option" value=""/>
         <property key="legacy-libc" value="false"/>
         <property key="mdtcm" value=""/>
@@ -1798,7 +1798,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAMD21G17D_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\src\pwm_driver;..\..\liblwip.X\src\cfg;..\..\liblwip.X\src\include;..\..\libtc6.X\cfg;..\..\..\..\libtc6\inc"/>
+                  value="../src;../src/config/default;../src/packs/ATSAMD21G17D_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../src/pwm_driver;../../liblwip.X/src/cfg;../../liblwip.X/src/include;../../libtc6.X/cfg;../../../../libtc6/inc"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="false"/>
@@ -1915,7 +1915,7 @@
       </C32CPP>
       <C32Global>
         <property key="common-include-directories"
-                  value="..\src\weather;..\src\spi_driver;..\src\ws2812b_driver"/>
+                  value="../src/weather;../src/spi_driver;../src/ws2812b_driver"/>
         <property key="gp-relative-option" value=""/>
         <property key="legacy-libc" value="false"/>
         <property key="mdtcm" value=""/>
@@ -2658,7 +2658,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAMD21G17D_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\src\pwm_driver;..\..\liblwip.X\src\cfg;..\..\liblwip.X\src\include;..\..\libtc6.X\cfg;..\..\..\..\libtc6\inc"/>
+                  value="../src;../src/config/default;../src/packs/ATSAMD21G17D_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../src/pwm_driver;../../liblwip.X/src/cfg;../../liblwip.X/src/include;../../libtc6.X/cfg;../../../../libtc6/inc"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="false"/>
@@ -2775,7 +2775,7 @@
       </C32CPP>
       <C32Global>
         <property key="common-include-directories"
-                  value="..\src\weather;..\src\spi_driver;..\src\ws2812b_driver"/>
+                  value="../src/weather;../src/spi_driver;../src/ws2812b_driver"/>
         <property key="gp-relative-option" value=""/>
         <property key="legacy-libc" value="false"/>
         <property key="mdtcm" value=""/>
@@ -3518,7 +3518,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAMD21G17D_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\src\pwm_driver;..\..\liblwip.X\src\cfg;..\..\liblwip.X\src\include;..\..\libtc6.X\cfg;..\..\..\..\libtc6\inc"/>
+                  value="../src;../src/config/default;../src/packs/ATSAMD21G17D_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../src/pwm_driver;../../liblwip.X/src/cfg;../../liblwip.X/src/include;../../libtc6.X/cfg;../../../../libtc6/inc"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="false"/>
@@ -3635,7 +3635,7 @@
       </C32CPP>
       <C32Global>
         <property key="common-include-directories"
-                  value="..\src\weather;..\src\spi_driver;..\src\ws2812b_driver"/>
+                  value="../src/weather;../src/spi_driver;../src/ws2812b_driver"/>
         <property key="gp-relative-option" value=""/>
         <property key="legacy-libc" value="false"/>
         <property key="mdtcm" value=""/>
@@ -4378,7 +4378,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAMD21G17D_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\src\pwm_driver;..\..\liblwip.X\src\cfg;..\..\liblwip.X\src\include;..\..\libtc6.X\cfg;..\..\..\..\libtc6\inc"/>
+                  value="../src;../src/config/default;../src/packs/ATSAMD21G17D_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../src/pwm_driver;../../liblwip.X/src/cfg;../../liblwip.X/src/include;../../libtc6.X/cfg;../../../../libtc6/inc"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="false"/>
@@ -4495,7 +4495,7 @@
       </C32CPP>
       <C32Global>
         <property key="common-include-directories"
-                  value="..\src\weather;..\src\spi_driver;..\src\ws2812b_driver"/>
+                  value="../src/weather;../src/spi_driver;../src/ws2812b_driver"/>
         <property key="gp-relative-option" value=""/>
         <property key="legacy-libc" value="false"/>
         <property key="mdtcm" value=""/>

@@ -476,7 +476,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\..\..\..\..\libtc6\inc;..\..\..\liblwip.X\src\cfg;..\..\..\liblwip.X\src\include;..\..\..\libtc6.X\cfg"/>
+                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../../../../../libtc6/inc;../../../liblwip.X/src/cfg;../../../liblwip.X/src/include;../../../libtc6.X/cfg"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
@@ -1312,7 +1312,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\..\..\liblwip.X\src\cfg;..\..\..\liblwip.X\src\include;..\..\..\libtc6.X\cfg;..\..\..\..\..\libtc6\inc"/>
+                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../../../liblwip.X/src/cfg;../../../liblwip.X/src/include;../../../libtc6.X/cfg;../../../../../libtc6/inc"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="false"/>
@@ -1977,6 +1977,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-fffff"/>
         <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmerToGoFilePath"
+                  value="C:/_svn_/TC6_Library/trunk/examples/lwIP-SAM-E54-Curiosity/app/firmware/demo.X/debug/release_node0/demo_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"
@@ -2132,7 +2134,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\..\..\liblwip.X\src\cfg;..\..\..\liblwip.X\src\include;..\..\..\libtc6.X\cfg;..\..\..\..\..\libtc6\inc"/>
+                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../../../liblwip.X/src/cfg;../../../liblwip.X/src/include;../../../libtc6.X/cfg;../../../../../libtc6/inc"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="false"/>
@@ -2797,6 +2799,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-fffff"/>
         <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmerToGoFilePath"
+                  value="C:/_svn_/TC6_Library/trunk/examples/lwIP-SAM-E54-Curiosity/app/firmware/demo.X/debug/release_node1/demo_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"
@@ -2952,7 +2956,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\..\..\liblwip.X\src\cfg;..\..\..\liblwip.X\src\include;..\..\..\libtc6.X\cfg;..\..\..\..\..\libtc6\inc"/>
+                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../../../liblwip.X/src/cfg;../../../liblwip.X/src/include;../../../libtc6.X/cfg;../../../../../libtc6/inc"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="false"/>
@@ -3617,6 +3621,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-fffff"/>
         <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmerToGoFilePath"
+                  value="C:/_svn_/TC6_Library/trunk/examples/lwIP-SAM-E54-Curiosity/app/firmware/demo.X/debug/release_node2/demo_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"
@@ -3772,7 +3778,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;..\..\..\liblwip.X\src\cfg;..\..\..\liblwip.X\src\include;..\..\..\libtc6.X\cfg;..\..\..\..\..\libtc6\inc"/>
+                  value="../src;../src/config/default;../src/packs/ATSAME54P20A_DFP;../src/packs/CMSIS/;../src/packs/CMSIS/CMSIS/Core/Include;../../../liblwip.X/src/cfg;../../../liblwip.X/src/include;../../../libtc6.X/cfg;../../../../../libtc6/inc"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="false"/>
@@ -4437,6 +4443,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-fffff"/>
         <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmerToGoFilePath"
+                  value="C:/_svn_/TC6_Library/trunk/examples/lwIP-SAM-E54-Curiosity/app/firmware/demo.X/debug/release_node3/demo_ptg"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preservedataflash.ranges"
