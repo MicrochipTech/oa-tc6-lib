@@ -41,6 +41,12 @@
       </logicalFolder>
       <itemPath>DMASPItransfer.h</itemPath>
     </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="true">
+      <itemPath>Makefile</itemPath>
+      <itemPath>SPI_DMA.mc3</itemPath>
+    </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
                    projectFiles="true">
@@ -95,12 +101,6 @@
       <itemPath>DMASPItransfer.c</itemPath>
       <itemPath>systick.c</itemPath>
       <itemPath>systick.h</itemPath>
-    </logicalFolder>
-    <logicalFolder name="ExternalFiles"
-                   displayName="Important Files"
-                   projectFiles="false">
-      <itemPath>Makefile</itemPath>
-      <itemPath>SPI_DMA.mc3</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -625,7 +625,7 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-2beff"/>
         <property key="programmerToGoFilePath"
-                  value="C:/_svn_/TC6_Library/trunk/examples/lwIP-dsPIC33CK_Curiosity/dsPIC33_tc6.X/debug/default/dsPIC33_tc6_ptg"/>
+                  value="C:/Users/c00233/OneDrive - Microchip Technology, Inc/Projects/MCC/SPI_DMA.X/debug/default/SPI_DMA_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.pgmentry.voltage" value="low"/>

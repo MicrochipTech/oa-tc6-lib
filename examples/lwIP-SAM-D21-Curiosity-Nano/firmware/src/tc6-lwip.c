@@ -433,34 +433,18 @@ void TC6_CB_OnRxEthernetSlice(TC6_t *pInst, const uint8_t *pRx, uint16_t offset,
         success = false;
     }
     if (success && ((offset + len) > TC6LwIP_MTU)) {
-        PrintRateLimited("on_rx_slice:packet greater than MTU", (offset + len));
+        PRINT("on_rx_slice:packet greater than MTU", (offset + len));
         lw->tc.rxInvalid = true;
         success = false;
     }
-    if (success && (0u != offset)) {
-        if (!lw->tc.pbuf || !lw->tc.rxLen) {
-            TC6_ASSERT(false);
+    if (success && (NULL == lw->tc.pbuf)) {
+        lw->tc.pbuf = pbuf_alloc(PBUF_RAW, TC6LwIP_MTU, PBUF_RAM);
+        if (!lw->tc.pbuf) {
             lw->tc.rxInvalid = true;
             success = false;
-        }
-    } else {
-        if (success && (lw->tc.pbuf || lw->tc.rxLen)) {
-            TC6_ASSERT(false);
-            lw->tc.rxInvalid = true;
-            pbuf_free(lw->tc.pbuf);
-            success = false;
-        }
-
-        if (success) {
-            lw->tc.pbuf = pbuf_alloc(PBUF_RAW, TC6LwIP_MTU, PBUF_RAM);
-            if (!lw->tc.pbuf) {
-                lw->tc.rxInvalid = true;
-                success = false;
-            }
         }
         if (success && (NULL != lw->tc.pbuf->next)) {
-            TC6_ASSERT(lw->tc.pbuf->ref != 0);
-            PrintRateLimited("rx_slice: could not allocate unsegmented memory diff", (lw->tc.pbuf->tot_len - lw->tc.pbuf->len));
+            PRINT("rx_slice: could not allocate unsegmented memory diff", (lw->tc.pbuf->tot_len - lw->tc.pbuf->len));
             lw->tc.rxInvalid = true;
             pbuf_free(lw->tc.pbuf);
             lw->tc.pbuf = NULL;
