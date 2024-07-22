@@ -229,6 +229,12 @@
       </logicalFolder>
       <itemPath>../src/app.h</itemPath>
     </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="true">
+      <itemPath>Makefile</itemPath>
+      <itemPath>SAM-V71-xplained-pro.mc3</itemPath>
+    </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
                    projectFiles="true">
@@ -318,12 +324,6 @@
       <itemPath>../src/udp_perf_client.c</itemPath>
       <itemPath>../src/udp_perf_client.h</itemPath>
       <itemPath>../src/config/default/pin_configurations.csv</itemPath>
-    </logicalFolder>
-    <logicalFolder name="ExternalFiles"
-                   displayName="Important Files"
-                   projectFiles="false">
-      <itemPath>Makefile</itemPath>
-      <itemPath>SAM-V71-xplained-pro.mc3</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
