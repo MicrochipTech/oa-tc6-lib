@@ -45,6 +45,7 @@ Microchip or any third party.
 #include <assert.h>
 #include "tc6-conf.h"
 #include "tc6.h"
+#include "tc6-regs.h"
 #include "tc6-queue.h"
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -115,12 +116,28 @@ Microchip or any third party.
 #define FTR_TXC      FLD(3u, 1u, 5u) /* Transmit Credits */
 /*#define FTR_P      FLD(3u, 0u, 1u)    Footer Parity Bit */
 
+static const char* TC6_Errors[] = {
+    "Succeeded",                        /** No error occurred */
+    "No_Hardware",                      /** MISO data implies that there is no MACPHY hardware available */
+    "Unexpected_Start_Valid_Flag",      /** Unexpected Start Valid Flag  */
+    "Unexpected_Data_or_End_Valid_Flag",/** Unexpected Data Valid or End Valid Flag  */
+    "Bad_Checksum",                     /** Checksum in footer is wrong */
+    "Unexpected_Ctrl",                  /** Unexpected control packet received */
+    "Bad_Tx_Data",                      /** Header Bad Flag received */
+    "Sync_Lost",                        /** Sync Flag is no longer set */
+    "Spi_Error",                        /** SPI transaction failed */
+    "Control_Tx_Fail",                  /** Control TX failure */
+    "Unknown",                          /** Unknown failure */
+    "Plca_Status_Fail"                  /** PLCA status check failure */
+};
+
 static const uint8_t MASK[9] = { 0x00u, 0x01u, 0x03u, 0x07u, 0x0Fu, 0x1Fu, 0x3Fu, 0x7Fu, 0xFFu };
 
 typedef enum
-{ SPI_OP_INVALID,
-  SPI_OP_DATA,
-  SPI_OP_REG
+{
+    SPI_OP_INVALID,
+    SPI_OP_DATA,
+    SPI_OP_REG
 } SpiOp_t;
 
 /** Integrator needs to allocate this structure. But the elements must not be accessed.
@@ -134,6 +151,7 @@ struct TC6_t
     struct qspibuf_queue qSpi;
     struct register_operation regop_storage[REG_OP_ARRAY_SIZE];
     struct regop_queue regop_q;
+
     void *gTag;
     uint64_t ts;
     volatile SpiOp_t currentOp;
@@ -262,7 +280,9 @@ void TC6_Reset(TC6_t *g)
     while(regop_stage7_event_ready(qReg)) {
         struct register_operation *entry = regop_stage7_event_ptr(qReg);
         if (NULL != entry->callback) {
-           entry->callback(g, false, entry->regAddr, 0u, entry->tag, g->gTag);
+            if (true == TC6Regs_GetInitDone(g)) {
+                entry->callback(g, false, entry->regAddr, 0u, entry->tag, g->gTag);
+            }
         }
         regop_stage7_event_done(qReg);
     }
@@ -501,6 +521,15 @@ void TC6_UnlockExtendedStatus(TC6_t *g)
 {
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     g->exst_locked = false;
+}
+
+const char *TC6_GetErrorStr(TC6_Error_t error)
+{
+    if (error < TC6Error_Last) {
+        return TC6_Errors[error];
+    }
+
+    return "Unlisted_Error";
 }
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -939,7 +968,7 @@ static uint8_t get_parity(const uint8_t *pVal)
     l ^= l >> 1;
 
     val =  ~(h ^ l) & 1u;
-#endif    
+#endif
 
     return val;
 }

@@ -50,6 +50,45 @@ Microchip or any third party.
 /*                      DEFINES AND LOCAL VARIABLES                     */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
+static const char* TC6_events[] = {
+    "Unknown_Error",
+    "Transmit_Protocol_Error",
+    "Transmit_Buffer_Overflow_Error",
+    "Transmit_Buffer_Underflow_Error",
+    "Receive_Buffer_Overflow_Error",
+    "Loss_of_Framing_Error",
+    "Header_Error",
+    "Reset_Complete",
+    "PHY_Interrupt",
+    "Transmit_Timestamp_Capture_Available_A",
+    "Transmit_Timestamp_Capture_Available_B",
+    "Transmit_Timestamp_Capture_Available_C",
+    "Transmit_Frame_Check_Sequence_Error",
+    "Control_Data_Protection_Error",
+    "RX_Non_Recoverable_Error",
+    "TX_Non_Recoverable_Error",
+    "FSM_State_Error",
+    "SRAM_ECC_Error",
+    "Undervoltage",
+    "Internal_Bus_Error",
+    "TX_Timestamp_Capture_Overflow_A",
+    "TX_Timestamp_Capture_Overflow_B",
+    "TX_Timestamp_Capture_Overflow_C",
+    "TX_Timestamp_Capture_Missed_A",
+    "TX_Timestamp_Capture_Missed_B",
+    "TX_Timestamp_Capture_Missed_C",
+    "MCLK_GEN_Status",
+    "gPTP_PA_TS_EG_Status",
+    "Extended_Block_Status",
+    "SPI_Err_Int",
+    "MAC_BMGR_Int",
+    "MAC_Int",
+    "HMX_Int",
+    "GINT_Mask",
+    "Chip_Error",
+    "Unsupported_Hardware",
+};
+
 typedef struct
 {
     uint8_t mac[6];
@@ -64,6 +103,7 @@ typedef struct
     uint8_t chipRev;
     bool extBlock;
     bool initialized;
+    bool initBusy;
     bool initDone;
     bool enablePlca;
     bool plcaChanged;
@@ -72,7 +112,7 @@ typedef struct
     bool rxCutThrough;
 } TC6Reg_t;
 
-static TC6Reg_t m_reg[TC6_MAX_INSTANCES] = { 0 };
+static TC6Reg_t m_reg[TC6_MAX_INSTANCES] = {{{ 0 }}};
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                      PRIVATE FUNCTION PROTOTYPES                     */
@@ -116,6 +156,7 @@ bool TC6Regs_Init(TC6_t *pTC6, void *pTag, const uint8_t mac[6], bool enablePlca
         pReg->txCutThrough = txCutThrough;
         pReg->rxCutThrough = rxCutThrough;
         (void)memcpy(pReg->mac, mac, 6);
+
         DoInitialization(pReg);
     }
     return ((NULL != pReg) && pReg->initialized);
@@ -179,6 +220,15 @@ uint8_t TC6Regs_GetChipRevision(TC6_t *pTC6)
     return pReg->chipRev;
 }
 
+const char *TC6Regs_GetEventStr(TC6Regs_Event_t event)
+{
+    if (event < TC6Regs_Event_Last) {
+        return TC6_events[event];
+    }
+
+    return "Unlisted_Event";
+}
+
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                  CALLBACK FUNCTIONS FROM TC6 STACK                   */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -221,7 +271,7 @@ static void DoInitialization(TC6Reg_t *pReg)
 {
     uint32_t regVal;
     uint16_t i = 0;
-    
+
     /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
     /*                          AUTO GENERATED DEFINES                      */
     /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -264,7 +314,9 @@ static void DoInitialization(TC6Reg_t *pReg)
 
     static const uint32_t TC6_MEMMAP_LENGTH = (sizeof(TC6_MEMMAP) / sizeof(MemoryMap_t));
 
-    if ((NULL != pReg) && !pReg->initialized) {
+    if ((NULL != pReg) && !pReg->initialized && !pReg->initBusy) {
+        pReg->initBusy = true;
+
         pReg->initialized = true;
         TC6_Reset(pReg->pTC6);
         /* Perform Soft Reset with unprotected call */
@@ -340,6 +392,8 @@ static void DoInitialization(TC6Reg_t *pReg)
         while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x00010000 /* NETWORK_CONTROL */, 0xCu, CONTROL_PROTECTION, OnInitDone, NULL)) {
             TC6_Service(pReg->pTC6, true);
         }
+
+        pReg->initBusy = false;
     }
 }
 

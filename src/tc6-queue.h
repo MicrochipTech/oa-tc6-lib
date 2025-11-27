@@ -33,6 +33,7 @@ Microchip or any third party.
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "tc6-conf.h"
 
 struct qtxeth {
     void *priv;

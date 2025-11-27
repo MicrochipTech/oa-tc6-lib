@@ -54,8 +54,8 @@ extern "C" {
 
 #define TC6_LIB_VER_MAJOR  (3U)
 #define TC6_LIB_VER_MINOR  (1U)
-#define TC6_LIB_VER_BUGFIX (3U)
-#define TC6_LIB_VER_STRING "V3.1.3"
+#define TC6_LIB_VER_BUGFIX (4U)
+#define TC6_LIB_VER_STRING "V3.1.4"
 
 struct TC6_t;
 typedef struct TC6_t TC6_t;
@@ -72,7 +72,11 @@ typedef enum
     TC6Error_SyncLost,          /** Sync Flag is no longer set */
     TC6Error_SpiError,          /** SPI transaction failed */
     TC6Error_ControlTxFail,     /** Control TX failure */
+    TC6Error_Unknown,           /** Unknown failure */
+    TC6Error_PlcaStatusFail     /** PLCA status check failure */
 } TC6_Error_t;
+
+#define TC6Error_Last (TC6Error_PlcaStatusFail + 1)
 
 typedef struct
 {
@@ -269,6 +273,12 @@ void TC6_GetState(TC6_t *pInst, uint8_t *pTxCredit, uint8_t *pRxCredit, bool *pS
  *  \return Instance number, starting with 0 for the first instance
  */
 uint8_t TC6_GetInstance(TC6_t *pInst);
+
+/**
+ * \brief Fetch the string for the given error value.
+ * \param event - Enumeration matching to the occurred event.
+ */
+const char * TC6_GetErrorStr(TC6_Error_t event);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                        CALLBACK SECTION                              */
