@@ -28,6 +28,7 @@ The following applications are provided to demonstrate the typical or interestin
 
 | Name                                                                      | Status                                                                                            |
 | ---                                                                       | ---                                                                                               |
+|[lwIP TCP/IP example running on dsPIC33AK Curiosity Development Board](examples/lwIP-dsPIC33AK_Curiosity/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
 |[lwIP TCP/IP example running on dsPIC33AK Curiosity Nano Development Board](examples/lwIP-dsPIC33AK_Curiosity_Nano/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
 |[lwIP TCP/IP example running on dsPIC33CK Curiosity Development Board](examples/lwIP-dsPIC33CK_Curiosity/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
 |[lwIP TCP/IP example running on SAM D21 Curiosity Nano Evaluation Kit](examples/lwIP-SAM-D21-Curiosity-Nano/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
