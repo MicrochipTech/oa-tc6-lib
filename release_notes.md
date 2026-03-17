@@ -2,6 +2,11 @@
 
 # OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release Notes
 
+## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.5
+### Bugfixes
+ - Updated initial value for LAN865x Rev.B1.
+
+
 ## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.4
 ### New Features
  - Added interfaces for error and event string retrieval.
