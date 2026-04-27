@@ -132,6 +132,7 @@ typedef struct {
 /** \brief Initializes the lwIP Interface Driver for TC6.
  *  \param pGlobalTag - This pointer will be returned back with any callback of this component. Maybe set to NULL.
  *  \note Must be called before any other functions of this component.
+ *  \warning Not reentrant. Must not be called from multiple threads concurrently.
  *  \return Filled structure for further usage with other functions of this component. Or NULL, if there was an error.
  */
 TC6_t *TC6_Init(void *pGlobalTag);
