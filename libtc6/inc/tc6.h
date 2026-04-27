@@ -320,6 +320,7 @@ extern void TC6_CB_OnRxEthernetPacket(TC6_t *pInst, bool success, uint16_t len, 
 /**
  * \brief Callback when ever an error occurred.
  * \note This function must be implemented by the integrator.
+ * \warning !! THIS FUNCTION MAY GET CALLED FROM TASK AND INTERRUPT CONTEXT !!
  * \param pInst - The pointer returned by TC6_Init.
  * \param err - Enumeration value holding the actual error condition.
  * \param pGlobalTag - The exact same pointer, which was given along with the TC6_Init() function.
