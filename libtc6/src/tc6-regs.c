@@ -652,9 +652,12 @@ static void OnInitDone(TC6_t *pInst, bool success, uint32_t addr, uint32_t value
     (void)value;
     (void)pTag;
     (void)pGlobalTag;
-    (void)success;
-    TC6_EnableData(pInst, true);
-    pReg->initDone = true;
+    if (success) {
+        TC6_EnableData(pInst, true);
+        pReg->initDone = true;
+    } else {
+        pReg->initialized = false;
+    }
 }
 
 static void OnExtendedBlock(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag)
