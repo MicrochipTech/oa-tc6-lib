@@ -46,6 +46,10 @@ Microchip or any third party.
 #define DELAY_UNLOCK_EXT        (100u)
 #define CONTROL_PROTECTION      (true)
 
+#ifndef TC6_REGS_RETRY_MAX
+#define TC6_REGS_RETRY_MAX      (100u)
+#endif
+
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                      DEFINES AND LOCAL VARIABLES                     */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -83,6 +87,8 @@ static void HandlePlca(TC6Reg_t *pReg);
 static bool ReadIndirectReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal, uint32_t mask);
 static int8_t GetSignedVal(uint32_t val);
 static void InitChip(TC6_t *pInst);
+static bool RetryRead(TC6_t *pInst, uint32_t addr, uint32_t *value, bool secure);
+static bool RetryWrite(TC6_t *pInst, uint32_t addr, uint32_t value, bool secure);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                         PUBLIC FUNCTIONS                             */
@@ -176,9 +182,7 @@ void TC6_CB_OnExtendedStatus(TC6_t *pInst, void *pGlobalTag)
     uint32_t value = 0u;
     uint8_t i;
     pReg->unlockExtTime = TC6Regs_CB_GetTicksMs();
-    while (!TC6_ReadRegister(pInst, 0x00000008, &value, CONTROL_PROTECTION)) {
-        /* Retry */
-    }
+    (void)RetryRead(pInst, 0x00000008, &value, CONTROL_PROTECTION);
     for (i = 0u; i < 32u; i++) {
         if (0u != (value & (1u << i))) {
             switch (i) {
@@ -200,9 +204,7 @@ void TC6_CB_OnExtendedStatus(TC6_t *pInst, void *pGlobalTag)
         }
     }
     if (0u == value) {
-        while (!TC6_ReadRegister(pInst, 0x00000009, &value, CONTROL_PROTECTION)) {
-            /* Retry */
-        }
+        (void)RetryRead(pInst, 0x00000009, &value, CONTROL_PROTECTION);
         bool extBlock = false;
         for (i = 0u; i < 32u; i++) {
             if (0u != (value & (1u << i))) {
@@ -230,14 +232,10 @@ void TC6_CB_OnExtendedStatus(TC6_t *pInst, void *pGlobalTag)
         }
         if (0u != value) {
             /* Write to clear pending flags */
-            while (!TC6_WriteRegister(pInst, 0x00000009, value, CONTROL_PROTECTION)) {
-                /* Retry */
-            }
+            (void)RetryWrite(pInst, 0x00000009, value, CONTROL_PROTECTION);
         }
         if (extBlock) {
-            while (!TC6_ReadRegister(pInst, 0x000A0087, &value, CONTROL_PROTECTION)) {
-                /* Retry */
-            }
+            (void)RetryRead(pInst, 0x000A0087, &value, CONTROL_PROTECTION);
             for (i = 0u; i < 32u; i++) {
                 if (0u != (value & (1u << i))) {
                     switch (i) {
@@ -253,9 +251,7 @@ void TC6_CB_OnExtendedStatus(TC6_t *pInst, void *pGlobalTag)
         }
     } else {
         /* Write to clear pending flags */
-        while (!TC6_WriteRegister(pInst, 0x00000008, value, CONTROL_PROTECTION)) {
-            /* Retry */
-        }
+        (void)RetryWrite(pInst, 0x00000008, value, CONTROL_PROTECTION);
     }
 }
 
@@ -281,6 +277,41 @@ static TC6Reg_t *GetContext(TC6_t *pTC6)
         }
     }
     return pReg;
+}
+
+/* Bounded-retry wrappers for the TC6 register accessors. On exhaustion, raise a
+ * Chip_Error event and clear pReg->initialized so chained pReg->initialized
+ * guards downstream bail out naturally. */
+static bool RetryRead(TC6_t *pInst, uint32_t addr, uint32_t *value, bool secure)
+{
+    TC6Reg_t *pReg = GetContext(pInst);
+    uint16_t i;
+    for (i = 0u; i < TC6_REGS_RETRY_MAX; i++) {
+        if (TC6_ReadRegister(pInst, addr, value, secure)) {
+            return true;
+        }
+    }
+    TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Chip_Error, (NULL != pReg) ? pReg->pTag : NULL);
+    if (NULL != pReg) {
+        pReg->initialized = false;
+    }
+    return false;
+}
+
+static bool RetryWrite(TC6_t *pInst, uint32_t addr, uint32_t value, bool secure)
+{
+    TC6Reg_t *pReg = GetContext(pInst);
+    uint16_t i;
+    for (i = 0u; i < TC6_REGS_RETRY_MAX; i++) {
+        if (TC6_WriteRegister(pInst, addr, value, secure)) {
+            return true;
+        }
+    }
+    TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Chip_Error, (NULL != pReg) ? pReg->pTag : NULL);
+    if (NULL != pReg) {
+        pReg->initialized = false;
+    }
+    return false;
 }
 
 static void DoInitialization(TC6Reg_t *pReg)
@@ -338,9 +369,7 @@ static void DoInitialization(TC6Reg_t *pReg)
         TC6_WriteRegister(pReg->pTC6, 0x00000003u /* RESET */, 0x1u, false);
         TC6_WriteRegister(pReg->pTC6, 0x00000003u /* RESET */, 0x1u, true);
 
-        while (!TC6_ReadRegister(pReg->pTC6, 0x00000001, &value, false)) {
-            /* Retry */
-        }
+        (void)RetryRead(pReg->pTC6, 0x00000001, &value, false);
         {
             uint32_t oui = value >> 10;
             uint32_t model = (value >> 4) & 0x3FFu;
@@ -349,9 +378,7 @@ static void DoInitialization(TC6Reg_t *pReg)
                 pReg->initialized = false;
             }
         }
-        while (!TC6_ReadRegister(pReg->pTC6, 0x000A0094, &value, false)) {
-            /* Retry */
-        }
+        (void)RetryRead(pReg->pTC6, 0x000A0094, &value, false);
         {
             pReg->chipRev = (value & 0xFu);
             if (0u == pReg->chipRev) {
@@ -364,32 +391,22 @@ static void DoInitialization(TC6Reg_t *pReg)
             i += TC6_MultipleRegisterAccess(pReg->pTC6, &TC6_MEMMAP[i], (uint16_t)(TC6_MEMMAP_LENGTH - i));
         }
         regVal = (1u == pReg->chipRev) ? 0x5F21ul : 0x3F31ul;
-        while (!TC6_WriteRegister(pReg->pTC6, 0x000400D0, regVal, CONTROL_PROTECTION)) {
-            /* Retry */
-        }
-        while (pReg->initialized && (2u == pReg->chipRev) && !TC6_WriteRegister(pReg->pTC6, 0x000400E0, 0x0000C000, CONTROL_PROTECTION)) {
-            /* Retry */
+        (void)RetryWrite(pReg->pTC6, 0x000400D0, regVal, CONTROL_PROTECTION);
+        if (pReg->initialized && (2u == pReg->chipRev)) {
+            (void)RetryWrite(pReg->pTC6, 0x000400E0, 0x0000C000, CONTROL_PROTECTION);
         }
         /* MAC address setting */
         regVal = ((uint32_t)pReg->mac[3] << 24) | ((uint32_t)pReg->mac[2] << 16) | ((uint32_t)pReg->mac[1] << 8) | (uint32_t)pReg->mac[0];
-        while (!TC6_WriteRegister(pReg->pTC6, 0x00010024u /* SPEC_ADD2_BOTTOM */, regVal, CONTROL_PROTECTION)) {
-            /* Retry */
-        }
+        (void)RetryWrite(pReg->pTC6, 0x00010024u /* SPEC_ADD2_BOTTOM */, regVal, CONTROL_PROTECTION);
         regVal = ((uint32_t)pReg->mac[5] << 8) | (uint32_t)pReg->mac[4];
-        while (!TC6_WriteRegister(pReg->pTC6, 0x00010025u /* SPEC_ADD2_TOP */, regVal, CONTROL_PROTECTION)) {
-            /* Retry */
-        }
+        (void)RetryWrite(pReg->pTC6, 0x00010025u /* SPEC_ADD2_TOP */, regVal, CONTROL_PROTECTION);
         /* MAC address setting, setting unique lower MAC address, back off time is generated out of that */
         regVal = ((uint32_t)pReg->mac[5] << 24) | ((uint32_t)pReg->mac[4] << 16) | ((uint32_t)pReg->mac[3] << 8) | (uint32_t)pReg->mac[2];
-        while (!TC6_WriteRegister(pReg->pTC6, 0x00010022u /* SPEC_ADD1_BOTTOM */, regVal, CONTROL_PROTECTION)) {
-            /* Retry */
-        }
+        (void)RetryWrite(pReg->pTC6, 0x00010022u /* SPEC_ADD1_BOTTOM */, regVal, CONTROL_PROTECTION);
 
         /* Promiscuous mode setting */
         regVal = pReg->promiscuous ? 0x10 : 0x0;
-        while (!TC6_WriteRegister(pReg->pTC6, 0x00010001 /* NETWORK_CONFIG */, regVal, CONTROL_PROTECTION)) {
-            /* Retry */
-        }
+        (void)RetryWrite(pReg->pTC6, 0x00010001 /* NETWORK_CONFIG */, regVal, CONTROL_PROTECTION);
         if (pReg->initialized) {
             InitChip(pReg->pTC6);
         }
@@ -404,12 +421,8 @@ static void DoInitialization(TC6Reg_t *pReg)
         if (pReg->rxCutThrough) {
             regVal |= 0x100u;
         }
-        while (!TC6_WriteRegister(pReg->pTC6, 0x00000004 /* CONFIG0 */, regVal, CONTROL_PROTECTION)) {
-            /* Retry */
-        }
-        while (!TC6_WriteRegister(pReg->pTC6, 0x00010000 /* NETWORK_CONTROL */, 0xCu, CONTROL_PROTECTION)) {
-            /* Retry */
-        }
+        (void)RetryWrite(pReg->pTC6, 0x00000004 /* CONFIG0 */, regVal, CONTROL_PROTECTION);
+        (void)RetryWrite(pReg->pTC6, 0x00010000 /* NETWORK_CONTROL */, 0xCu, CONTROL_PROTECTION);
         TC6_EnableData(pReg->pTC6, true);
         pReg->initDone = true;
     }
@@ -419,25 +432,17 @@ static void HandlePlca(TC6Reg_t *pReg)
 {
     /* Collision Detection */
     uint32_t regVal = pReg->enablePlca ? 0x0083u : 0x8083u;
-    while (!TC6_WriteRegister(pReg->pTC6, 0x00040087u /* COL_DET_CTRL0 */, regVal, CONTROL_PROTECTION)) {
-        /* Retry */
-    }
+    (void)RetryWrite(pReg->pTC6, 0x00040087u /* COL_DET_CTRL0 */, regVal, CONTROL_PROTECTION);
     if (pReg->initialized && pReg->enablePlca) {
         /* T1S Phy Node Id and Max Node Count */
         regVal = ((uint32_t)pReg->nodeCount << 8) | pReg->nodeId;
-        while (!TC6_WriteRegister(pReg->pTC6, 0x0004CA02 /* PLCA_CONTROL_1_REGISTER */, regVal, CONTROL_PROTECTION)) {
-            /* Retry */
-        }
+        (void)RetryWrite(pReg->pTC6, 0x0004CA02 /* PLCA_CONTROL_1_REGISTER */, regVal, CONTROL_PROTECTION);
         /* PLCA Burst Count and Burst Timer */
         regVal = ((uint32_t)pReg->burstCount << 8) | pReg->burstTimer;
-        while (!TC6_WriteRegister(pReg->pTC6, 0x0004CA05 /* PLCA_BURST_MODE_REGISTER */, regVal, CONTROL_PROTECTION)) {
-            /* Retry */
-        }
+        (void)RetryWrite(pReg->pTC6, 0x0004CA05 /* PLCA_BURST_MODE_REGISTER */, regVal, CONTROL_PROTECTION);
         /* Enable PLCA */
         regVal = ((uint32_t)1u << 15);
-        while (!TC6_WriteRegister(pReg->pTC6, 0x0004CA01/* PLCA_CONTROL_0_REGISTER */, regVal, CONTROL_PROTECTION)) {
-            /* Retry */
-        }
+        (void)RetryWrite(pReg->pTC6, 0x0004CA01/* PLCA_CONTROL_0_REGISTER */, regVal, CONTROL_PROTECTION);
     }
 }
 
@@ -445,15 +450,9 @@ static bool ReadIndirectReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal, uint32_
 {
     uint32_t regVal = (addr & 0x000Fu);
     uint32_t value = 0u;
-    while (!TC6_WriteRegister(pInst, 0x000400D8, regVal, CONTROL_PROTECTION)) {
-        /* Retry */
-    }
-    while (!TC6_WriteRegister(pInst, 0x000400DA, 0x0002, CONTROL_PROTECTION)) {
-        /* Retry */
-    }
-    while (!TC6_ReadRegister(pInst, 0x000400D9, &value, CONTROL_PROTECTION)) {
-        /* Retry */
-    }
+    (void)RetryWrite(pInst, 0x000400D8, regVal, CONTROL_PROTECTION);
+    (void)RetryWrite(pInst, 0x000400DA, 0x0002, CONTROL_PROTECTION);
+    (void)RetryRead(pInst, 0x000400D9, &value, CONTROL_PROTECTION);
     if (NULL != pVal) {
         *pVal = (value & mask);
     }
@@ -526,18 +525,14 @@ static void InitChip(TC6_t *pInst)
     tempParam = (int16_t)14 + initOffset1; /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam << 4;
 
-    while (!TC6_WriteRegister(pReg->pTC6, 0x00040084, cfgParam, CONTROL_PROTECTION)) {
-        /* Retry */
-    }
+    (void)RetryWrite(pReg->pTC6, 0x00040084, cfgParam, CONTROL_PROTECTION);
 
     /* CONFIG PARAMETER 4 */
     cfgParam = initValue4 & 0x3FFu;
     tempParam = (int16_t)40 + initOffset2; /* To be MISRA compliant */
     cfgParam |= (uint16_t)(tempParam) << 10;
 
-    while (!TC6_WriteRegister(pReg->pTC6, 0x0004008A, cfgParam, CONTROL_PROTECTION)) {
-        /* Retry */
-    }
+    (void)RetryWrite(pReg->pTC6, 0x0004008A, cfgParam, CONTROL_PROTECTION);
 
     /* CONFIG PARAMETER 5 */
     cfgParam = initValue5 & 0xC0C0u;
@@ -547,9 +542,7 @@ static void InitChip(TC6_t *pInst)
     tempParam = (int16_t)9 + initOffset1; /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam;
 
-    while (!TC6_WriteRegister(pReg->pTC6, 0x000400AD, cfgParam, CONTROL_PROTECTION)) {
-        /* Retry */
-    }
+    (void)RetryWrite(pReg->pTC6, 0x000400AD, cfgParam, CONTROL_PROTECTION);
 
     /* CONFIG PARAMETER 6 */
     cfgParam = initValue6 & 0xC0C0u;
@@ -559,9 +552,7 @@ static void InitChip(TC6_t *pInst)
     tempParam = (int16_t)14 + initOffset1; /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam;
 
-    while (!TC6_WriteRegister(pReg->pTC6, 0x000400AE, cfgParam, CONTROL_PROTECTION)) {
-        /* Retry */
-    }
+    (void)RetryWrite(pReg->pTC6, 0x000400AE, cfgParam, CONTROL_PROTECTION);
 
     /* CONFIG PARAMETER 7 */
     cfgParam = initValue7 & 0xC0C0u;
@@ -572,8 +563,6 @@ static void InitChip(TC6_t *pInst)
     tempParam = (int16_t)22 + initOffset1; /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam;
 
-    while (!TC6_WriteRegister(pReg->pTC6, 0x000400AF, cfgParam, CONTROL_PROTECTION)) {
-        /* Retry */
-    }
+    (void)RetryWrite(pReg->pTC6, 0x000400AF, cfgParam, CONTROL_PROTECTION);
 }
 
