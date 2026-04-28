@@ -55,6 +55,15 @@ Microchip or any third party.
 #define TC6_MAGIC           (0x48423578ul)
 #define TC6_CHUNKS_PER_ISR  (2u)
 
+/* C99-compatible compile-time assertions for tc6-conf.h values */
+#define TC6_STATIC_ASSERT(cond, tag) typedef char tc6_static_assert_##tag[(cond) ? 1 : -1]
+
+TC6_STATIC_ASSERT((TC6_CHUNK_SIZE == 32) || (TC6_CHUNK_SIZE == 64), chunk_size_must_be_32_or_64);
+TC6_STATIC_ASSERT(TC6_MAX_INSTANCES >= 1u, max_instances_must_be_positive);
+TC6_STATIC_ASSERT((REG_OP_ARRAY_SIZE & (REG_OP_ARRAY_SIZE - 1u)) == 0u, reg_op_array_size_must_be_power_of_2);
+TC6_STATIC_ASSERT((TC6_TX_ETH_QSIZE & (TC6_TX_ETH_QSIZE - 1u)) == 0u, tx_eth_qsize_must_be_power_of_2);
+TC6_STATIC_ASSERT((SPI_FULL_BUFFERS & (SPI_FULL_BUFFERS - 1u)) == 0u, spi_full_buffers_must_be_power_of_2);
+
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                    INTERNAL DEFINES AND VARIABLES                    */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
