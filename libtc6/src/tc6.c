@@ -52,8 +52,9 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define TC6_MAGIC           (0x48423578ul)
-#define TC6_CHUNKS_PER_ISR  (2u)
+#define TC6_MAGIC               (0x48423578ul)
+#define TC6_CHUNKS_PER_ISR      (2u)
+#define TC6_RESET_SPI_WAIT_MAX  (1000000ul)
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                    INTERNAL DEFINES AND VARIABLES                    */
@@ -251,8 +252,16 @@ void TC6_Reset(TC6_t *g)
     struct regop_queue *qReg = &g->regop_q;
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
 
-    /* Wait for pending SPI transactions */
-    while(SPI_OP_INVALID != g->currentOp) {};
+    /* Wait for pending SPI transactions (bounded to avoid deadlock on a stuck SPI driver) */
+    {
+        volatile uint32_t waitCount = TC6_RESET_SPI_WAIT_MAX;
+        while ((SPI_OP_INVALID != g->currentOp) && (0u != waitCount)) {
+            waitCount--;
+        }
+        if (0u == waitCount) {
+            TC6_CB_OnError(g, TC6Error_SpiError, g->gTag);
+        }
+    }
 
     /* Callback Ethernet Data Event listeners */
     while (qtxeth_stage2_convert_ready(qEth)) {
