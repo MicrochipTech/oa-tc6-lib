@@ -89,6 +89,8 @@ static const char* TC6_events[] = {
     "Unsupported_Hardware",
 };
 
+typedef char tc6_events_length_matches_enum[((sizeof(TC6_events) / sizeof(TC6_events[0])) == TC6Regs_Event_Last) ? 1 : -1];
+
 typedef struct
 {
     uint8_t mac[6];
