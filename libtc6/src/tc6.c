@@ -955,8 +955,8 @@ static uint8_t get_parity(const uint8_t *pVal)
     val = (uint8_t)v;  /* MISRA c2012-10.3 */
 #else
     /* 16 Bit machine */
-    uint16_t h = *((const uint16_t*)&pVal[0]);
-    uint16_t l = *((const uint16_t*)&pVal[2]);
+    uint16_t h = (uint16_t)pVal[0] | ((uint16_t)pVal[1] << 8);
+    uint16_t l = (uint16_t)pVal[2] | ((uint16_t)pVal[3] << 8);
     h ^= h >> 8;
     h ^= h >> 4;
     h ^= h >> 2;
