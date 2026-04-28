@@ -88,6 +88,7 @@ typedef enum
 
 /** \brief Initializes the LAN865x with its default register settings
  *  \note Must be called before any other functions of this component.
+ *  \warning Not reentrant. Must not be called from multiple threads concurrently.
  *  \param pInst - The pointer returned by TC6_Init.
  *  \param pTag - This pointer will be returned back with any callback of this component. Maybe set to NULL.
  *  \param mac - The 6 Byte public visible MAC address of the TC6 MAC.
