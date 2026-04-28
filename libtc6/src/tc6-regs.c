@@ -50,6 +50,11 @@ Microchip or any third party.
 /*                      DEFINES AND LOCAL VARIABLES                     */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
+/* PHY Identifier register (MMS0 0x01) field values expected for LAN8650/1.
+ * OUI occupies bits [31:10], Model occupies bits [13:4], Revision bits [3:0]. */
+#define LAN865X_OUI     (0x1F0u)
+#define LAN865X_MODEL   (0x1Bu)
+
 static const char* TC6_events[] = {
     "Unknown_Error",
     "Transmit_Protocol_Error",
@@ -439,7 +444,7 @@ static void OnReadId1(TC6_t *pInst, bool success, uint32_t addr, uint32_t value,
     if (success) {
         uint32_t oui = value >> 10;
         uint32_t model = (value >> 4) & 0x3FFu;
-        if ((0x1F0u != oui) || (0x1Bu != model)) {
+        if ((LAN865X_OUI != oui) || (LAN865X_MODEL != model)) {
             TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Unsupported_Hardware, pReg->pTag);
             pReg->initialized = false;
         }
