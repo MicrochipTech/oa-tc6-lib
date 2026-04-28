@@ -250,6 +250,7 @@ extern void TC6_CB_OnRxEthernetPacket(TC6_t *pInst, bool success, uint16_t len, 
 /**
  * \brief Callback when ever an error occurred.
  * \note This function must be implemented by the integrator.
+ * \note May be invoked from interrupt context via TC6_HandleMacPhyInterrupt(). Integrator must keep the handler ISR-safe or defer work.
  * \param pInst - The pointer returned by TC6_Init.
  * \param err - Enumeration value holding the actual error condition.
  * \param pGlobalTag - The exact same pointer, which was given along with the TC6_Init() function.
