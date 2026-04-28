@@ -482,7 +482,7 @@ static void on_rx_slice(TC6_t *g, const uint8_t *pBuf, uint16_t offset, uint16_t
 
     /* handle timestamp (RTSA) */
     /* ToDo: get timestamp according to selected timestamp length (32bit or 64bit) */
-    if (rtsa) {
+    if (rtsa && (buf_len >= 8u)) {
         g->ts = ((uint64_t)buff[0] << 56) |
                 ((uint64_t)buff[1] << 48) |
                 ((uint64_t)buff[2] << 40) |
