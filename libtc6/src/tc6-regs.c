@@ -331,7 +331,7 @@ static void DoInitialization(TC6Reg_t *pReg)
     uint32_t value = 0;
     uint32_t regVal;
 
-    if ((NULL != pReg) && !pReg->initialized) {
+    if ((NULL != pReg) && (NULL != pReg->pTC6) && !pReg->initialized) {
         pReg->initialized = true;
         TC6_Reset(pReg->pTC6);
         /* Perform Soft Reset with unprotected call */
