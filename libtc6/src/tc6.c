@@ -294,6 +294,15 @@ void TC6_Reset(TC6_t *g)
     g->txc = 24u;
     g->enableData = false;
     g->synced = false;
+    g->offsetEth = 0u;
+    g->offsetRx = 0u;
+    g->segCurr = 0u;
+    g->segOffset = 0u;
+    g->buf_len = 0u;
+    g->seq_num = 0u;
+    g->eth_started = false;
+    g->eth_error = false;
+    g->exst_locked = false;
 }
 
 bool TC6_Service(TC6_t *g, bool interruptLevel)
