@@ -46,6 +46,13 @@ Microchip or any third party.
 #include "tc6-conf.h"
 #include "tc6.h"
 
+/* Compile-time sanity checks on tc6-conf.h values.
+ * Using the negative-array-size idiom (not _Static_assert) so the
+ * sync variant stays buildable on pre-C11 toolchains such as XC8. */
+typedef char tc6_check_chunk_size[((TC6_CHUNK_SIZE == 32u) || (TC6_CHUNK_SIZE == 64u)) ? 1 : -1];
+typedef char tc6_check_max_instances[(TC6_MAX_INSTANCES >= 1u) ? 1 : -1];
+typedef char tc6_check_chunks_xact[(TC6_CHUNKS_XACT >= 1u) ? 1 : -1];
+
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
