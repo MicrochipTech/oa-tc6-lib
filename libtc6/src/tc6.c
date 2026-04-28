@@ -262,11 +262,7 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
     bool success = true;
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     TC6_CB_OnIntPinInterruptEnable(g->instance, false);
-    if (!g || !pSegments || !segmentCount || !totalLen) {
-        TC6_ASSERT(false);
-        success = false;
-    }
-    if (success && g->enableData) {
+    if (g && pSegments && segmentCount && totalLen && g->enableData) {
         uint16_t i;
         uint16_t chunks = (totalLen / TC6_CHUNK_SIZE);
         uint16_t segCurr = 0u;
@@ -279,7 +275,7 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
             chunks = TC6_CHUNKS_XACT;
         }
         waitForTXC(g, totalLen);
-        for (i = 0u; i < chunks; i++) {
+        for (i = 0u; success && (i < chunks); i++) {
             uint16_t copyPos = 0u;
             uint16_t toCopyLen;
             uint16_t paddedLen;
@@ -294,10 +290,17 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
             toCopyLen = (totalLen - offsetEth);
             toCopyLen = (toCopyLen <= TC6_CHUNK_SIZE) ? toCopyLen : TC6_CHUNK_SIZE;
             paddedLen = TC6_CHUNK_SIZE - toCopyLen;
-            while(copyPos < toCopyLen) {
-                const uint8_t *pEth = &pSegments[segCurr].pEth[segOffset];
-                uint16_t len = pSegments[segCurr].segLen - segOffset;
-                uint16_t diff = (toCopyLen - copyPos);
+            while(success && (copyPos < toCopyLen)) {
+                const uint8_t *pEth;
+                uint16_t len;
+                uint16_t diff;
+                if (segCurr >= segmentCount) {
+                    success = false;
+                    break;
+                }
+                pEth = &pSegments[segCurr].pEth[segOffset];
+                len = pSegments[segCurr].segLen - segOffset;
+                diff = (toCopyLen - copyPos);
                 if (len > diff) {
                     len = diff;
                 }
@@ -323,9 +326,10 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
             }
             SET_VAL(HDR_P, get_parity(pSpi), pSpi);
         }
-        while(!spiDataTransaction(g, chunks));
-        pollRxData(g, false);
-        success = true;
+        if (success) {
+            while(!spiDataTransaction(g, chunks));
+            pollRxData(g, false);
+        }
     } else {
         success = false;
     }
