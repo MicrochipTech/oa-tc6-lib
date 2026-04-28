@@ -536,7 +536,7 @@ static uint8_t get_parity(const uint8_t *pVal)
 
 #if UINT_MAX == UINT32_MAX
     /* 32 Bit machine */
-    uint32_t v = *((const uint32_t *)pVal);
+    uint32_t v = ((uint32_t)pVal[0] << 24) | ((uint32_t)pVal[1] << 16) | ((uint32_t)pVal[2] << 8) | (uint32_t)pVal[3];
     v ^= v >> 16;
     v ^= v >> 8;
     v ^= v >> 4;
@@ -546,8 +546,8 @@ static uint8_t get_parity(const uint8_t *pVal)
     val =  ~v & 1u; /* odd parity */
 #else
     /* 16 Bit machine */
-    uint16_t h = *((const uint16_t*)&pVal[0]);
-    uint16_t l = *((const uint16_t*)&pVal[2]);
+    uint16_t h = ((uint16_t)pVal[0] << 8) | (uint16_t)pVal[1];
+    uint16_t l = ((uint16_t)pVal[2] << 8) | (uint16_t)pVal[3];
     h ^= h >> 8;
     h ^= h >> 4;
     h ^= h >> 2;
