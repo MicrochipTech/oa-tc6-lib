@@ -315,7 +315,7 @@ static void DoInitialization(TC6Reg_t *pReg)
 
     static const uint32_t TC6_MEMMAP_LENGTH = (sizeof(TC6_MEMMAP) / sizeof(MemoryMap_t));
 
-    if ((NULL != pReg) && !pReg->initialized && !pReg->initBusy) {
+    if ((NULL != pReg) && (NULL != pReg->pTC6) && !pReg->initialized && !pReg->initBusy) {
         pReg->initBusy = true;
 
         pReg->initialized = true;
