@@ -260,8 +260,10 @@ void TC6_GetState(TC6_t *g, uint8_t *pTxCredit, uint8_t *pRxCredit, bool *pSynce
 bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, uint8_t segmentCount, uint16_t totalLen, uint8_t tsc)
 {
     bool success = true;
-    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
-    TC6_CB_OnIntPinInterruptEnable(g->instance, false);
+    if (NULL != g) {
+        TC6_ASSERT(TC6_MAGIC == g->magic);
+        TC6_CB_OnIntPinInterruptEnable(g->instance, false);
+    }
     if (g && pSegments && segmentCount && totalLen && g->enableData) {
         uint16_t i;
         uint16_t chunks = (totalLen / TC6_CHUNK_SIZE);
@@ -333,7 +335,9 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
     } else {
         success = false;
     }
-    TC6_CB_OnIntPinInterruptEnable(g->instance, true);
+    if (NULL != g) {
+        TC6_CB_OnIntPinInterruptEnable(g->instance, true);
+    }
     return success;
 }
 
