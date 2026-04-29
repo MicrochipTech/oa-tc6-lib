@@ -410,8 +410,10 @@ static void DoInitialization(TC6Reg_t *pReg)
         while (!TC6_WriteRegister(pReg->pTC6, 0x00010000 /* NETWORK_CONTROL */, 0xCu, CONTROL_PROTECTION)) {
             /* Retry */
         }
-        TC6_EnableData(pReg->pTC6, true);
-        pReg->initDone = true;
+        if (pReg->initialized) {
+            TC6_EnableData(pReg->pTC6, true);
+            pReg->initDone = true;
+        }
     }
 }
 
