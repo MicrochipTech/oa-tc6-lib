@@ -1396,7 +1396,9 @@ static void enqueue_rx_spi(TC6_t *g, const uint8_t *buff, uint16_t buf_len)
             success = false;
         }
         if (success && GET_VAL(FTR_FD, pFooter)) {
-            TC6_CB_OnRxEthernetPacket(g, false, 0, NULL, g->gTag);
+            if (g->eth_started) {
+                TC6_CB_OnRxEthernetPacket(g, false, 0, NULL, g->gTag);
+            }
             success = false;
         }
         if (success) {
