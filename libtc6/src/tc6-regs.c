@@ -167,8 +167,12 @@ bool TC6Regs_SetPlca(TC6_t *pTC6, bool plcaEnable, uint8_t nodeId, uint8_t nodeC
 
 uint8_t TC6Regs_GetChipRevision(TC6_t *pTC6)
 {
+    uint8_t chipRev = 0u;
     TC6Reg_t *pReg = GetContext(pTC6);
-    return pReg->chipRev;
+    if (NULL != pReg) {
+        chipRev = pReg->chipRev;
+    }
+    return chipRev;
 }
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -362,7 +366,7 @@ static void DoInitialization(TC6Reg_t *pReg)
     uint32_t value = 0;
     uint32_t regVal;
 
-    if ((NULL != pReg) && !pReg->initialized) {
+    if ((NULL != pReg) && (NULL != pReg->pTC6) && !pReg->initialized) {
         pReg->initialized = true;
         TC6_Reset(pReg->pTC6);
         /* Perform Soft Reset with unprotected call */
@@ -423,8 +427,10 @@ static void DoInitialization(TC6Reg_t *pReg)
         }
         (void)RetryWrite(pReg->pTC6, 0x00000004 /* CONFIG0 */, regVal, CONTROL_PROTECTION);
         (void)RetryWrite(pReg->pTC6, 0x00010000 /* NETWORK_CONTROL */, 0xCu, CONTROL_PROTECTION);
-        TC6_EnableData(pReg->pTC6, true);
-        pReg->initDone = true;
+        if (pReg->initialized) {
+            TC6_EnableData(pReg->pTC6, true);
+            pReg->initDone = true;
+        }
     }
 }
 
