@@ -221,8 +221,16 @@ void TC6_Reset(TC6_t *g)
     TC6_CB_OnIntPinInterruptEnable(g->instance, false);
     /* Set protocol defaults */
     g->txc = 24u;
+    g->rca = 0u;
     g->enableData = false;
     g->synced = false;
+    g->exst_locked = false;
+    g->eth_started = false;
+    g->eth_error = false;
+    g->seq_num = 0u;
+    g->offsetRx = 0u;
+    g->buf_len = 0u;
+    g->ts = 0u;
     TC6_CB_OnIntPinInterruptEnable(g->instance, true);
 }
 
