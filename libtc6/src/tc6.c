@@ -131,6 +131,8 @@ static const char* TC6_Errors[] = {
     "Plca_Status_Fail"                  /** PLCA status check failure */
 };
 
+typedef char tc6_errors_length_matches_enum[((sizeof(TC6_Errors) / sizeof(TC6_Errors[0])) == TC6Error_Last) ? 1 : -1];
+
 static const uint8_t MASK[9] = { 0x00u, 0x01u, 0x03u, 0x07u, 0x0Fu, 0x1Fu, 0x3Fu, 0x7Fu, 0xFFu };
 
 typedef enum
