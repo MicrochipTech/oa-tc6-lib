@@ -227,6 +227,7 @@ bool TC6_ReadModifyWriteRegister(TC6_t *pInst, uint32_t addr, uint32_t value, ui
  *  \param mapLength - The length of the given array.
  *  \param multipleCallback - Pointer to a callback handler, it will be called for every single entry of the memory map. May left NULL.
  *  \param pTag - Any pointer. Will be given back in given modifyCallback. May left NULL.
+ *  \note Each map entry is issued as its own single-register SPI control transaction. True multi-register bursts are not currently implemented; the map is a convenience wrapper, not a performance optimization.
  *  \return The amount of register commands enqueued. May return 0 when queue is total full. May return less then mapLength when queue is partly full.
  */
 uint16_t TC6_MultipleRegisterAccess(TC6_t *pInst, const MemoryMap_t *pMap, uint16_t mapLength, TC6_RegCallback_t multipleCallback, void *pTag);
