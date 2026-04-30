@@ -229,8 +229,12 @@ bool TC6Regs_SetPlca(TC6_t *pTC6, bool plcaEnable, uint8_t nodeId, uint8_t nodeC
 
 uint8_t TC6Regs_GetChipRevision(TC6_t *pTC6)
 {
+    uint8_t chipRev = 0u;
     TC6Reg_t *pReg = GetContext(pTC6);
-    return pReg->chipRev;
+    if (NULL != pReg) {
+        chipRev = pReg->chipRev;
+    }
+    return chipRev;
 }
 
 const char *TC6Regs_GetEventStr(TC6Regs_Event_t event)
