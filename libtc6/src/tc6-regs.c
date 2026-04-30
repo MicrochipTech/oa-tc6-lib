@@ -111,6 +111,7 @@ typedef struct
     uint8_t burstTimer;
     uint8_t chipRev;
     bool extBlock;
+    bool extStatusPending;
     bool initialized;
     bool initBusy;
     bool initDone;
@@ -181,6 +182,9 @@ void TC6Regs_CheckTimers(void)
             pReg->unlockExtTime = 0;
             TC6_UnlockExtendedStatus(pReg->pTC6);
         }
+        if (pReg->extStatusPending && TC6_ReadRegister(pReg->pTC6, 0x00000008, CONTROL_PROTECTION, OnStatus0, NULL)) {
+            pReg->extStatusPending = false;
+        }
         DoInitialization(pReg);
 
         if (pReg->plcaChanged) {
@@ -247,8 +251,8 @@ void TC6_CB_OnExtendedStatus(TC6_t *pInst, void *pGlobalTag)
    (void)pGlobalTag;
     TC6Reg_t *pReg = GetContext(pInst);
     pReg->unlockExtTime = TC6Regs_CB_GetTicksMs();
-    while (!TC6_ReadRegister(pInst, 0x00000008, CONTROL_PROTECTION, OnStatus0, NULL)) {
-        TC6_Service(pInst, true);
+    if (!TC6_ReadRegister(pInst, 0x00000008, CONTROL_PROTECTION, OnStatus0, NULL)) {
+        pReg->extStatusPending = true;
     }
 }
 
