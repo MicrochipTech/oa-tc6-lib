@@ -107,4 +107,11 @@ extern "C" {
 #define TC6_MAX_CNTRL_VARS  (1u)
 #endif
 
+/**
+ * \brief Enables protected (duplicate-with-inversion) control-data transmission for
+ *        every register access issued by the tc6-regs layer. Set to false to trade
+ *        some integrity checking for lower SPI traffic on trusted buses.
+ */
+#define TC6_REGS_CONTROL_PROTECTION (true)
+
 #endif /* TC6_CONFIG_H_ */
