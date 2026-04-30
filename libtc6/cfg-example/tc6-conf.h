@@ -145,4 +145,12 @@ extern "C" {
 #define TC6_MAX_CNTRL_VARS  (1u)
 #endif
 
+/**
+ * \brief Enables protected (inverted-duplicate) control transfers for all register accesses issued from the tc6-regs layer.
+ * \note true is the recommended default. Set to false only when control protection must be disabled for debugging or throughput reasons.
+ */
+#ifndef CONTROL_PROTECTION
+#define CONTROL_PROTECTION  (true)
+#endif
+
 #endif /* TC6_CONFIG_H_ */

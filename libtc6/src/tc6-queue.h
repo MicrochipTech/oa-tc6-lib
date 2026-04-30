@@ -55,7 +55,7 @@ struct qspibuf {
 
 enum register_op_type
 {
-    REGISTER_OP_INVALLID,
+    REGISTER_OP_INVALID,
     REGISTER_OP_WRITE,
     REGISTER_OP_READ,
     REGISTER_OP_READWRITE_STAGE1,

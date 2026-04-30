@@ -52,8 +52,18 @@ Microchip or any third party.
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define TC6_MAGIC           (0x48423578ul)
-#define TC6_CHUNKS_PER_ISR  (2u)
+#define TC6_MAGIC               (0x48423578ul)
+#define TC6_CHUNKS_PER_ISR      (2u)
+#define TC6_RESET_SPI_WAIT_MAX  (1000000ul)
+
+/* C99-compatible compile-time assertions for tc6-conf.h values */
+#define TC6_STATIC_ASSERT(cond, tag) typedef char tc6_static_assert_##tag[(cond) ? 1 : -1]
+
+TC6_STATIC_ASSERT((TC6_CHUNK_SIZE == 32) || (TC6_CHUNK_SIZE == 64), chunk_size_must_be_32_or_64);
+TC6_STATIC_ASSERT(TC6_MAX_INSTANCES >= 1u, max_instances_must_be_positive);
+TC6_STATIC_ASSERT((REG_OP_ARRAY_SIZE & (REG_OP_ARRAY_SIZE - 1u)) == 0u, reg_op_array_size_must_be_power_of_2);
+TC6_STATIC_ASSERT((TC6_TX_ETH_QSIZE & (TC6_TX_ETH_QSIZE - 1u)) == 0u, tx_eth_qsize_must_be_power_of_2);
+TC6_STATIC_ASSERT((SPI_FULL_BUFFERS & (SPI_FULL_BUFFERS - 1u)) == 0u, spi_full_buffers_must_be_power_of_2);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                    INTERNAL DEFINES AND VARIABLES                    */
@@ -130,6 +140,8 @@ static const char* TC6_Errors[] = {
     "Unknown",                          /** Unknown failure */
     "Plca_Status_Fail"                  /** PLCA status check failure */
 };
+
+typedef char tc6_errors_length_matches_enum[((sizeof(TC6_Errors) / sizeof(TC6_Errors[0])) == TC6Error_Last) ? 1 : -1];
 
 static const uint8_t MASK[9] = { 0x00u, 0x01u, 0x03u, 0x07u, 0x0Fu, 0x1Fu, 0x3Fu, 0x7Fu, 0xFFu };
 
@@ -251,8 +263,16 @@ void TC6_Reset(TC6_t *g)
     struct regop_queue *qReg = &g->regop_q;
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
 
-    /* Wait for pending SPI transactions */
-    while(SPI_OP_INVALID != g->currentOp) {};
+    /* Wait for pending SPI transactions (bounded to avoid deadlock on a stuck SPI driver) */
+    {
+        volatile uint32_t waitCount = TC6_RESET_SPI_WAIT_MAX;
+        while ((SPI_OP_INVALID != g->currentOp) && (0u != waitCount)) {
+            waitCount--;
+        }
+        if (0u == waitCount) {
+            TC6_CB_OnError(g, TC6Error_SpiError, g->gTag);
+        }
+    }
 
     /* Callback Ethernet Data Event listeners */
     while (qtxeth_stage2_convert_ready(qEth)) {
@@ -294,6 +314,15 @@ void TC6_Reset(TC6_t *g)
     g->txc = 24u;
     g->enableData = false;
     g->synced = false;
+    g->offsetEth = 0u;
+    g->offsetRx = 0u;
+    g->segCurr = 0u;
+    g->segOffset = 0u;
+    g->buf_len = 0u;
+    g->seq_num = 0u;
+    g->eth_started = false;
+    g->eth_error = false;
+    g->exst_locked = false;
 }
 
 bool TC6_Service(TC6_t *g, bool interruptLevel)
@@ -409,7 +438,7 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     TC6_ASSERT(segmentCount && pSegments && (segmentCount <= TC6_TX_ETH_MAX_SEGMENTS) && qtxeth_stage1_enqueue_ready(q));
     (void)pSegments;
-    if (g->enableData) {
+    if (g->enableData && (NULL != pSegments) && (0u != segmentCount) && (segmentCount <= TC6_TX_ETH_MAX_SEGMENTS) && qtxeth_stage1_enqueue_ready(q)) {
         struct qtxeth *entry = qtxeth_stage1_enqueue_ptr(q);
 
         TC6_ASSERT(entry->ethSegs == pSegments);
@@ -793,7 +822,7 @@ static bool accessRegisters(TC6_t *g, enum register_op_type op, uint32_t addr, u
     bool write = true;
     bool success = false;
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
-    TC6_ASSERT(REGISTER_OP_INVALLID != op);
+    TC6_ASSERT(REGISTER_OP_INVALID != op);
     if (regop_stage1_enqueue_ready(&g->regop_q)) {
         success = true;
         switch(op) {
@@ -809,7 +838,7 @@ static bool accessRegisters(TC6_t *g, enum register_op_type op, uint32_t addr, u
         case REGISTER_OP_READWRITE_STAGE2:
             write = true;
             break;
-        case REGISTER_OP_INVALLID:
+        case REGISTER_OP_INVALID:
         default:
             TC6_ASSERT(false);
             success = false;
@@ -890,7 +919,7 @@ static void on_rx_slice(TC6_t *g, const uint8_t *pBuf, uint16_t offset, uint16_t
 
     /* handle timestamp (RTSA) */
     /* ToDo: get timestamp according to selected timestamp length (32bit or 64bit) */
-    if (rtsa) {
+    if (rtsa && (buf_len >= 8u)) {
         g->ts = ((uint64_t)buff[0] << 56) |
                 ((uint64_t)buff[1] << 48) |
                 ((uint64_t)buff[2] << 40) |
@@ -955,8 +984,8 @@ static uint8_t get_parity(const uint8_t *pVal)
     val = (uint8_t)v;  /* MISRA c2012-10.3 */
 #else
     /* 16 Bit machine */
-    uint16_t h = *((const uint16_t*)&pVal[0]);
-    uint16_t l = *((const uint16_t*)&pVal[2]);
+    uint16_t h = (uint16_t)pVal[0] | ((uint16_t)pVal[1] << 8);
+    uint16_t l = (uint16_t)pVal[2] | ((uint16_t)pVal[3] << 8);
     h ^= h >> 8;
     h ^= h >> 4;
     h ^= h >> 2;
@@ -1387,7 +1416,9 @@ static void enqueue_rx_spi(TC6_t *g, const uint8_t *buff, uint16_t buf_len)
             success = false;
         }
         if (success && GET_VAL(FTR_FD, pFooter)) {
-            TC6_CB_OnRxEthernetPacket(g, false, 0, NULL, g->gTag);
+            if (g->eth_started) {
+                TC6_CB_OnRxEthernetPacket(g, false, 0, NULL, g->gTag);
+            }
             success = false;
         }
         if (success) {
@@ -1412,7 +1443,7 @@ static void update_credit_cnt(TC6_t *g, const uint8_t *buff, uint16_t buf_len)
 
     TC6_ASSERT(buf_len && (0u == (buf_len % TC6_CHUNK_BUF_SIZE)));
 
-    if (success && GET_VAL(FTR_HDRB, pFooter)) {
+    if (GET_VAL(FTR_HDRB, pFooter)) {
         success = false;
     }
     if (success && !GET_VAL(FTR_SYNC, pFooter)) {

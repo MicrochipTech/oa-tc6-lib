@@ -44,11 +44,18 @@ Microchip or any third party.
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
 #define DELAY_UNLOCK_EXT        (100u)
+#ifndef CONTROL_PROTECTION
 #define CONTROL_PROTECTION      (true)
+#endif
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                      DEFINES AND LOCAL VARIABLES                     */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
+
+/* PHY Identifier register (MMS0 0x01) field values expected for LAN8650/1.
+ * OUI occupies bits [31:10], Model occupies bits [13:4], Revision bits [3:0]. */
+#define LAN865X_OUI     (0x1F0u)
+#define LAN865X_MODEL   (0x1Bu)
 
 static const char* TC6_events[] = {
     "Unknown_Error",
@@ -95,6 +102,7 @@ typedef enum
     ReadState_Done,
     ReadState_Error
 } ReadState_t;
+typedef char tc6_events_length_matches_enum[((sizeof(TC6_events) / sizeof(TC6_events[0])) == TC6Regs_Event_Last) ? 1 : -1];
 
 typedef struct
 {
@@ -110,6 +118,7 @@ typedef struct
     uint8_t burstTimer;
     uint8_t chipRev;
     bool extBlock;
+    bool extStatusPending;
     bool initialized;
     bool initBusy;
     bool initDone;
@@ -180,6 +189,9 @@ void TC6Regs_CheckTimers(void)
             pReg->unlockExtTime = 0;
             TC6_UnlockExtendedStatus(pReg->pTC6);
         }
+        if (pReg->extStatusPending && TC6_ReadRegister(pReg->pTC6, 0x00000008, CONTROL_PROTECTION, OnStatus0, NULL)) {
+            pReg->extStatusPending = false;
+        }
         DoInitialization(pReg);
 
         if (pReg->plcaChanged) {
@@ -224,8 +236,12 @@ bool TC6Regs_SetPlca(TC6_t *pTC6, bool plcaEnable, uint8_t nodeId, uint8_t nodeC
 
 uint8_t TC6Regs_GetChipRevision(TC6_t *pTC6)
 {
+    uint8_t chipRev = 0u;
     TC6Reg_t *pReg = GetContext(pTC6);
-    return pReg->chipRev;
+    if (NULL != pReg) {
+        chipRev = pReg->chipRev;
+    }
+    return chipRev;
 }
 
 const char *TC6Regs_GetEventStr(TC6Regs_Event_t event)
@@ -246,8 +262,8 @@ void TC6_CB_OnExtendedStatus(TC6_t *pInst, void *pGlobalTag)
    (void)pGlobalTag;
     TC6Reg_t *pReg = GetContext(pInst);
     pReg->unlockExtTime = TC6Regs_CB_GetTicksMs();
-    while (!TC6_ReadRegister(pInst, 0x00000008, CONTROL_PROTECTION, OnStatus0, NULL)) {
-        TC6_Service(pInst, true);
+    if (!TC6_ReadRegister(pInst, 0x00000008, CONTROL_PROTECTION, OnStatus0, NULL)) {
+        pReg->extStatusPending = true;
     }
 }
 
@@ -323,7 +339,7 @@ static void DoInitialization(TC6Reg_t *pReg)
 
     static const uint32_t TC6_MEMMAP_LENGTH = (sizeof(TC6_MEMMAP) / sizeof(MemoryMap_t));
 
-    if ((NULL != pReg) && !pReg->initialized && !pReg->initBusy) {
+    if ((NULL != pReg) && (NULL != pReg->pTC6) && !pReg->initialized && !pReg->initBusy) {
         pReg->initBusy = true;
 
         pReg->initialized = true;
@@ -443,11 +459,11 @@ static void OnReadId1(TC6_t *pInst, bool success, uint32_t addr, uint32_t value,
     (void)addr;
     (void)pTag;
     (void)pGlobalTag;
-    pReg->initialized &= success;
+    pReg->initialized = pReg->initialized && success;
     if (success) {
         uint32_t oui = value >> 10;
         uint32_t model = (value >> 4) & 0x3FFu;
-        if ((0x1F0u != oui) || (0x1Bu != model)) {
+        if ((LAN865X_OUI != oui) || (LAN865X_MODEL != model)) {
             TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Unsupported_Hardware, pReg->pTag);
             pReg->initialized = false;
         }
@@ -461,7 +477,7 @@ static void OnReadId2(TC6_t *pInst, bool success, uint32_t addr, uint32_t value,
     (void)addr;
     (void)pTag;
     (void)pGlobalTag;
-    pReg->initialized &= success;
+    pReg->initialized = pReg->initialized && success;
     if (success) {
         pReg->chipRev = (value & 0xFu);
         if (0u == pReg->chipRev) {
@@ -479,7 +495,7 @@ static void OnInitialRegCB(TC6_t *pInst, bool success, uint32_t addr, uint32_t v
     (void)value;
     (void)pTag;
     (void)pGlobalTag;
-    pReg->initialized &= success;
+    pReg->initialized = pReg->initialized && success;
 }
 
 static void OnChipResult(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag)
@@ -488,7 +504,7 @@ static void OnChipResult(TC6_t *pInst, bool success, uint32_t addr, uint32_t val
     (void)addr;
     (void)tag;
     (void)pGlobalTag;
-    pReg->initialized &= success;
+    pReg->initialized = pReg->initialized && success;
     if (success) {
         pReg->readResult = value;
         pReg->readState = ReadState_Done;
@@ -660,9 +676,12 @@ static void OnInitDone(TC6_t *pInst, bool success, uint32_t addr, uint32_t value
     (void)value;
     (void)pTag;
     (void)pGlobalTag;
-    (void)success;
-    TC6_EnableData(pInst, true);
-    pReg->initDone = true;
+    if (success) {
+        TC6_EnableData(pInst, true);
+        pReg->initDone = true;
+    } else {
+        pReg->initialized = false;
+    }
 }
 
 static void OnExtendedBlock(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag)
