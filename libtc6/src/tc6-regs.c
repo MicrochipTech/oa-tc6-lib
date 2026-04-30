@@ -44,7 +44,9 @@ Microchip or any third party.
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
 #define DELAY_UNLOCK_EXT        (100u)
+#ifndef CONTROL_PROTECTION
 #define CONTROL_PROTECTION      (true)
+#endif
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                      DEFINES AND LOCAL VARIABLES                     */
