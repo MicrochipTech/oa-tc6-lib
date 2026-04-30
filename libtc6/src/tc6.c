@@ -221,8 +221,16 @@ void TC6_Reset(TC6_t *g)
     TC6_CB_OnIntPinInterruptEnable(g->instance, false);
     /* Set protocol defaults */
     g->txc = 24u;
+    g->rca = 0u;
     g->enableData = false;
     g->synced = false;
+    g->exst_locked = false;
+    g->eth_started = false;
+    g->eth_error = false;
+    g->seq_num = 0u;
+    g->offsetRx = 0u;
+    g->buf_len = 0u;
+    g->ts = 0u;
     TC6_CB_OnIntPinInterruptEnable(g->instance, true);
 }
 
@@ -260,13 +268,11 @@ void TC6_GetState(TC6_t *g, uint8_t *pTxCredit, uint8_t *pRxCredit, bool *pSynce
 bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, uint8_t segmentCount, uint16_t totalLen, uint8_t tsc)
 {
     bool success = true;
-    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
-    TC6_CB_OnIntPinInterruptEnable(g->instance, false);
-    if (!g || !pSegments || !segmentCount || !totalLen) {
-        TC6_ASSERT(false);
-        success = false;
+    if (NULL != g) {
+        TC6_ASSERT(TC6_MAGIC == g->magic);
+        TC6_CB_OnIntPinInterruptEnable(g->instance, false);
     }
-    if (success && g->enableData) {
+    if (g && pSegments && segmentCount && totalLen && g->enableData) {
         uint16_t i;
         uint16_t chunks = (totalLen / TC6_CHUNK_SIZE);
         uint16_t segCurr = 0u;
@@ -279,7 +285,7 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
             chunks = TC6_CHUNKS_XACT;
         }
         waitForTXC(g, totalLen);
-        for (i = 0u; i < chunks; i++) {
+        for (i = 0u; success && (i < chunks); i++) {
             uint16_t copyPos = 0u;
             uint16_t toCopyLen;
             uint16_t paddedLen;
@@ -294,10 +300,17 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
             toCopyLen = (totalLen - offsetEth);
             toCopyLen = (toCopyLen <= TC6_CHUNK_SIZE) ? toCopyLen : TC6_CHUNK_SIZE;
             paddedLen = TC6_CHUNK_SIZE - toCopyLen;
-            while(copyPos < toCopyLen) {
-                const uint8_t *pEth = &pSegments[segCurr].pEth[segOffset];
-                uint16_t len = pSegments[segCurr].segLen - segOffset;
-                uint16_t diff = (toCopyLen - copyPos);
+            while(success && (copyPos < toCopyLen)) {
+                const uint8_t *pEth;
+                uint16_t len;
+                uint16_t diff;
+                if (segCurr >= segmentCount) {
+                    success = false;
+                    break;
+                }
+                pEth = &pSegments[segCurr].pEth[segOffset];
+                len = pSegments[segCurr].segLen - segOffset;
+                diff = (toCopyLen - copyPos);
                 if (len > diff) {
                     len = diff;
                 }
@@ -323,13 +336,16 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
             }
             SET_VAL(HDR_P, get_parity(pSpi), pSpi);
         }
-        while(!spiDataTransaction(g, chunks));
-        pollRxData(g, false);
-        success = true;
+        if (success) {
+            while(!spiDataTransaction(g, chunks));
+            pollRxData(g, false);
+        }
     } else {
         success = false;
     }
-    TC6_CB_OnIntPinInterruptEnable(g->instance, true);
+    if (NULL != g) {
+        TC6_CB_OnIntPinInterruptEnable(g->instance, true);
+    }
     return success;
 }
 
@@ -482,7 +498,7 @@ static void on_rx_slice(TC6_t *g, const uint8_t *pBuf, uint16_t offset, uint16_t
 
     /* handle timestamp (RTSA) */
     /* ToDo: get timestamp according to selected timestamp length (32bit or 64bit) */
-    if (rtsa) {
+    if (rtsa && (buf_len >= 8u)) {
         g->ts = ((uint64_t)buff[0] << 56) |
                 ((uint64_t)buff[1] << 48) |
                 ((uint64_t)buff[2] << 40) |
@@ -536,7 +552,7 @@ static uint8_t get_parity(const uint8_t *pVal)
 
 #if UINT_MAX == UINT32_MAX
     /* 32 Bit machine */
-    uint32_t v = *((const uint32_t *)pVal);
+    uint32_t v = ((uint32_t)pVal[0] << 24) | ((uint32_t)pVal[1] << 16) | ((uint32_t)pVal[2] << 8) | (uint32_t)pVal[3];
     v ^= v >> 16;
     v ^= v >> 8;
     v ^= v >> 4;
@@ -546,8 +562,8 @@ static uint8_t get_parity(const uint8_t *pVal)
     val =  ~v & 1u; /* odd parity */
 #else
     /* 16 Bit machine */
-    uint16_t h = *((const uint16_t*)&pVal[0]);
-    uint16_t l = *((const uint16_t*)&pVal[2]);
+    uint16_t h = ((uint16_t)pVal[0] << 8) | (uint16_t)pVal[1];
+    uint16_t l = ((uint16_t)pVal[2] << 8) | (uint16_t)pVal[3];
     h ^= h >> 8;
     h ^= h >> 4;
     h ^= h >> 2;
