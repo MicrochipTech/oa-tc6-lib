@@ -442,7 +442,7 @@ static void OnReadId1(TC6_t *pInst, bool success, uint32_t addr, uint32_t value,
     (void)addr;
     (void)pTag;
     (void)pGlobalTag;
-    pReg->initialized &= success;
+    pReg->initialized = pReg->initialized && success;
     if (success) {
         uint32_t oui = value >> 10;
         uint32_t model = (value >> 4) & 0x3FFu;
@@ -460,7 +460,7 @@ static void OnReadId2(TC6_t *pInst, bool success, uint32_t addr, uint32_t value,
     (void)addr;
     (void)pTag;
     (void)pGlobalTag;
-    pReg->initialized &= success;
+    pReg->initialized = pReg->initialized && success;
     if (success) {
         pReg->chipRev = (value & 0xFu);
         if (0u == pReg->chipRev) {
@@ -478,7 +478,7 @@ static void OnInitialRegCB(TC6_t *pInst, bool success, uint32_t addr, uint32_t v
     (void)value;
     (void)pTag;
     (void)pGlobalTag;
-    pReg->initialized &= success;
+    pReg->initialized = pReg->initialized && success;
 }
 
 static void OnChipResult(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag)
@@ -488,7 +488,7 @@ static void OnChipResult(TC6_t *pInst, bool success, uint32_t addr, uint32_t val
     (void)value;
     (void)tag;
     (void)pGlobalTag;
-    pReg->initialized &= success;
+    pReg->initialized = pReg->initialized && success;
     if (success) {
         pReg->readResult = value;
     } else {
