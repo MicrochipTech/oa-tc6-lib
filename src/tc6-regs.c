@@ -96,6 +96,12 @@ static const char* TC6_events[] = {
     "Unsupported_Hardware",
 };
 
+typedef enum
+{
+    ReadState_Pending = 0,
+    ReadState_Done,
+    ReadState_Error
+} ReadState_t;
 typedef char tc6_events_length_matches_enum[((sizeof(TC6_events) / sizeof(TC6_events[0])) == TC6Regs_Event_Last) ? 1 : -1];
 
 typedef struct
@@ -105,6 +111,7 @@ typedef struct
     void *pTag;
     uint32_t unlockExtTime;
     uint32_t readResult;
+    ReadState_t readState;
     uint8_t nodeId;
     uint8_t nodeCount;
     uint8_t burstCount;
@@ -495,31 +502,31 @@ static void OnChipResult(TC6_t *pInst, bool success, uint32_t addr, uint32_t val
 {
     TC6Reg_t *pReg = GetContext(pInst);
     (void)addr;
-    (void)value;
     (void)tag;
     (void)pGlobalTag;
     pReg->initialized = pReg->initialized && success;
     if (success) {
         pReg->readResult = value;
+        pReg->readState = ReadState_Done;
     } else {
-        pReg->readResult = 0xFFFFFFFEu;
+        pReg->readState = ReadState_Error;
     }
 }
 
 static bool ReadReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal)
 {
     TC6Reg_t *pReg = GetContext(pInst);
-    pReg->readResult = 0xFFFFFFFFu;
+    pReg->readState = ReadState_Pending;
     while (pReg->initialized && !TC6_ReadRegister(pInst, addr, CONTROL_PROTECTION, OnChipResult, NULL)) {
         TC6_Service(pInst, true);
     }
-    while(pReg->initialized && (0xFFFFFFFFu == pReg->readResult)) {
+    while(pReg->initialized && (ReadState_Pending == pReg->readState)) {
         TC6_Service(pInst, true);
     }
-    if (NULL != pVal) {
+    if ((NULL != pVal) && (ReadState_Done == pReg->readState)) {
         *pVal = pReg->readResult;
     }
-    return (0xFFFFFFFEu != pReg->readResult);
+    return (ReadState_Done == pReg->readState);
 }
 
 static bool ReadIndirectReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal, uint32_t mask)
@@ -532,17 +539,17 @@ static bool ReadIndirectReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal, uint32_
     while (pReg->initialized && !TC6_WriteRegister(pInst, 0x000400DA, 0x0002, CONTROL_PROTECTION, NULL, NULL)) {
         TC6_Service(pInst, true);
     }
-    pReg->readResult = 0xFFFFFFFFu;
+    pReg->readState = ReadState_Pending;
     while (pReg->initialized && !TC6_ReadRegister(pInst, 0x000400D9, CONTROL_PROTECTION, OnChipResult, NULL)) {
         TC6_Service(pInst, true);
     }
-    while(pReg->initialized && (0xFFFFFFFFu == pReg->readResult)) {
+    while(pReg->initialized && (ReadState_Pending == pReg->readState)) {
         TC6_Service(pInst, true);
     }
-    if (NULL != pVal) {
+    if ((NULL != pVal) && (ReadState_Done == pReg->readState)) {
         *pVal = (pReg->readResult & mask);
     }
-    return (0xFFFFFFFEu != pReg->readResult);
+    return (ReadState_Done == pReg->readState);
 }
 
 static int8_t GetSignedVal(uint32_t val)
