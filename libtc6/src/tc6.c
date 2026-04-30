@@ -1425,7 +1425,7 @@ static void update_credit_cnt(TC6_t *g, const uint8_t *buff, uint16_t buf_len)
 
     TC6_ASSERT(buf_len && (0u == (buf_len % TC6_CHUNK_BUF_SIZE)));
 
-    if (success && GET_VAL(FTR_HDRB, pFooter)) {
+    if (GET_VAL(FTR_HDRB, pFooter)) {
         success = false;
     }
     if (success && !GET_VAL(FTR_SYNC, pFooter)) {
