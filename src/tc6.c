@@ -804,7 +804,7 @@ static bool accessRegisters(TC6_t *g, enum register_op_type op, uint32_t addr, u
     bool write = true;
     bool success = false;
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
-    TC6_ASSERT(REGISTER_OP_INVALLID != op);
+    TC6_ASSERT(REGISTER_OP_INVALID != op);
     if (regop_stage1_enqueue_ready(&g->regop_q)) {
         success = true;
         switch(op) {
@@ -820,7 +820,7 @@ static bool accessRegisters(TC6_t *g, enum register_op_type op, uint32_t addr, u
         case REGISTER_OP_READWRITE_STAGE2:
             write = true;
             break;
-        case REGISTER_OP_INVALLID:
+        case REGISTER_OP_INVALID:
         default:
             TC6_ASSERT(false);
             success = false;
