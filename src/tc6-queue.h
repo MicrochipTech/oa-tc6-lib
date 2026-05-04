@@ -35,6 +35,18 @@ Microchip or any third party.
 #include <stdbool.h>
 #include "tc6-conf.h"
 
+#ifdef TC6_SPI_BUF_ALIGNMENT
+    #if defined(__GNUC__) || defined(__clang__)
+        #define SPI_BUF_ALIGNMENT __attribute__((aligned(TC6_SPI_BUF_ALIGNMENT_SIZE)))
+    #elif defined(__ICCARM__) || defined(__IAR_SYSTEMS_ICC__)
+        #define SPI_BUF_ALIGNMENT __attribute__((aligned(TC6_SPI_BUF_ALIGNMENT_SIZE)))
+    #else
+        #define SPI_BUF_ALIGNMENT
+    #endif
+#else
+    #define SPI_BUF_ALIGNMENT
+#endif
+
 struct qtxeth {
     void *priv;
     TC6_RawTxCallback_t txCallback;
@@ -47,9 +59,18 @@ struct qtxeth {
 #define TC6_CNTRL_BUF_SIZE  ((2u + (TC6_MAX_CNTRL_VARS * 2u)) * 4u)
 #define TC6_SPI_BUF_SIZE    (TC6_CHUNKS_XACT * TC6_CHUNK_BUF_SIZE)
 
+// Adhere to specific SPI buffer alignment requirements if defined in tc6-conf.h
+#ifdef TC6_SPI_BUF_ALIGNMENT
+#define TC6_CNTRL_BUF_SIZE_ALIGNED  (((TC6_CNTRL_BUF_SIZE + (TC6_SPI_BUF_ALIGNMENT_SIZE - 1)) / TC6_SPI_BUF_ALIGNMENT_SIZE) * TC6_SPI_BUF_ALIGNMENT_SIZE)
+#define TC6_SPI_BUF_SIZE_ALIGNED    (((TC6_SPI_BUF_SIZE   + (TC6_SPI_BUF_ALIGNMENT_SIZE - 1)) / TC6_SPI_BUF_ALIGNMENT_SIZE) * TC6_SPI_BUF_ALIGNMENT_SIZE)
+#else
+#define TC6_CNTRL_BUF_SIZE_ALIGNED  (TC6_CNTRL_BUF_SIZE)
+#define TC6_SPI_BUF_SIZE_ALIGNED    (TC6_SPI_BUF_SIZE)
+#endif
+
 struct qspibuf {
-    uint8_t txBuff[TC6_SPI_BUF_SIZE];
-    uint8_t rxBuff[TC6_SPI_BUF_SIZE];
+    uint8_t txBuff[TC6_SPI_BUF_SIZE_ALIGNED] SPI_BUF_ALIGNMENT;
+    uint8_t rxBuff[TC6_SPI_BUF_SIZE_ALIGNED] SPI_BUF_ALIGNMENT;
     uint16_t length;
 };
 
@@ -63,8 +84,8 @@ enum register_op_type
 };
 
 struct register_operation {
-    uint8_t tx_buf[TC6_CNTRL_BUF_SIZE];
-    uint8_t rx_buf[TC6_CNTRL_BUF_SIZE];
+    uint8_t tx_buf[TC6_CNTRL_BUF_SIZE_ALIGNED] SPI_BUF_ALIGNMENT;
+    uint8_t rx_buf[TC6_CNTRL_BUF_SIZE_ALIGNED] SPI_BUF_ALIGNMENT;
     TC6_RegCallback_t callback;
     void *tag;
     enum register_op_type op;

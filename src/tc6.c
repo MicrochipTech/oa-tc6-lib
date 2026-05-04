@@ -188,6 +188,24 @@ struct TC6_t
 };
 
 static struct TC6_t m_tc6[TC6_MAX_INSTANCES];
+
+#ifdef TC6_SPI_BUF_ALIGNMENT
+    #if defined(__GNUC__) || defined(__clang__)
+        #define ALIGNOF_VAR(var) _Alignof(var)
+    #elif defined(__ICCARM__) || defined(__IAR_SYSTEMS_ICC__)
+        #define ALIGNOF_VAR(var) __alignof__(var)
+    #else
+        #define ALIGNOF_VAR(var)
+    #endif
+
+    TC6_STATIC_ASSERT((ALIGNOF_VAR(m_tc6[0].spiBuf[0].txBuff) == TC6_SPI_BUF_ALIGNMENT_SIZE), txBuff_must_be_aligned);
+    TC6_STATIC_ASSERT((ALIGNOF_VAR(m_tc6[0].spiBuf[0].rxBuff) == TC6_SPI_BUF_ALIGNMENT_SIZE), rxBuff_must_be_aligned);
+    TC6_STATIC_ASSERT((ALIGNOF_VAR(m_tc6[0].regop_storage[0].tx_buf) == TC6_SPI_BUF_ALIGNMENT_SIZE), tx_buff_must_be_aligned);
+    TC6_STATIC_ASSERT((ALIGNOF_VAR(m_tc6[0].regop_storage[0].rx_buf) == TC6_SPI_BUF_ALIGNMENT_SIZE), rx_buff_must_be_aligned);
+    TC6_STATIC_ASSERT((offsetof(struct qspibuf, length) % TC6_SPI_BUF_ALIGNMENT_SIZE == 0), qspibuf_length_must_be_aligned);
+    TC6_STATIC_ASSERT((offsetof(struct register_operation, callback) % TC6_SPI_BUF_ALIGNMENT_SIZE == 0), register_operation_callback_must_be_aligned);
+#endif
+
 static volatile bool m_tc6Valid[TC6_MAX_INSTANCES] = { 0 };
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
