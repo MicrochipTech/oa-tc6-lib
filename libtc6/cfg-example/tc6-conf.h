@@ -153,4 +153,16 @@ extern "C" {
 #define CONTROL_PROTECTION  (true)
 #endif
 
+/**
+ * \brief Controls the alignment in bytes for the SPI buffers.
+ * \note On some architectures, like the Cortex M7 which has a L1 data cache, the SPI buffers must be 32-byte aligned for DMA transfers
+ *       and cache invalidation to work properly. Define TC6_SPI_BUF_ALIGNMENT and set the correct TC6_SPI_BUF_ALIGNMENT_SIZE to handle
+ *       this here.
+ */
+#ifndef TC6_SPI_BUF_ALIGNMENT_SIZE
+#ifdef TC6_SPI_BUF_ALIGNMENT
+#define TC6_SPI_BUF_ALIGNMENT_SIZE (32u)
+#endif
+#endif
+
 #endif /* TC6_CONFIG_H_ */
