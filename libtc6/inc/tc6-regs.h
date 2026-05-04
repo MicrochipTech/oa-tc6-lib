@@ -137,18 +137,6 @@ uint8_t TC6Regs_GetChipRevision(TC6_t *pInst);
 const char * TC6Regs_GetEventStr(TC6Regs_Event_t event);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
-/*                   Implementation of TC6 Callback                     */
-/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
-
-/** \brief This component implements the callback TC6_CB_OnExtendedStatus defined in TC6.h
- *  \note Integrator must not implement this function, as this is already done inside this component.
- *  \note This function must be implemented by the integrator.
- *  \param pInst - The pointer returned by TC6_Init.
- *  \param pGlobalTag - The exact same pointer, which was given along with the TC6_Init() function.
- */
-void TC6_CB_OnExtendedStatus(TC6_t *pInst, void *pGlobalTag);
-
-/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                        CALLBACK SECTION                              */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
