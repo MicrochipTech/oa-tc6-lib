@@ -830,8 +830,6 @@ static bool accessRegisters(TC6_t *g, enum register_op_type op, uint32_t addr, u
             write = true;
             break;
         case REGISTER_OP_READ:
-            write = false;
-            break;
         case REGISTER_OP_READWRITE_STAGE1:
             write = false;
             break;
