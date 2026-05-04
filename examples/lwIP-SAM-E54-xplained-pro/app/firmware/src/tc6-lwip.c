@@ -210,7 +210,7 @@ void TC6LwIP_Service(void)
     TC6Regs_CheckTimers();
     for (idx = 0; idx < TC6_MAX_INSTANCES; idx++) {
         TC6LwIP_t *lw = &mlw[idx];
-        if (LWIP_TC6_MAGIC != lw->magic) {
+        if (LWIP_TC6_MAGIC == lw->magic) {
             if (lw->tc.reinit) {
                 lw->tc.reinit = false;
                 TC6Regs_Reinit(lw->tc.tc6);
