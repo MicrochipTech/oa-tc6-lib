@@ -1050,7 +1050,7 @@ static uint16_t mk_ctrl_req(bool wnr, bool aid, uint32_t addr,
             uint8_t *dst = tx_buf;
             uint16_t i;
 
-            dst = &dst[num_regs * 4u];
+            dst = &dst[(size_t)num_regs * 4u];
             for (i = num_regs; i > 0u; i--) {
                 uint32_t v = regs[i - 1u];
 
@@ -1091,7 +1091,7 @@ static uint16_t mk_secure_ctrl_req(bool wnr, bool aid, uint32_t addr,
             uint16_t i;
             uint8_t *dst = tx_buf;
 
-            dst = &dst[num_regs * 8u];
+            dst = &dst[(size_t)num_regs * 8u];
             for (i = num_regs; i > 0u; i--) {
                 uint32_t v = regs[i - 1u];
 
