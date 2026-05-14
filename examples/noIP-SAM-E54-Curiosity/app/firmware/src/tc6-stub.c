@@ -76,9 +76,6 @@ typedef struct
     DRV_I2C_TRANSFER_HANDLE i2cHandle;
     DRV_SPI_TRANSFER_SETUP spiSetup;
     DRV_HANDLE handle;
-    uint8_t intIn;
-    uint8_t intOut;
-    uint8_t intReported;
     uint8_t idx;
     bool opened;
     volatile bool busy;
@@ -86,6 +83,8 @@ typedef struct
 } Stub_Local_t;
 
 static Stub_Local_t d[TC6_MAX_INSTANCES] = { 0 };
+
+static EIC_PIN INT_PINS[] = { EIC_PIN_14 };
 
 extern SYSTICK_OBJECT systick; /* Instanced in plib_systick.c */
 
@@ -120,9 +119,7 @@ bool TC6Stub_Init(uint8_t idx, uint8_t pMac[6])
         }
         switch (idx) {
         case FIRST_TC6_INSTANCE:
-            EIC_CallbackRegister(EIC_PIN_14, IntHandler, (uintptr_t)ps);
-            TC6_RESET_1_Clear();
-            SYSTICK_DelayMs(10);
+            EIC_CallbackRegister(INT_PINS[idx], IntHandler, (uintptr_t)ps);
             TC6_RESET_1_Set();
             SYSTICK_DelayMs(10);
             break;
@@ -154,23 +151,6 @@ bool TC6Stub_Init(uint8_t idx, uint8_t pMac[6])
     return success;
 }
 
-bool TC6Stub_IntActive(uint8_t idx)
-{
-    Stub_Local_t *ps = &d[idx];
-    ASSERT(idx < TC6_MAX_INSTANCES);
-    ps->intReported = ps->intIn;
-    return (ps->intReported != ps->intOut);
-}
-
-void TC6Stub_ReleaseInt(uint8_t idx)
-{
-    Stub_Local_t *ps = &d[idx];
-    ASSERT(idx < TC6_MAX_INSTANCES);
-    if (TC6_INT_1_Get()) {
-        ps->intOut = ps->intReported;
-    }
-}
-
 uint32_t TC6Stub_GetTick(void)
 {
     return systick.tickCounter;
@@ -189,10 +169,23 @@ bool TC6Stub_SpiTransaction(uint8_t idx, uint8_t *pTx, uint8_t *pRx, uint16_t le
         if (transferHandle == DRV_SPI_TRANSFER_HANDLE_INVALID) {
             ps->busy = false;
         } else {
+            while(ps->busy) {
+                /* Wait for SPI event handler */
+            }
             success = true;
         }
     }
     return success;
+}
+
+void TC6Stub_IntPinInterruptEnable(uint8_t idx, bool enableInt)
+{
+    ASSERT(idx < TC6_MAX_INSTANCES);
+    if (enableInt) {
+        EIC_InterruptEnable(INT_PINS[idx]);
+    } else {
+        EIC_InterruptDisable(INT_PINS[idx]);
+    }
 }
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -260,11 +253,10 @@ static void EventHandlerSPI(DRV_SPI_TRANSFER_EVENT event, DRV_SPI_TRANSFER_HANDL
         return;
     }
     ps->busy = false;
-    TC6_SpiBufferDone(ps->idx, (event == DRV_SPI_TRANSFER_EVENT_COMPLETE));
 }
 
 static void IntHandler(uintptr_t context)
 {
     Stub_Local_t *ps = (Stub_Local_t *)context;
-    ps->intIn++;
+    TC6_HandleMacPhyInterrupt(ps->idx);
 }
