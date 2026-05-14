@@ -217,7 +217,7 @@ static inline void SET_VAL(uint8_t bytePos, uint8_t bitpos, uint8_t width, uint8
 static void initializeSpiEntry(struct qspibuf *newEntry);
 static uint16_t getTrail(TC6_t *g, bool enqueueEmpty);
 static void addEmptyChunks(TC6_t *g, struct qspibuf *entry, bool enqueueEmpty);
-static bool serviceData(TC6_t *g, bool enqueueEmpty);
+static bool serviceData(TC6_t *g, bool sendEmpty);
 static bool serviceControl(TC6_t *g);
 static bool spiTransaction(TC6_t *g, uint8_t *pTx, uint8_t *pRx, uint16_t len, SpiOp_t op);
 static bool modify(TC6_t *g, uint32_t value);
@@ -226,8 +226,8 @@ static bool accessRegisters(TC6_t *g, enum register_op_type op, uint32_t addr, u
 static void processDataRx(TC6_t *g);
 
 /* Protocol Implementation */
-static uint16_t mk_ctrl_req(bool wnr, bool aid, uint32_t addr, uint8_t num_regs, const uint32_t *regs, uint8_t *buff, uint16_t size_of_buff);
-static uint16_t mk_secure_ctrl_req(bool wnr, bool aid, uint32_t addr, uint8_t num_regs, const uint32_t *regs, uint8_t *buff, uint16_t size_of_buff);
+static uint16_t mk_ctrl_req(bool wnr, bool aid, uint32_t addr, uint8_t num_regs, const uint32_t *regs, uint8_t *tx_buf, uint16_t tx_buf_size);
+static uint16_t mk_secure_ctrl_req(bool wnr, bool aid, uint32_t addr, uint8_t num_regs, const uint32_t *regs, uint8_t *tx_buf, uint16_t tx_buf_size);
 static uint16_t read_rx_ctrl_buffer(const uint8_t *rx_buf, uint16_t rx_buf_size, uint32_t *regs_buf, uint8_t regs_buf_size, bool secure);
 static uint16_t mk_data_tx(TC6_t *g, uint8_t *tx_buf, uint16_t tx_buf_len);
 static void enqueue_rx_spi(TC6_t *g, const uint8_t *buff, uint16_t buf_len);

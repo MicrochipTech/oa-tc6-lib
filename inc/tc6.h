@@ -150,7 +150,7 @@ bool TC6_Service(TC6_t *pInst, bool interruptLevel);
  *  \param pInst - The pointer returned by TC6_Init.
  *  \param interruptLevel - The level of the interrupt pin. false is interpreted as interrupt active. true is interpreted as currently no interrupt issued.
  */
-void TC6_EnableData(TC6_t *pInst, bool enable);
+void TC6_EnableData(TC6_t *g, bool enable);
 
 /** \brief Sends a raw Ethernet packet.
  *  \param pInst - The pointer returned by TC6_Init.
@@ -170,7 +170,7 @@ bool TC6_SendRawEthernetPacket(TC6_t *pInst, const uint8_t *pTx, uint16_t len, u
  *  \param pSegments - Pointer of the raw segments will be written to the given address. NULL if there is no buffer available.
  *  \return TC6_TX_ETH_MAX_SEGMENTS if send buffer is available. 0, otherwise.
  */
-uint8_t TC6_GetRawSegments(TC6_t *pInst, TC6_RawTxSegment **pSegments);
+uint8_t TC6_GetRawSegments(TC6_t *g, TC6_RawTxSegment **pSegments);
 
 /** \brief Sends a raw Ethernet packet out of several Ethernet segments.
  *  \param pInst - The pointer returned by TC6_Init.
@@ -231,14 +231,14 @@ bool TC6_ReadModifyWriteRegister(TC6_t *pInst, uint32_t addr, uint32_t value, ui
  *  \note Each map entry is issued as its own single-register SPI control transaction. True multi-register bursts are not currently implemented; the map is a convenience wrapper, not a performance optimization.
  *  \return The amount of register commands enqueued. May return 0 when queue is total full. May return less then mapLength when queue is partly full.
  */
-uint16_t TC6_MultipleRegisterAccess(TC6_t *pInst, const MemoryMap_t *pMap, uint16_t mapLength, TC6_RegCallback_t multipleCallback, void *pTag);
+uint16_t TC6_MultipleRegisterAccess(TC6_t *g, const MemoryMap_t *pMap, uint16_t mapLength, TC6_RegCallback_t multipleCallback, void *pTag);
 
 
 /** \brief Reenable the reporting of extended status flag via TC6_CB_OnExtendedStatus() callback.
  *  \note This feature was introduced to not trigger thousands of extended status callbacks, when there is a lot of traffic ongoing.
  *  \param pInst - The pointer returned by TC6_Init.
  */
-void TC6_UnlockExtendedStatus(TC6_t *pInst);
+void TC6_UnlockExtendedStatus(TC6_t *g);
 
 /**
  * \brief The user must call this function once the SPI transaction is finished.
@@ -255,12 +255,12 @@ void TC6_SpiBufferDone(uint8_t tc6instance, bool success);
 /** \brief Destroy the given TC6 instance and release resources allocated by it.
  *  \param pInst - The pointer returned by TC6_Init.
  */
-void TC6_Destroy(TC6_t *pInst);
+void TC6_Destroy(TC6_t *g);
 
 /** \brief Reset all internal state machines and queues
  *  \param pInst - The pointer returned by TC6_Init.
  */
-void TC6_Reset(TC6_t *pInst);
+void TC6_Reset(TC6_t *g);
 
 /** \brief Returns the TC6 related status variables such as TX and RX credit counter and if the controller is in sync state.
  *  \param pInst - The pointer returned by TC6_Init.
@@ -268,19 +268,19 @@ void TC6_Reset(TC6_t *pInst);
  *  \param pRxCredit - Pointer to a RX credit variable. This function writes the current RX value into this variable. NULL pointer is accepted.
  *  \param pSynced - Pointer to a synced variable. This function writes the current synced state into this variable. NULL pointer is accepted.
  */
-void TC6_GetState(TC6_t *pInst, uint8_t *pTxCredit, uint8_t *pRxCredit, bool *pSynced);
+void TC6_GetState(TC6_t *g, uint8_t *pTxCredit, uint8_t *pRxCredit, bool *pSynced);
 
 /** \brief Returns the current instance number of the given TC6 pointer
  *  \param pInst - The pointer returned by TC6_Init.
  *  \return Instance number, starting with 0 for the first instance
  */
-uint8_t TC6_GetInstance(TC6_t *pInst);
+uint8_t TC6_GetInstance(TC6_t *g);
 
 /**
  * \brief Fetch the string for the given error value.
- * \param event - Enumeration matching to the occurred event.
+ * \param error - Enumeration matching to the occurred error.
  */
-const char * TC6_GetErrorStr(TC6_Error_t event);
+const char * TC6_GetErrorStr(TC6_Error_t error);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                        CALLBACK SECTION                              */
