@@ -111,9 +111,9 @@ bool TC6Regs_GetInitDone(TC6_t *pInst);
 
 /** \brief Reinitializes the LAN865x with its default register settings and the stored values given by TC6Regs_Init()
  *  \note Call this function after a serious error.
- *  \param pInst - The pointer returned by TC6_Init.
+ *  \param pTC6 - The pointer returned by TC6_Init.
  */
-void TC6Regs_Reinit(TC6_t *pInst);
+void TC6Regs_Reinit(TC6_t *pTC6);
 
 /** \brief Sets the PLCA Node ID and the PLCA Node Count and can enable/disable PLCA.
  *  \param pInst - The pointer returned by TC6_Init.
@@ -125,10 +125,10 @@ void TC6Regs_Reinit(TC6_t *pInst);
 bool TC6Regs_SetPlca(TC6_t *pInst, bool plcaEnable, uint8_t nodeId, uint8_t nodeCount);
 
 /** \brief Returns the LAN865x Revision number.
- *  \param pInst - The pointer returned by TC6_Init.
+ *  \param pTC6 - The pointer returned by TC6_Init.
  *  \return 0, in case of error. Otherwise, Chip Revision.
  */
-uint8_t TC6Regs_GetChipRevision(TC6_t *pInst);
+uint8_t TC6Regs_GetChipRevision(TC6_t *pTC6);
 
 /**
  * \brief Fetch the string for the given event value.
