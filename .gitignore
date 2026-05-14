@@ -17,6 +17,9 @@
 **/nbproject/Package-*
 **/nbproject/project.properties
 
+# GitHub config
+.github/
+
 # Claude Code
 .claude/
 .claude-code/
