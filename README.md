@@ -3,7 +3,6 @@
 # OPEN Alliance TC6 Protocol Driver for LAN8650/1
 
 This repository contains the Microchip OPEN Alliance TC6 Protocol Driver for LAN8650/1 source code and example applications.
-This specific branch implements a synchronous approach, meaning all functions of the TC6 protocol driver are blocking until finished.
 
 The driver is fully OPEN Alliance TC6 V1.1 compliant.
 Quickly incorporate connectivity to your designs with 10BASE-T1S
@@ -14,6 +13,7 @@ Please contact the Microchip support in case of issues and questions.
 
 - [10BASE-T1S Support](https://www.microchip.com/support)
 - [OPEN Alliance TC6 - 10BASE-T1x MAC-PHY Serial Interface specification](https://www.opensig.org/Automotive-Ethernet-Specifications)
+- [10Base-T1x MAC-PHY Serial Interface Protocol Analyzer for Saleae Logic](https://github.com/MicrochipTech/oa-tc6-saleae-extension)
 
 # Contents Summary
 
@@ -28,6 +28,8 @@ The following applications are provided to demonstrate the typical or interestin
 
 | Name                                                                      | Status                                                                                            |
 | ---                                                                       | ---                                                                                               |
+|[lwIP TCP/IP example running on dsPIC33AK Curiosity Development Board](examples/lwIP-dsPIC33AK_Curiosity/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
+|[lwIP TCP/IP example running on dsPIC33AK Curiosity Nano Development Board](examples/lwIP-dsPIC33AK_Curiosity_Nano/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
 |[lwIP TCP/IP example running on dsPIC33CK Curiosity Development Board](examples/lwIP-dsPIC33CK_Curiosity/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
 |[lwIP TCP/IP example running on SAM D21 Curiosity Nano Evaluation Kit](examples/lwIP-SAM-D21-Curiosity-Nano/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |
 |[lwIP TCP/IP example running on SAM E54 Curiosity Ultra Development Board](examples/lwIP-SAM-E54-Curiosity/readme.md)  | ![app-production](https://img.shields.io/badge/application-production-brightgreen?style=plastic)  |

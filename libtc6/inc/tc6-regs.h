@@ -1,6 +1,6 @@
 //DOM-IGNORE-BEGIN
 /*
-Copyright (C) 2023, Microchip Technology Inc., and its subsidiaries. All rights reserved.
+Copyright (C) 2025, Microchip Technology Inc., and its subsidiaries. All rights reserved.
 
 The software and documentation is provided by microchip and its contributors
 "as is" and any express, implied or statutory warranties, including, but not
@@ -27,7 +27,7 @@ Microchip or any third party.
 
   Company:
     Microchip Technology Inc.
-    
+
   File Name:
     tc6-regs.h
 *******************************************************************************/
@@ -82,6 +82,8 @@ typedef enum
     TC6Regs_Event_Unsupported_Hardware
 } TC6Regs_Event_t;
 
+#define TC6Regs_Event_Last (TC6Regs_Event_Unsupported_Hardware + 1)
+
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                            PUBLIC API                                */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -109,9 +111,9 @@ bool TC6Regs_GetInitDone(TC6_t *pInst);
 
 /** \brief Reinitializes the LAN865x with its default register settings and the stored values given by TC6Regs_Init()
  *  \note Call this function after a serious error.
- *  \param pInst - The pointer returned by TC6_Init.
-  */
-void TC6Regs_Reinit(TC6_t *pInst);
+ *  \param pTC6 - The pointer returned by TC6_Init.
+ */
+void TC6Regs_Reinit(TC6_t *pTC6);
 
 /** \brief Sets the PLCA Node ID and the PLCA Node Count and can enable/disable PLCA.
  *  \param pInst - The pointer returned by TC6_Init.
@@ -123,22 +125,16 @@ void TC6Regs_Reinit(TC6_t *pInst);
 bool TC6Regs_SetPlca(TC6_t *pInst, bool plcaEnable, uint8_t nodeId, uint8_t nodeCount);
 
 /** \brief Returns the LAN865x Revision number.
- *  \param pInst - The pointer returned by TC6_Init.
+ *  \param pTC6 - The pointer returned by TC6_Init.
  *  \return 0, in case of error. Otherwise, Chip Revision.
  */
-uint8_t TC6Regs_GetChipRevision(TC6_t *pInst);
+uint8_t TC6Regs_GetChipRevision(TC6_t *pTC6);
 
-/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
-/*                   Implementation of TC6 Callback                     */
-/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
-
-/** \brief This component implements the callback TC6_CB_OnExtendedStatus defined in TC6.h
- *  \note Integrator must not implement this function, as this is already done inside this component.
- *  \note This function must be implemented by the integrator.
- *  \param pInst - The pointer returned by TC6_Init.
- *  \param pGlobalTag - The exact same pointer, which was given along with the TC6_Init() function.
+/**
+ * \brief Fetch the string for the given event value.
+ * \param event - Enumeration matching to the occurred event.
  */
-void TC6_CB_OnExtendedStatus(TC6_t *pInst, void *pGlobalTag);
+const char * TC6Regs_GetEventStr(TC6Regs_Event_t event);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                        CALLBACK SECTION                              */
@@ -158,6 +154,6 @@ uint32_t TC6Regs_CB_GetTicksMs(void);
  * \param event - Enumeration matching to the occured event.
  * \param pTag - The exact same pointer, which was given along with the TC6Regs_Init() function.
  */
- void TC6Regs_CB_OnEvent(TC6_t *pInst, TC6Regs_Event_t event, void *pTag);
+void TC6Regs_CB_OnEvent(TC6_t *pInst, TC6Regs_Event_t event, void *pTag);
 
 #endif /* TC6_REGS_H_ */

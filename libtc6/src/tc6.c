@@ -45,20 +45,25 @@ Microchip or any third party.
 #include <assert.h>
 #include "tc6-conf.h"
 #include "tc6.h"
-
-/* Compile-time sanity checks on tc6-conf.h values.
- * Using the negative-array-size idiom (not _Static_assert) so the
- * sync variant stays buildable on pre-C11 toolchains such as XC8. */
-typedef char tc6_check_chunk_size[((TC6_CHUNK_SIZE == 32u) || (TC6_CHUNK_SIZE == 64u)) ? 1 : -1];
-typedef char tc6_check_max_instances[(TC6_MAX_INSTANCES >= 1u) ? 1 : -1];
-typedef char tc6_check_chunks_xact[(TC6_CHUNKS_XACT >= 1u) ? 1 : -1];
+#include "tc6-regs.h"
+#include "tc6-queue.h"
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                          USER ADJUSTABLE                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-#define TC6_MAGIC           (0x48423578ul)
-#define TC6_CHUNKS_PER_ISR  (2u)
+#define TC6_MAGIC               (0x48423578ul)
+#define TC6_CHUNKS_PER_ISR      (2u)
+#define TC6_RESET_SPI_WAIT_MAX  (1000000ul)
+
+/* C99-compatible compile-time assertions for tc6-conf.h values */
+#define TC6_STATIC_ASSERT(cond, tag) typedef char tc6_static_assert_##tag[(cond) ? 1 : -1]
+
+TC6_STATIC_ASSERT((TC6_CHUNK_SIZE == 32) || (TC6_CHUNK_SIZE == 64), chunk_size_must_be_32_or_64);
+TC6_STATIC_ASSERT(TC6_MAX_INSTANCES >= 1u, max_instances_must_be_positive);
+TC6_STATIC_ASSERT((REG_OP_ARRAY_SIZE & (REG_OP_ARRAY_SIZE - 1u)) == 0u, reg_op_array_size_must_be_power_of_2);
+TC6_STATIC_ASSERT((TC6_TX_ETH_QSIZE & (TC6_TX_ETH_QSIZE - 1u)) == 0u, tx_eth_qsize_must_be_power_of_2);
+TC6_STATIC_ASSERT((SPI_FULL_BUFFERS & (SPI_FULL_BUFFERS - 1u)) == 0u, spi_full_buffers_must_be_power_of_2);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                    INTERNAL DEFINES AND VARIABLES                    */
@@ -121,25 +126,61 @@ typedef char tc6_check_chunks_xact[(TC6_CHUNKS_XACT >= 1u) ? 1 : -1];
 #define FTR_TXC      FLD(3u, 1u, 5u) /* Transmit Credits */
 /*#define FTR_P      FLD(3u, 0u, 1u)    Footer Parity Bit */
 
+static const char* TC6_Errors[] = {
+    "Succeeded",                        /** No error occurred */
+    "No_Hardware",                      /** MISO data implies that there is no MACPHY hardware available */
+    "Unexpected_Start_Valid_Flag",      /** Unexpected Start Valid Flag  */
+    "Unexpected_Data_or_End_Valid_Flag",/** Unexpected Data Valid or End Valid Flag  */
+    "Bad_Checksum",                     /** Checksum in footer is wrong */
+    "Unexpected_Ctrl",                  /** Unexpected control packet received */
+    "Bad_Tx_Data",                      /** Header Bad Flag received */
+    "Sync_Lost",                        /** Sync Flag is no longer set */
+    "Spi_Error",                        /** SPI transaction failed */
+    "Control_Tx_Fail",                  /** Control TX failure */
+    "Unknown",                          /** Unknown failure */
+    "Plca_Status_Fail"                  /** PLCA status check failure */
+};
+
+typedef char tc6_errors_length_matches_enum[((sizeof(TC6_Errors) / sizeof(TC6_Errors[0])) == TC6Error_Last) ? 1 : -1];
+
 static const uint8_t MASK[9] = { 0x00u, 0x01u, 0x03u, 0x07u, 0x0Fu, 0x1Fu, 0x3Fu, 0x7Fu, 0xFFu };
+
+typedef enum
+{
+    SPI_OP_INVALID,
+    SPI_OP_DATA,
+    SPI_OP_REG
+} SpiOp_t;
 
 /** Integrator needs to allocate this structure. But the elements must not be accessed.
  *  They are getting filled via function calls only.
  */
 struct TC6_t
 {
-    uint8_t bufMOSI[TC6_CHUNKS_XACT * TC6_CHUNK_BUF_SIZE];
-    uint8_t bufMISO[TC6_CHUNKS_XACT * TC6_CHUNK_BUF_SIZE];
+    struct qtxeth tx_eth_buffer[TC6_TX_ETH_QSIZE];
+    struct qspibuf spiBuf[SPI_FULL_BUFFERS];
+    struct qtxeth_queue eth_q;
+    struct qspibuf_queue qSpi;
+    struct register_operation regop_storage[REG_OP_ARRAY_SIZE];
+    struct regop_queue regop_q;
+
     void *gTag;
     uint64_t ts;
+    volatile SpiOp_t currentOp;
     uint32_t magic;
     uint16_t buf_len;
+    uint16_t offsetEth;
     uint16_t offsetRx;
+    uint16_t segOffset;
+    uint8_t segCurr;
     uint8_t instance;
     uint8_t seq_num;
     uint8_t txc;
     uint8_t rca;
+    bool alreadyInControlService;
+    bool alreadyInDataService;
     bool enableData;
+    bool intContext;
     bool synced;
     bool exst_locked;
     bool eth_started;
@@ -147,6 +188,24 @@ struct TC6_t
 };
 
 static struct TC6_t m_tc6[TC6_MAX_INSTANCES];
+
+#ifdef TC6_SPI_BUF_ALIGNMENT
+    #if defined(__GNUC__) || defined(__clang__)
+        #define ALIGNOF_VAR(var) _Alignof(var)
+    #elif defined(__ICCARM__) || defined(__IAR_SYSTEMS_ICC__)
+        #define ALIGNOF_VAR(var) __alignof__(var)
+    #else
+        #define ALIGNOF_VAR(var)
+    #endif
+
+    TC6_STATIC_ASSERT((ALIGNOF_VAR(m_tc6[0].spiBuf[0].txBuff) == TC6_SPI_BUF_ALIGNMENT_SIZE), txBuff_must_be_aligned);
+    TC6_STATIC_ASSERT((ALIGNOF_VAR(m_tc6[0].spiBuf[0].rxBuff) == TC6_SPI_BUF_ALIGNMENT_SIZE), rxBuff_must_be_aligned);
+    TC6_STATIC_ASSERT((ALIGNOF_VAR(m_tc6[0].regop_storage[0].tx_buf) == TC6_SPI_BUF_ALIGNMENT_SIZE), tx_buff_must_be_aligned);
+    TC6_STATIC_ASSERT((ALIGNOF_VAR(m_tc6[0].regop_storage[0].rx_buf) == TC6_SPI_BUF_ALIGNMENT_SIZE), rx_buff_must_be_aligned);
+    TC6_STATIC_ASSERT((offsetof(struct qspibuf, length) % TC6_SPI_BUF_ALIGNMENT_SIZE == 0), qspibuf_length_must_be_aligned);
+    TC6_STATIC_ASSERT((offsetof(struct register_operation, callback) % TC6_SPI_BUF_ALIGNMENT_SIZE == 0), register_operation_callback_must_be_aligned);
+#endif
+
 static volatile bool m_tc6Valid[TC6_MAX_INSTANCES] = { 0 };
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -155,21 +214,24 @@ static volatile bool m_tc6Valid[TC6_MAX_INSTANCES] = { 0 };
 
 static inline uint8_t GET_VAL(uint8_t bytePos, uint8_t bitpos, uint8_t width, const uint8_t pIn[4]);
 static inline void SET_VAL(uint8_t bytePos, uint8_t bitpos, uint8_t width, uint8_t val, uint8_t pOut[4]);
-static inline void CLEAR_HEADER(uint8_t pOut[4]);
-static bool accessRegisters(TC6_t *g, MemoryOp_t op, uint32_t addr, uint32_t *value,
-                            bool secure, uint32_t modifyMask);
-
-static uint8_t get_parity(const uint8_t *pVal);
-static void addEmptyChunks(TC6_t *g, uint16_t chunkCnt);
-static bool spiDataTransaction(TC6_t *g, uint16_t chunkCnt);
-static void waitForTXC(TC6_t *g, uint16_t waitLen);
+static void initializeSpiEntry(struct qspibuf *newEntry);
+static uint16_t getTrail(TC6_t *g, bool enqueueEmpty);
+static void addEmptyChunks(TC6_t *g, struct qspibuf *entry, bool enqueueEmpty);
+static bool serviceData(TC6_t *g, bool sendEmpty);
+static bool serviceControl(TC6_t *g);
+static bool spiTransaction(TC6_t *g, uint8_t *pTx, uint8_t *pRx, uint16_t len, SpiOp_t op);
+static bool modify(TC6_t *g, uint32_t value);
+static bool accessRegisters(TC6_t *g, enum register_op_type op, uint32_t addr, uint32_t value,
+                            bool secure, uint32_t modifyMask, TC6_RegCallback_t callback, void *tag);
+static void processDataRx(TC6_t *g);
 
 /* Protocol Implementation */
-static uint16_t mk_ctrl_req(bool wnr, bool aid, uint32_t addr, uint8_t num_regs, const uint32_t *regs, uint8_t *buff, uint16_t size_of_buff);
-static uint16_t mk_secure_ctrl_req(bool wnr, bool aid, uint32_t addr, uint8_t num_regs, const uint32_t *regs, uint8_t *buff, uint16_t size_of_buff);
+static uint16_t mk_ctrl_req(bool wnr, bool aid, uint32_t addr, uint8_t num_regs, const uint32_t *regs, uint8_t *tx_buf, uint16_t tx_buf_size);
+static uint16_t mk_secure_ctrl_req(bool wnr, bool aid, uint32_t addr, uint8_t num_regs, const uint32_t *regs, uint8_t *tx_buf, uint16_t tx_buf_size);
 static uint16_t read_rx_ctrl_buffer(const uint8_t *rx_buf, uint16_t rx_buf_size, uint32_t *regs_buf, uint8_t regs_buf_size, bool secure);
-static bool pollRxData(TC6_t *g, bool forceEmpty);
-static void parseRxData(TC6_t *g, const uint8_t *buff, uint16_t buf_len);
+static uint16_t mk_data_tx(TC6_t *g, uint8_t *tx_buf, uint16_t tx_buf_len);
+static void enqueue_rx_spi(TC6_t *g, const uint8_t *buff, uint16_t buf_len);
+static void update_credit_cnt(TC6_t *g, const uint8_t *buff, uint16_t buf_len);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                         PUBLIC FUNCTIONS                             */
@@ -189,6 +251,9 @@ TC6_t *TC6_Init(void *pGlobalTag)
             g->magic = TC6_MAGIC;
             g->txc = 24;
             g->gTag = pGlobalTag;
+            init_qtxeth_queue(&g->eth_q, g->tx_eth_buffer, TC6_TX_ETH_QSIZE);
+            init_qspibuf_queue(&g->qSpi, g->spiBuf, SPI_FULL_BUFFERS);
+            init_regop_queue(&g->regop_q, g->regop_storage, REG_OP_ARRAY_SIZE);
             break;
         }
     }
@@ -198,55 +263,116 @@ TC6_t *TC6_Init(void *pGlobalTag)
     return g;
 }
 
-bool TC6_HandleMacPhyInterrupt(uint8_t tc6instance)
-{
-    bool success = false;
-    if (tc6instance < TC6_MAX_INSTANCES) {
-        TC6_t *g = &m_tc6[tc6instance];
-        success = pollRxData(g, true);
-    }
-    return success;
-}
-
 void TC6_Destroy(TC6_t *g)
 {
     uint8_t i;
-    TC6_CB_OnIntPinInterruptEnable(g->instance, false);
+    TC6_Reset(g);
     for (i = 0; i < TC6_MAX_INSTANCES; i++) {
         if (g == &m_tc6[i]) {
             m_tc6Valid[i] = false;
             break;
         }
     }
-    TC6_CB_OnIntPinInterruptEnable(g->instance, true);
 }
 
 void TC6_Reset(TC6_t *g)
 {
+    struct qtxeth_queue *qEth = &g->eth_q;
+    struct regop_queue *qReg = &g->regop_q;
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
 
-    TC6_CB_OnIntPinInterruptEnable(g->instance, false);
+    /* Wait for pending SPI transactions (bounded to avoid deadlock on a stuck SPI driver) */
+    {
+        volatile uint32_t waitCount = TC6_RESET_SPI_WAIT_MAX;
+        while ((SPI_OP_INVALID != g->currentOp) && (0u != waitCount)) {
+            waitCount--;
+        }
+        if (0u == waitCount) {
+            TC6_CB_OnError(g, TC6Error_SpiError, g->gTag);
+        }
+    }
+
+    /* Callback Ethernet Data Event listeners */
+    while (qtxeth_stage2_convert_ready(qEth)) {
+        struct qtxeth *entry = qtxeth_stage2_convert_ptr(qEth);
+        if (NULL != entry->txCallback) {
+            entry->txCallback(g, entry->ethSegs[0].pEth, entry->ethSegs[0].segLen, entry->priv, g->gTag);
+        }
+        qtxeth_stage2_convert_done(qEth);
+    }
+    while(regop_stage2_send_ready(qReg)) {
+        regop_stage2_send_done(qReg);
+    }
+    while(regop_stage3_int_ready(qReg)) {
+        regop_stage3_int_done(qReg);
+    }
+    while(regop_stage4_modify_ready(qReg)) {
+        regop_stage4_modify_done(qReg);
+    }
+    while(regop_stage5_send_ready(qReg)) {
+        regop_stage5_send_done(qReg);
+    }
+    while(regop_stage6_int_ready(qReg)) {
+        regop_stage6_int_done(qReg);
+    }
+    while(regop_stage7_event_ready(qReg)) {
+        struct register_operation *entry = regop_stage7_event_ptr(qReg);
+        if (NULL != entry->callback) {
+            if (true == TC6Regs_GetInitDone(g)) {
+                entry->callback(g, false, entry->regAddr, 0u, entry->tag, g->gTag);
+            }
+        }
+        regop_stage7_event_done(qReg);
+    }
+    if (g->eth_started) {
+        TC6_CB_OnRxEthernetPacket(g, false, 0, NULL, g->gTag);
+    }
+
     /* Set protocol defaults */
     g->txc = 24u;
-    g->rca = 0u;
     g->enableData = false;
     g->synced = false;
-    g->exst_locked = false;
+    g->offsetEth = 0u;
+    g->offsetRx = 0u;
+    g->segCurr = 0u;
+    g->segOffset = 0u;
+    g->buf_len = 0u;
+    g->seq_num = 0u;
     g->eth_started = false;
     g->eth_error = false;
-    g->seq_num = 0u;
-    g->offsetRx = 0u;
-    g->buf_len = 0u;
-    g->ts = 0u;
-    TC6_CB_OnIntPinInterruptEnable(g->instance, true);
+    g->exst_locked = false;
+}
+
+bool TC6_Service(TC6_t *g, bool interruptLevel)
+{
+    bool intPending = false;
+    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
+    if (!g->intContext) {
+        if (serviceControl(g)) {
+           if (!interruptLevel) {
+               intPending = true;
+           }
+        } else if (g->enableData) {
+            processDataRx(g);
+            if (!serviceData(g, !interruptLevel)) {
+                if (!interruptLevel) {
+                   intPending = true;
+                }
+            }
+            processDataRx(g);
+        } else if (!interruptLevel) {
+            intPending = true;
+        } else {} /* MISRA enforced termination */
+    }
+    return !intPending;
 }
 
 void TC6_EnableData(TC6_t *g, bool enable)
 {
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     g->enableData = enable;
-    if (g->enableData) {
-        pollRxData(g, true);
+    if (g->enableData && !g->intContext) {
+        (void)serviceData(g, true);
     }
 }
 
@@ -259,7 +385,6 @@ uint8_t TC6_GetInstance(TC6_t *g)
 void TC6_GetState(TC6_t *g, uint8_t *pTxCredit, uint8_t *pRxCredit, bool *pSynced)
 {
    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
-   TC6_CB_OnIntPinInterruptEnable(g->instance, false);
    if (NULL != pTxCredit) {
       *pTxCredit = g->txc;
    }
@@ -269,144 +394,171 @@ void TC6_GetState(TC6_t *g, uint8_t *pTxCredit, uint8_t *pRxCredit, bool *pSynce
    if (NULL != pSynced) {
       *pSynced = g->synced;
    }
-   TC6_CB_OnIntPinInterruptEnable(g->instance, true);
 }
 
-bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, uint8_t segmentCount, uint16_t totalLen, uint8_t tsc)
+bool TC6_SendRawEthernetPacket(TC6_t *g, const uint8_t *pTx, uint16_t len, uint8_t tsc, TC6_RawTxCallback_t txCallback, void *pTag)
 {
     bool success = true;
-    if (NULL != g) {
-        TC6_ASSERT(TC6_MAGIC == g->magic);
-        TC6_CB_OnIntPinInterruptEnable(g->instance, false);
+    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
+    if (!g || !pTx || !len) {
+        TC6_ASSERT(false);
+        success = false;
     }
-    if (g && pSegments && segmentCount && totalLen && g->enableData) {
-        uint16_t i;
-        uint16_t chunks = (totalLen / TC6_CHUNK_SIZE);
-        uint16_t segCurr = 0u;
-        uint16_t segOffset = 0u;
-        uint16_t offsetEth = 0u;
-        if (totalLen % TC6_CHUNK_SIZE) {
-            chunks++;
-        }
-        if (chunks > TC6_CHUNKS_XACT) {
-            chunks = TC6_CHUNKS_XACT;
-        }
-        waitForTXC(g, totalLen);
-        for (i = 0u; success && (i < chunks); i++) {
-            uint16_t copyPos = 0u;
-            uint16_t toCopyLen;
-            uint16_t paddedLen;
-            uint8_t *pSpi = &g->bufMOSI[i * TC6_CHUNK_BUF_SIZE];
-            CLEAR_HEADER(pSpi);
-            SET_VAL(HDR_DNC, 1u, pSpi);
-            SET_VAL(HDR_DV, 1u, pSpi);
-            if (0u == i) {
-                SET_VAL(HDR_SV, 1u, pSpi);
-                SET_VAL(HDR_TSC, tsc, pSpi);
+    if (success && g->enableData) {
+        struct qtxeth_queue *q = &g->eth_q;
+
+        success = false;
+        if (qtxeth_stage1_enqueue_ready(q)) {
+            struct qtxeth *entry = qtxeth_stage1_enqueue_ptr(q);
+            entry->ethSegs[0].pEth = pTx;
+            entry->ethSegs[0].segLen = len;
+            entry->totalLen = len;
+            entry->segCount = 1;
+            entry->tsc = tsc;
+            entry->txCallback = txCallback;
+            entry->priv = pTag;
+            qtxeth_stage1_enqueue_done(q);
+
+            if (!g->intContext) {
+                (void)serviceData(g, false);
             }
-            toCopyLen = (totalLen - offsetEth);
-            toCopyLen = (toCopyLen <= TC6_CHUNK_SIZE) ? toCopyLen : TC6_CHUNK_SIZE;
-            paddedLen = TC6_CHUNK_SIZE - toCopyLen;
-            while(success && (copyPos < toCopyLen)) {
-                const uint8_t *pEth;
-                uint16_t len;
-                uint16_t diff;
-                if (segCurr >= segmentCount) {
-                    success = false;
-                    break;
-                }
-                pEth = &pSegments[segCurr].pEth[segOffset];
-                len = pSegments[segCurr].segLen - segOffset;
-                diff = (toCopyLen - copyPos);
-                if (len > diff) {
-                    len = diff;
-                }
-                (void)memcpy(&pSpi[TC6_HEADER_SIZE + copyPos], pEth, len);
-                copyPos += len;
-                segOffset += len;
-                TC6_ASSERT(segOffset <= pSegments[segCurr].segLen);
-                if (segOffset == pSegments[segCurr].segLen) {
-                    segOffset = 0;
-                    segCurr++;
-                    TC6_ASSERT(segCurr <= segmentCount);
-                }
-            }
-            TC6_ASSERT(copyPos == toCopyLen);
-            if (0u != paddedLen) {
-                (void)memset(&pSpi[TC6_HEADER_SIZE + toCopyLen], 0x0u, paddedLen);
-            }
-            offsetEth += toCopyLen;
-            TC6_ASSERT(offsetEth <= totalLen);
-            if (offsetEth == totalLen) {
-                SET_VAL(HDR_EV, 1u, pSpi);
-                SET_VAL(HDR_EBO, (uint8_t)(toCopyLen - 1u), pSpi);
-            }
-            SET_VAL(HDR_P, get_parity(pSpi), pSpi);
-        }
-        if (success) {
-            while(!spiDataTransaction(g, chunks));
-            pollRxData(g, false);
+            success = true;
         }
     } else {
         success = false;
     }
-    if (NULL != g) {
-        TC6_CB_OnIntPinInterruptEnable(g->instance, true);
-    }
     return success;
 }
 
-bool TC6_SendRawEthernetPacket(TC6_t *g, const uint8_t *pTx, uint16_t len, uint8_t tsc)
+uint8_t TC6_GetRawSegments(TC6_t *g, TC6_RawTxSegment **pSegments)
 {
     bool success = false;
-    if (g && pTx && len) {
-        TC6_RawTxSegment seg;
-        seg.segLen = len;
-        seg.pEth = pTx;
-        success = TC6_SendRawEthernetSegments(g, &seg, 1, len, tsc);
+    TC6_ASSERT(g && (TC6_MAGIC == g->magic) && pSegments);
+    if (g->enableData) {
+        struct qtxeth_queue *q = &g->eth_q;
+        struct qtxeth *entry;
+        if (qtxeth_stage1_enqueue_ready(q)) {
+            entry = qtxeth_stage1_enqueue_ptr(q);
+#ifdef DEBUG
+            (void)memset(entry, 0xCDu, sizeof(struct qtxeth));
+#endif
+            *pSegments = entry->ethSegs;
+            success = true;
+        }
+    }
+    return (success ? TC6_TX_ETH_MAX_SEGMENTS : 0u);
+}
+
+bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, uint8_t segmentCount, uint16_t totalLen, uint8_t tsc, TC6_RawTxCallback_t txCallback, void *pTag)
+{
+    struct qtxeth_queue *q = &g->eth_q;
+    bool success = false;
+    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
+    TC6_ASSERT(segmentCount && pSegments && (segmentCount <= TC6_TX_ETH_MAX_SEGMENTS) && qtxeth_stage1_enqueue_ready(q));
+    (void)pSegments;
+    if (g->enableData && (NULL != pSegments) && (0u != segmentCount) && (segmentCount <= TC6_TX_ETH_MAX_SEGMENTS) && qtxeth_stage1_enqueue_ready(q)) {
+        struct qtxeth *entry = qtxeth_stage1_enqueue_ptr(q);
+
+        TC6_ASSERT(entry->ethSegs == pSegments);
+        entry->segCount = segmentCount;
+        entry->totalLen = totalLen;
+        entry->tsc = tsc;
+        entry->txCallback = txCallback;
+        entry->priv = pTag;
+        qtxeth_stage1_enqueue_done(q);
+        if (!g->intContext) {
+            (void)serviceData(g, false);
+        }
+        success = true;
     }
     return success;
 }
 
-bool TC6_ReadRegister(TC6_t *g, uint32_t addr, uint32_t *value, bool secure)
+bool TC6_ReadRegister(TC6_t *g, uint32_t addr, bool secure, TC6_RegCallback_t rxCallback, void *tag)
 {
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
-    return accessRegisters(g, MemOp_Read, addr
+    return accessRegisters(g, REGISTER_OP_READ, addr
+        , 0    /* value */
+        , secure
+        , 0    /* mask */
+        , rxCallback
+        , tag);
+}
+
+bool TC6_WriteRegister(TC6_t *g, uint32_t addr, uint32_t value, bool secure, TC6_RegCallback_t txCallback, void *tag)
+{
+    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
+    return accessRegisters(g, REGISTER_OP_WRITE, addr
         , value
         , secure
-        , 0    /* mask */);
+        , 0    /* mask */
+        , txCallback
+        , tag);
 }
 
-bool TC6_WriteRegister(TC6_t *g, uint32_t addr, uint32_t value, bool secure)
+bool TC6_ReadModifyWriteRegister(TC6_t *g, uint32_t addr, uint32_t value, uint32_t mask, bool secure, TC6_RegCallback_t modifyCallback, void *tag)
 {
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
-    return accessRegisters(g, MemOp_Write, addr
-        , &value
+    return accessRegisters(g, REGISTER_OP_READWRITE_STAGE1, addr
+        , value
         , secure
-        , 0    /* mask */);
+        , mask
+        , modifyCallback
+        , tag);
 }
 
-bool TC6_ReadModifyWriteRegister(TC6_t *g, uint32_t addr, uint32_t value, uint32_t mask, bool secure)
-{
-    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
-    return accessRegisters(g, MemOp_ReadModifyWrite, addr
-        , &value
-        , secure
-        , mask);
-}
-
-uint16_t TC6_MultipleRegisterAccess(TC6_t *g, const MemoryMap_t *pMap, uint16_t mapLength)
+uint16_t TC6_MultipleRegisterAccess(TC6_t *g, const MemoryMap_t *pMap, uint16_t mapLength, TC6_RegCallback_t multipleCallback, void *pTag)
 {
     uint16_t i = 0;
     uint16_t t = 0;
     bool full = false;
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     for (; (i < mapLength) && !full; i++) {
-        uint32_t value = pMap[i].value;
-        if (accessRegisters(g, pMap[i].op, pMap[i].address, &value, pMap[i].secure, pMap[i].mask)) {
-            t++;
-        } else {
+        switch(pMap[i].op) {
+        case MemOp_Write:
+            if (accessRegisters(g, REGISTER_OP_WRITE, pMap[i].address
+                , pMap[i].value
+                , pMap[i].secure
+                , 0                 /* mask */
+                , multipleCallback
+                , pTag))
+            {
+                t++;
+            } else {
+                full = true;
+            }
+            break;
+        case MemOp_ReadModifyWrite:
+            if (accessRegisters(g, REGISTER_OP_READWRITE_STAGE1, pMap[i].address
+                , pMap[i].value
+                , pMap[i].secure
+                , pMap[i].mask
+                , multipleCallback
+                , pTag))
+            {
+                t++;
+            } else {
+                full = true;
+            }
+            break;
+        case MemOp_Read:
+            if (accessRegisters(g, REGISTER_OP_READ, pMap[i].address
+                , 0                 /* value */
+                , pMap[i].secure
+                , 0                 /* mask */
+                , multipleCallback
+                , pTag))
+            {
+                t++;
+            } else {
+                full = true;
+            }
+            break;
+        default:
+            TC6_ASSERT(false);
+            i = 0;
             full = true;
+            break;
         }
     }
     return t;
@@ -416,6 +568,15 @@ void TC6_UnlockExtendedStatus(TC6_t *g)
 {
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     g->exst_locked = false;
+}
+
+const char *TC6_GetErrorStr(TC6_Error_t error)
+{
+    if (error < TC6Error_Last) {
+        return TC6_Errors[error];
+    }
+
+    return "Unlisted_Error";
 }
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -433,6 +594,11 @@ static inline uint8_t GET_VAL(uint8_t bytePos, uint8_t bitpos, uint8_t width, co
     return val;
 }
 
+static inline void CLEAR_HEADER(uint8_t pOut[4])
+{
+    (void)memset(pOut, 0u, 4u);
+}
+
 static inline void SET_VAL(uint8_t bytePos, uint8_t bitpos, uint8_t width, uint8_t val, uint8_t pOut[4])
 {
     TC6_ASSERT(NULL != pOut);
@@ -443,53 +609,317 @@ static inline void SET_VAL(uint8_t bytePos, uint8_t bitpos, uint8_t width, uint8
     pOut[bytePos] |= (val & MASK[width]) << bitpos;
 }
 
-static inline void CLEAR_HEADER(uint8_t pOut[4])
+static void initializeSpiEntry(struct qspibuf *newEntry)
 {
-    (void)memset(pOut, 0u, 4u);
+    TC6_ASSERT(newEntry);
+    newEntry->length = 0;
+#ifdef DEBUG
+    (void)memset(newEntry->txBuff, 0xCCu, sizeof(newEntry->txBuff));
+    (void)memset(newEntry->rxBuff, 0xCDu, sizeof(newEntry->rxBuff));
+#endif
 }
 
-static bool accessRegisters(TC6_t *g, MemoryOp_t op, uint32_t addr, uint32_t *value, bool secure, uint32_t modifyMask)
+static uint16_t getTrail(TC6_t *g, bool enqueueEmpty)
 {
-    uint32_t regVal = 0xFFFFFFFFu;
-    uint16_t payloadSize = 0;
-    bool success = false;
-    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
-    TC6_ASSERT(op <= MemOp_Read);
-
-    TC6_CB_OnIntPinInterruptEnable(g->instance, false);
-    if (secure) {
-        payloadSize = mk_secure_ctrl_req((MemOp_Write == op), false /* autoIncrement */, addr, 1 /* Array Len */, value, g->bufMOSI, sizeof(g->bufMOSI));
-    } else {
-        payloadSize = mk_ctrl_req((MemOp_Write == op), false /* autoIncrement */, addr, 1 /* Array Len */, value, g->bufMOSI, sizeof(g->bufMOSI));
-    }
-    if (0u != payloadSize) {
-        success = TC6_CB_OnSpiTransaction(g->instance, g->bufMOSI, g->bufMISO, payloadSize, g->gTag);
-        if (success) {
-            uint16_t num = read_rx_ctrl_buffer(g->bufMISO, payloadSize, &regVal, sizeof(regVal), secure);
-            success = (0u != num);
+    uint16_t  trail = 0;
+    if (0u != g->rca) {
+        trail = (g->rca * TC6_CHUNK_SIZE);
+    } else if (enqueueEmpty) {
+        if (0u == g->txc) {
+            trail = TC6_CHUNK_SIZE;
+        } else {
+            trail = (TC6_CHUNKS_PER_ISR * TC6_CHUNK_SIZE);
         }
+    } else {
+    } /* MISRA enforced termination */
+    return trail;
+}
+
+static void addEmptyChunks(TC6_t *g, struct qspibuf *entry, bool enqueueEmpty)
+{
+    uint16_t trail = getTrail(g, enqueueEmpty);
+    if (trail > 0u) {
+        uint16_t i = 0;
+        /* Fill up buffer with empty chunks, so RX gets the opportunity to transmit quicker */
+        for (; (i < trail) && (entry->length < sizeof(entry->txBuff)); i += TC6_CHUNK_SIZE) {
+            uint8_t *p = &entry->txBuff[entry->length];
+            p[0] = 0x80u;
+            p[1] = 0x0u;
+            p[2] = 0x0u;
+            p[3] = 0x0u;
+            (void)memset(&p[4], 0x00, TC6_CHUNK_SIZE);
+            entry->length += TC6_CHUNK_BUF_SIZE;
+        }
+    }
+    TC6_ASSERT(!enqueueEmpty || entry->length);
+    TC6_ASSERT(entry->length <= sizeof(entry->rxBuff));
+}
+
+static bool serviceData(TC6_t *g, bool sendEmpty)
+{
+    bool dataSent = false;
+    bool enqueueEmpty = sendEmpty;
+    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
+    if (!g->alreadyInDataService) {
+        /* Protect against reentrant call */
+        g->alreadyInDataService = true;
+
+        if (g->enableData && (SPI_OP_INVALID == g->currentOp) && (qspibuf_stage1_transfer_ready(&g->qSpi))) {
+            uint16_t maxTxLen;
+            /**********************************/
+            /* Try to enqueue Ethernet chunks */
+            /**********************************/
+            struct qspibuf *entry = qspibuf_stage1_transfer_ptr(&g->qSpi);
+            initializeSpiEntry(entry);
+
+            /**************************************/
+            /* TX Data is getting generated here: */
+            /**************************************/
+            maxTxLen = g->txc * TC6_CHUNK_BUF_SIZE;
+            if (maxTxLen > sizeof(entry->txBuff)) {
+                maxTxLen = sizeof(entry->txBuff);
+            }
+            entry->length = mk_data_tx(g, entry->txBuff, maxTxLen);
+            if (0u != entry->length) {
+                enqueueEmpty = false;
+            }
+            addEmptyChunks(g, entry, (enqueueEmpty || g->rca));
+
+            if (0u != entry->length) {
+                TC6_ASSERT(0u == (entry->length % TC6_CHUNK_BUF_SIZE));
+                /* Call enqueue before actual SPI transfer to avoid race error with Interrupt handler */
+                qspibuf_stage1_transfer_done(&g->qSpi);
+                dataSent = true;
+                if (!spiTransaction(g, entry->txBuff, entry->rxBuff, entry->length, SPI_OP_DATA)) {
+                    /* SPI driver is currently busy, restore previous states */
+                    qspibuf_stage1_transfer_undo(&g->qSpi);
+                    dataSent = false;
+                }
+            }
+        }
+        g->alreadyInDataService = false;
+    }
+    return dataSent;
+}
+
+static bool serviceControl(TC6_t *g)
+{
+    bool sentControl = false;
+    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
+    if (!g->alreadyInControlService) {
+        /* Protect against reentrant call */
+        g->alreadyInControlService = true;
+
+        /****************************************/
+        /* CONTROL RX and callback higher layer */
+        /****************************************/
+        while(regop_stage4_modify_ready(&g->regop_q)) {
+            struct register_operation *reg_op = NULL;
+            uint32_t regVal = 0xFFFFFFFFu;
+            uint16_t num;
+            reg_op = regop_stage4_modify_ptr(&g->regop_q);
+            num = read_rx_ctrl_buffer(reg_op->rx_buf, reg_op->length, &regVal, sizeof(regVal), reg_op->secure);
+            if ((0u == num)
+                || (REGISTER_OP_READWRITE_STAGE1 != reg_op->op)
+                || !modify(g, regVal))
+            {
+                /* Not a read modify write command (or it failed), proceed direct to stage 7*/
+                regop_stage4_modify_done(&g->regop_q);
+                regop_stage5_send_done(&g->regop_q);
+                regop_stage6_int_done(&g->regop_q);
+            }
+        }
+        while(regop_stage7_event_ready(&g->regop_q)) {
+            struct register_operation *reg_op = NULL;
+            TC6_RegCallback_t callback;
+            void *tag;
+            uint32_t regVal = 0xFFFFFFFFu;
+            uint32_t regAddr;
+            uint16_t num;
+            bool success;
+
+            reg_op = regop_stage7_event_ptr(&g->regop_q);
+            num = read_rx_ctrl_buffer(reg_op->rx_buf, reg_op->length, &regVal, sizeof(regVal), reg_op->secure);
+            callback = reg_op->callback;
+            regAddr = reg_op->regAddr;
+            tag = reg_op->tag;
+            success = (0u != num);
+            regop_stage7_event_done(&g->regop_q);
+            if (NULL != callback) {
+                reg_op->callback(g, success, regAddr, regVal, tag, g->gTag);
+            } else if (!success) {
+                TC6_CB_OnError(g, TC6Error_NoHardware, g->gTag);
+            } else {} /* MISRA enforced termination */
+        }
+
+        /***************/
+        /* Control TX  */
+        /***************/
+        if ((SPI_OP_INVALID == g->currentOp) && regop_stage5_send_ready(&g->regop_q)) {
+            /*********************/
+            /* MODIFY CONTROL TX */
+            /*********************/
+            struct register_operation *reg_op = regop_stage5_send_ptr(&g->regop_q);
+
+            /* Call enqueue before actual SPI transfer to avoid race error with Interrupt handler */
+            regop_stage5_send_done(&g->regop_q);
+
+            g->currentOp = SPI_OP_REG;
+            sentControl = true;
+            if (!TC6_CB_OnSpiTransaction(g->instance, reg_op->tx_buf, reg_op->rx_buf, reg_op->length, g->gTag)) {
+                g->currentOp = SPI_OP_INVALID;
+                sentControl = false;
+                regop_stage5_send_undo(&g->regop_q);
+            }
+        }
+        if ((SPI_OP_INVALID == g->currentOp) && regop_stage2_send_ready(&g->regop_q)) {
+            /*********************/
+            /* NORMAL CONTROL TX */
+            /*********************/
+            struct register_operation *reg_op = regop_stage2_send_ptr(&g->regop_q);
+
+            /* Call enqueue before actual SPI transfer to avoid race error with Interrupt handler */
+            regop_stage2_send_done(&g->regop_q);
+
+            TC6_ASSERT(SPI_OP_INVALID == g->currentOp);
+            g->currentOp = SPI_OP_REG;
+            sentControl = true;
+            if (!TC6_CB_OnSpiTransaction(g->instance, reg_op->tx_buf, reg_op->rx_buf, reg_op->length, g->gTag)) {
+                g->currentOp = SPI_OP_INVALID;
+                sentControl = false;
+                regop_stage2_send_undo(&g->regop_q);
+            }
+        }
+        g->alreadyInControlService = false;
+    }
+    return sentControl;
+}
+
+static bool spiTransaction(TC6_t *g, uint8_t *pTx, uint8_t *pRx, uint16_t len, SpiOp_t op)
+{
+    bool success = false;
+    if (g->currentOp == SPI_OP_INVALID) {
+        g->currentOp = op;
+        success = TC6_CB_OnSpiTransaction(g->instance, pTx, pRx, len, g->gTag);
+        if (!success) {
+            g->currentOp = SPI_OP_INVALID;
+        }
+    }
+    return success;
+}
+
+static bool modify(TC6_t *g, uint32_t value)
+{
+    struct register_operation *reg_op;
+    uint32_t val;
+    bool success = false;
+    TC6_ASSERT(regop_stage4_modify_ready(&g->regop_q));
+    reg_op = regop_stage4_modify_ptr(&g->regop_q);
+    reg_op->op = REGISTER_OP_READWRITE_STAGE2;
+    val = (value & ~reg_op->modifyMask) | reg_op->modifyValue;
+    (void)memset(reg_op->tx_buf, 0x00, sizeof(reg_op->tx_buf));
+    if (reg_op->secure) {
+        reg_op->length = mk_secure_ctrl_req(true /*write */, false /* autoIncrement */, reg_op->regAddr, 1 /* Array Len */, &val, reg_op->tx_buf, sizeof(reg_op->tx_buf));
+    } else {
+        reg_op->length = mk_ctrl_req(true /*write */, false /* autoIncrement */, reg_op->regAddr, 1 /* Array Len */, &val, reg_op->tx_buf, sizeof(reg_op->tx_buf));
+    }
+    if (0u != reg_op->length) {
+        regop_stage4_modify_done(&g->regop_q);
+        success = true;
     } else {
         TC6_CB_OnError(g, TC6Error_ControlTxFail, g->gTag);
         TC6_ASSERT(false);
     }
-    if (success) {
-        if (MemOp_Read == op) {
-            *value = regVal;
-        }
-        else if (MemOp_ReadModifyWrite == op) {
-            uint32_t newVal = (regVal & ~modifyMask) | *value;
-            /* recursive call to do the final write */
-            success = accessRegisters(g, MemOp_Write, addr, &newVal, secure, modifyMask);
-        }
-    }
-    TC6_CB_OnIntPinInterruptEnable(g->instance, true);
     return success;
 }
 
+static bool accessRegisters(TC6_t *g, enum register_op_type op, uint32_t addr, uint32_t value, bool secure, uint32_t modifyMask, TC6_RegCallback_t callback, void *tag)
+{
+    struct register_operation *reg_op = NULL;
+    uint16_t payloadSize = 0;
+    bool write = true;
+    bool success = false;
+    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
+    TC6_ASSERT(REGISTER_OP_INVALID != op);
+    if (regop_stage1_enqueue_ready(&g->regop_q)) {
+        success = true;
+        switch(op) {
+        case REGISTER_OP_WRITE:
+            write = true;
+            break;
+        case REGISTER_OP_READ:
+        case REGISTER_OP_READWRITE_STAGE1:
+            write = false;
+            break;
+        case REGISTER_OP_READWRITE_STAGE2:
+            write = true;
+            break;
+        case REGISTER_OP_INVALID:
+        default:
+            TC6_ASSERT(false);
+            success = false;
+            break;
+        }
+    }
+    if (success) {
+        reg_op = regop_stage1_enqueue_ptr(&g->regop_q);
+#ifdef DEBUG
+        (void)memset(reg_op, 0xCCu, sizeof(struct register_operation));
+#endif
+        (void)memset(reg_op->tx_buf, 0x00, sizeof(reg_op->tx_buf));
+        if (secure) {
+            payloadSize = mk_secure_ctrl_req(write, false /* autoIncrement */, addr, 1 /* Array Len */, &value, reg_op->tx_buf, sizeof(reg_op->tx_buf));
+        } else {
+            payloadSize = mk_ctrl_req(write, false /* autoIncrement */, addr, 1 /* Array Len */, &value, reg_op->tx_buf, sizeof(reg_op->tx_buf));
+        }
+        if (payloadSize == 0u) {
+            TC6_CB_OnError(g, TC6Error_ControlTxFail, g->gTag);
+            TC6_ASSERT(false);
+            success = false;
+        }
+    }
+    if (success) {
+        TC6_ASSERT(payloadSize <= sizeof(reg_op->tx_buf));
+        reg_op->regAddr = addr;
+        reg_op->length = payloadSize;
+        reg_op->op = op;
+        reg_op->secure = secure;
+        reg_op->callback = callback;
+        reg_op->tag = tag;
+        reg_op->modifyValue = value;
+        reg_op->modifyMask = modifyMask;
+
+        regop_stage1_enqueue_done(&g->regop_q);
+        TC6_CB_OnNeedService(g, g->gTag);
+    }
+    return success;
+}
+
+static void processDataRx(TC6_t *g)
+{
+    /*******************************/
+    /* DATA RX & Free up SPI Queue */
+    /*******************************/
+    while (qspibuf_stage3_process_ready(&g->qSpi)) {
+        struct qspibuf *entry = qspibuf_stage3_process_ptr(&g->qSpi);
+        TC6_ASSERT(0u == (entry->length % TC6_CHUNK_BUF_SIZE));
+        enqueue_rx_spi(g, entry->rxBuff, entry->length);
+        qspibuf_stage3_process_done(&g->qSpi);
+    }
+}
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*              CALLBACK FUNCTION FROM PROTOCOL STATEMACHINE            */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
+
+static void on_tx_eth_done(TC6_t *g, const uint8_t *ptr, uint16_t len, TC6_RawTxCallback_t txCallback, void *priv)
+{
+    TC6_ASSERT(ptr && len);
+
+    if (NULL != txCallback) {
+        txCallback(g, ptr, len, priv, g->gTag);
+    }
+}
 
 static void on_rx_slice(TC6_t *g, const uint8_t *pBuf, uint16_t offset, uint16_t bufLen, bool rtsa, bool rtsp)
 {
@@ -559,18 +989,19 @@ static uint8_t get_parity(const uint8_t *pVal)
 
 #if UINT_MAX == UINT32_MAX
     /* 32 Bit machine */
-    uint32_t v = ((uint32_t)pVal[0] << 24) | ((uint32_t)pVal[1] << 16) | ((uint32_t)pVal[2] << 8) | (uint32_t)pVal[3];
+    uint32_t v = pVal[0] | (pVal[1] << 8) | (pVal[2] << 16) | (pVal[3] << 24);
     v ^= v >> 16;
     v ^= v >> 8;
     v ^= v >> 4;
     v ^= v >> 2;
     v ^= v >> 1;
 
-    val =  ~v & 1u; /* odd parity */
+    v = ~v & 1u;       /* odd parity */
+    val = (uint8_t)v;  /* MISRA c2012-10.3 */
 #else
     /* 16 Bit machine */
-    uint16_t h = ((uint16_t)pVal[0] << 8) | (uint16_t)pVal[1];
-    uint16_t l = ((uint16_t)pVal[2] << 8) | (uint16_t)pVal[3];
+    uint16_t h = (uint16_t)pVal[0] | ((uint16_t)pVal[1] << 8);
+    uint16_t l = (uint16_t)pVal[2] | ((uint16_t)pVal[3] << 8);
     h ^= h >> 8;
     h ^= h >> 4;
     h ^= h >> 2;
@@ -585,46 +1016,6 @@ static uint8_t get_parity(const uint8_t *pVal)
 #endif
 
     return val;
-}
-
-static void addEmptyChunks(TC6_t *g, uint16_t chunkCnt)
-{
-    uint16_t i;
-    TC6_ASSERT(g && (TC6_MAGIC == g->magic) && chunkCnt);
-    for (i = 0; (i < chunkCnt) && (i < TC6_CHUNKS_XACT); i++) {
-        uint8_t *p = &g->bufMOSI[i * TC6_CHUNK_BUF_SIZE];
-        p[0] = 0x80u;
-        p[1] = 0x0u;
-        p[2] = 0x0u;
-        p[3] = 0x0u;
-        (void)memset(&p[4], 0x00, TC6_CHUNK_SIZE);
-    }
-}
-
-static bool spiDataTransaction(TC6_t *g, uint16_t chunkCnt)
-{
-    uint16_t bufLen = (chunkCnt * TC6_CHUNK_BUF_SIZE);
-    bool success = false;
-    TC6_ASSERT(g && (TC6_MAGIC == g->magic) && chunkCnt);;
-    success = TC6_CB_OnSpiTransaction(g->instance, g->bufMOSI, g->bufMISO, bufLen, g->gTag);
-    TC6_ASSERT(TC6_MAGIC == g->magic);
-    if (success) {
-        parseRxData(g, g->bufMISO, bufLen);
-    }
-    return success;
-}
-
-static void waitForTXC(TC6_t *g, uint16_t waitLen)
-{
-    uint16_t waitChunks = (waitLen / TC6_CHUNK_SIZE);
-    TC6_ASSERT(g && (TC6_MAGIC == g->magic));
-    if (waitLen % TC6_CHUNK_SIZE) {
-        waitChunks++;
-    }
-    while (waitChunks > g->txc) {
-        addEmptyChunks(g, 1u);
-        while(!spiDataTransaction(g, 1));
-    }
 }
 
 /* Control Transaction API {{{ */
@@ -675,7 +1066,7 @@ static uint16_t mk_ctrl_req(bool wnr, bool aid, uint32_t addr,
             uint8_t *dst = tx_buf;
             uint16_t i;
 
-            dst = &dst[num_regs * 4u];
+            dst = &dst[(size_t)num_regs * 4u];
             for (i = num_regs; i > 0u; i--) {
                 uint32_t v = regs[i - 1u];
 
@@ -716,7 +1107,7 @@ static uint16_t mk_secure_ctrl_req(bool wnr, bool aid, uint32_t addr,
             uint16_t i;
             uint8_t *dst = tx_buf;
 
-            dst = &dst[num_regs * 8u];
+            dst = &dst[(size_t)num_regs * 8u];
             for (i = num_regs; i > 0u; i--) {
                 uint32_t v = regs[i - 1u];
 
@@ -756,12 +1147,8 @@ static uint16_t read_rx_ctrl_buffer(const uint8_t *rx_buf, uint16_t rx_buf_size,
 
         src = rx_buf;
         for (i = 0; i < num; i++) {
-            uint32_t normal;
-            uint32_t inverted;
             src = &src[8];
-            normal = net2value(src);
-            inverted = ~net2value(&src[4]);
-            if (normal != inverted) {
+            if (net2value(src) != ~net2value(&src[4])) {
                 num = 0;
             }
         }
@@ -783,6 +1170,140 @@ static uint16_t read_rx_ctrl_buffer(const uint8_t *rx_buf, uint16_t rx_buf_size,
         }
     }
     return num;
+}
+
+/* }}} */
+
+/* Tx API {{{ */
+
+/*
+ * Maps longest possible slice from unprocessed ETH payload onto a free SPI
+ * chunk space.
+ */
+static uint16_t process_tx(TC6_t *g, uint8_t *tx_buf)
+{
+    struct qtxeth_queue *q = &g->eth_q;
+    struct qtxeth *entry;
+    uint16_t tocopy_len;
+    uint16_t padded_len;
+    uint16_t retVal = 0u;
+    uint16_t copy_pos = 0u;
+    bool sv = false;
+
+    if (qtxeth_stage2_convert_ready(q)) {
+        entry = qtxeth_stage2_convert_ptr(q);
+#ifdef DEBUG
+        (void)memset(tx_buf, 0xCDu, TC6_CHUNK_BUF_SIZE);
+#endif
+        CLEAR_HEADER(tx_buf);
+        SET_VAL(HDR_DNC, 1u, tx_buf);
+        SET_VAL(HDR_DV, 1u, tx_buf);
+        TC6_ASSERT(g->offsetEth <= entry->totalLen);
+
+        SET_VAL(HDR_SEQ, g->seq_num++, tx_buf);
+        if (!g->offsetEth) {
+            SET_VAL(HDR_SV, 1u, tx_buf);
+            SET_VAL(HDR_SWO, 0u, tx_buf);
+            sv = true;
+            if (0u != entry->tsc) {
+                SET_VAL(HDR_TSC, entry->tsc, tx_buf);
+            }
+        }
+        if (0u == g->offsetEth) {
+            TC6_ASSERT((0u == g->segCurr) && (0u == g->segOffset));
+        }
+        tocopy_len = entry->totalLen - g->offsetEth;
+        tocopy_len = (tocopy_len <= TC6_CHUNK_SIZE) ? tocopy_len : TC6_CHUNK_SIZE;
+        padded_len = TC6_CHUNK_SIZE - tocopy_len;
+        while(copy_pos < tocopy_len) {
+            const uint8_t *pBuf = &entry->ethSegs[g->segCurr].pEth[g->segOffset];
+            uint16_t len = entry->ethSegs[g->segCurr].segLen - g->segOffset;
+            uint16_t diff = (tocopy_len - copy_pos);
+            if (len > diff) {
+                len = diff;
+            }
+            (void)memcpy(&tx_buf[TC6_HEADER_SIZE + copy_pos], pBuf, len);
+            copy_pos += len;
+            g->segOffset += len;
+            TC6_ASSERT(g->segOffset <= entry->ethSegs[g->segCurr].segLen);
+            if (g->segOffset == entry->ethSegs[g->segCurr].segLen) {
+                g->segOffset = 0;
+                g->segCurr++;
+                TC6_ASSERT(g->segCurr <= entry->segCount);
+                if (g->segCurr == entry->segCount) {
+                    g->segCurr = 0;
+                }
+            }
+        }
+        TC6_ASSERT(copy_pos == tocopy_len);
+        if (0u != padded_len) {
+            (void)memset(&tx_buf[TC6_HEADER_SIZE + tocopy_len], 0x0u, padded_len);
+        }
+        g->offsetEth += tocopy_len;
+        TC6_ASSERT(g->offsetEth <= entry->totalLen);
+        if (g->offsetEth == entry->totalLen) {
+            SET_VAL(HDR_EV, 1u, tx_buf);
+            SET_VAL(HDR_EBO, (uint8_t)(tocopy_len - 1u), tx_buf);
+            g->offsetEth = 0;
+            on_tx_eth_done(g, entry->ethSegs[0].pEth, entry->totalLen, entry->txCallback, entry->priv);
+            qtxeth_stage2_convert_done(q);
+            /* Current Ethernet frame is fully enqueued, try to attach the beginning of the next Ethernet frame */
+            if (!sv && qtxeth_stage2_convert_ready(q)) {
+                tocopy_len = (tocopy_len + 3u) >> 2u << 2u;
+                entry = qtxeth_stage2_convert_ptr(q);
+                if (entry->totalLen <= TC6_CONCAT_THRESHOLD) {
+                    uint16_t remaining_len = TC6_CHUNK_SIZE - tocopy_len;
+                    /* Make sure, that next packet does not end in the same chunk (TC6 does not support two "end valid") */
+                    if (remaining_len && (entry->totalLen > remaining_len)) {
+                        SET_VAL(HDR_SV, 1, tx_buf);
+                        SET_VAL(HDR_SWO, (uint8_t)(tocopy_len / 4u), tx_buf);
+                        if (0u != entry->tsc) {
+                            SET_VAL(HDR_TSC, entry->tsc, tx_buf);
+                        }
+                        copy_pos = 0;
+                        while(copy_pos < remaining_len) {
+                            const uint8_t *pBuf = &entry->ethSegs[g->segCurr].pEth[g->segOffset];
+                            uint16_t len = entry->ethSegs[g->segCurr].segLen - g->segOffset;
+                            uint16_t diff = (remaining_len - copy_pos);
+                            if (len > diff) {
+                                len = diff;
+                            }
+                            (void)memcpy(&tx_buf[TC6_HEADER_SIZE + tocopy_len + copy_pos], pBuf, len);
+                            g->offsetEth += len;
+                            copy_pos += len;
+                            g->segOffset += len;
+                            TC6_ASSERT(g->segOffset <= entry->ethSegs[g->segCurr].segLen);
+                            if (g->segOffset == entry->ethSegs[g->segCurr].segLen) {
+                                g->segOffset = 0;
+                                g->segCurr++;
+                                TC6_ASSERT(g->segCurr <= entry->segCount);
+                                if (g->segCurr == entry->segCount) {
+                                    g->segCurr = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        SET_VAL(HDR_P, get_parity(tx_buf), tx_buf);
+        retVal = TC6_CHUNK_BUF_SIZE;
+    }
+    return retVal;
+}
+
+static uint16_t mk_data_tx(TC6_t *g, uint8_t *tx_buf, uint16_t tx_buf_len)
+{
+    uint16_t pos = 0;
+    while (pos < tx_buf_len) {
+        uint16_t result = process_tx(g, &tx_buf[pos]);
+        TC6_ASSERT(0u == (result % TC6_CHUNK_BUF_SIZE));
+        if (!result) {
+            break;
+        }
+        pos += result;
+    }
+    return pos;
 }
 
 /* }}} */
@@ -880,25 +1401,7 @@ static inline void process_rx(TC6_t *g, const uint8_t *buff, uint16_t buf_len)
     }
 }
 
-static bool pollRxData(TC6_t *g, bool forceEmpty)
-{
-    bool success = false;
-    if ((TC6_MAGIC == g->magic) && (g->enableData)) {
-        uint8_t rca = (forceEmpty ? TC6_CHUNKS_PER_ISR : g->rca);
-        while (0u != rca) {
-            if (rca > TC6_CHUNKS_XACT) {
-                rca = TC6_CHUNKS_XACT;
-            }
-            addEmptyChunks(g, rca);
-            while (!spiDataTransaction(g, rca));
-            rca = g->rca;
-        }
-        success = true;
-    }
-    return success;
-}
-
-static void parseRxData(TC6_t *g, const uint8_t *buff, uint16_t buf_len)
+static void enqueue_rx_spi(TC6_t *g, const uint8_t *buff, uint16_t buf_len)
 {
     uint32_t processed;
     bool success = true;
@@ -929,19 +1432,19 @@ static void parseRxData(TC6_t *g, const uint8_t *buff, uint16_t buf_len)
             success = false;
         }
         if (success && GET_VAL(FTR_FD, pFooter)) {
-            TC6_CB_OnRxEthernetPacket(g, false, 0, NULL, g->gTag);
+            if (g->eth_started) {
+                TC6_CB_OnRxEthernetPacket(g, false, 0, NULL, g->gTag);
+            }
             success = false;
         }
         if (success) {
-            g->txc = GET_VAL(FTR_TXC, pFooter);
-            g->rca = GET_VAL(FTR_RCA, pFooter);
-            process_rx(g, &buff[processed], TC6_CHUNK_BUF_SIZE);
             if (!g->exst_locked) {
                 if (0u != GET_VAL(FTR_EXST, pFooter)) {
                     g->exst_locked = true;
                     TC6_CB_OnExtendedStatus(g, g->gTag);
                 }
             }
+            process_rx(g, &buff[processed], TC6_CHUNK_BUF_SIZE);
         } else {
             g->offsetRx = 0;
             g->eth_error = false;
@@ -949,4 +1452,68 @@ static void parseRxData(TC6_t *g, const uint8_t *buff, uint16_t buf_len)
     }
 }
 
+static void update_credit_cnt(TC6_t *g, const uint8_t *buff, uint16_t buf_len)
+{
+    const uint8_t *const pFooter = &buff[buf_len - TC6_HEADER_SIZE];
+    bool success = true;
+
+    TC6_ASSERT(buf_len && (0u == (buf_len % TC6_CHUNK_BUF_SIZE)));
+
+    if (GET_VAL(FTR_HDRB, pFooter)) {
+        success = false;
+    }
+    if (success && !GET_VAL(FTR_SYNC, pFooter)) {
+        success = false;
+    }
+    if (success) {
+        g->txc = GET_VAL(FTR_TXC, pFooter);
+        g->rca = GET_VAL(FTR_RCA, pFooter);
+    }
+}
+
 /* }}} */
+
+/*
+ * This function might be called from the interrupt.
+ */
+void TC6_SpiBufferDone(uint8_t tc6instance, bool success)
+{
+    TC6_t *g;
+    if (tc6instance < TC6_MAX_INSTANCES) {
+        struct qspibuf *entry;
+        g = &m_tc6[tc6instance];
+        g->intContext = true;
+        if (!success) {
+            signal_rx_error(g, TC6Error_SpiError);
+        }
+        switch (g->currentOp) {
+        case SPI_OP_DATA:
+            if (!qspibuf_stage2_int_ready(&g->qSpi)) {
+                TC6_ASSERT(false);
+                break;
+            }
+            entry = qspibuf_stage2_int_ptr(&g->qSpi);
+            update_credit_cnt(g, entry->rxBuff, entry->length);
+            qspibuf_stage2_int_done(&g->qSpi);
+            break;
+        case SPI_OP_REG:
+            TC6_ASSERT(regop_stage3_int_ready(&g->regop_q) || regop_stage6_int_ready(&g->regop_q));
+            if(regop_stage3_int_ready(&g->regop_q)) {
+               regop_stage3_int_done(&g->regop_q);
+            }
+            if(regop_stage6_int_ready(&g->regop_q)) {
+               regop_stage6_int_done(&g->regop_q);
+            }
+            break;
+        case SPI_OP_INVALID:
+        default:
+            TC6_ASSERT(false);
+            break;
+        }
+        g->currentOp = SPI_OP_INVALID;
+        g->intContext = false;
+        TC6_CB_OnNeedService(g, g->gTag);
+    } else {
+        TC6_ASSERT(false);
+    }
+}
