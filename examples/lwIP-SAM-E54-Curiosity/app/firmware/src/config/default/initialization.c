@@ -192,9 +192,9 @@ static const DRV_SPI_INTERRUPT_SOURCES drvSPI0InterruptSources =
     .intSources.multi.spiTxCompleteInt   = (int32_t)SERCOM0_1_IRQn,
     .intSources.multi.spiRxInt           = (int32_t)SERCOM0_2_IRQn,
     /* DMA Tx interrupt line */
-    .intSources.multi.dmaTxChannelInt      = (int32_t)DMAC_1_IRQn,
+    .intSources.multi.dmaTxChannelInt      = (int32_t)DMAC_0_IRQn,
     /* DMA Rx interrupt line */
-    .intSources.multi.dmaRxChannelInt      = (int32_t)DMAC_3_IRQn,
+    .intSources.multi.dmaRxChannelInt      = (int32_t)DMAC_1_IRQn,
 };
 
 /* SPI Driver Initialization Data */
@@ -274,7 +274,7 @@ static const DRV_USART_INTERRUPT_SOURCES drvUSART0InterruptSources =
     .intSources.multi.usartRxCompleteInt   = (int32_t)SERCOM1_2_IRQn,
     .intSources.multi.usartErrorInt        = (int32_t)SERCOM1_OTHER_IRQn,
     /* DMA Tx interrupt line */
-    .intSources.multi.dmaTxChannelInt      = (int32_t)DMAC_0_IRQn,
+    .intSources.multi.dmaTxChannelInt      = (int32_t)DMAC_2_IRQn,
 };
 
 static const DRV_USART_INIT drvUsart0InitData =
@@ -365,7 +365,7 @@ void SYS_Initialize ( void* data )
 
     NVMCTRL_Initialize( );
 
-  
+
     PORT_Initialize();
 
     CLOCK_Initialize();
