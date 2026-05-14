@@ -16,6 +16,8 @@
 **/nbproject/Makefile-*
 **/nbproject/Package-*
 **/nbproject/project.properties
+
+# Claude Code
 .claude/
 .claude-code/
 CLAUDE.md

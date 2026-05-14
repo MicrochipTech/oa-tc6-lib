@@ -120,6 +120,7 @@ static const uint8_t m_ip[] = {192, 168, 0, (100 + BOARD_INSTANCE)};
 static void PrintMenu();
 static void CheckUartInput(void);
 static void CheckButton(uint8_t instance, bool newLevel, bool *oldLevel);
+static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus);
 static void OnIperfResult(void *arg, enum lwiperf_report_type report_type,
                           const ip_addr_t *local_addr, u16_t local_port,
                           const ip_addr_t *remote_addr, u16_t remote_port,
@@ -167,18 +168,10 @@ int main(void)
         TC6LwIP_Service();
 
         now = systick.tickCounter;
-        if (DELAY_BEACON_CHECK && now > m.nextBeaconCheck) {
-            bool plcaStatus = false;
+        if (now > m.nextBeaconCheck) {
             m.nextBeaconCheck = now + DELAY_BEACON_CHECK;
-            if (TC6LwIP_GetPlcaStatus(m.idxLwIp, &plcaStatus)) {
-                if (plcaStatus != m.lastBeaconState) {
-                    m.lastBeaconState = plcaStatus;
-                    if (plcaStatus) {
-                        PRINT(ESC_GREEN "PLCA Mode active" ESC_RESETCOLOR "\r\n");
-                    } else {
-                        PRINT(ESC_RED "CSMA/CD fallback" ESC_RESETCOLOR "\r\n");
-                    }
-                }
+            if (!TC6LwIP_GetPlcaStatus(m.idxLwIp, OnPlcaStatus)) {
+                PRINT(ESC_RED "GetPlcaStatus failed" ESC_RESETCOLOR "\r\n");
             }
         }
         if (now > m.nextLed) {
@@ -274,6 +267,23 @@ static void CheckButton(uint8_t instance, bool newLevel, bool *oldLevel)
                 iperf_stop_application();
             }
         }
+    }
+}
+
+static void OnPlcaStatus(int8_t idx, bool success, bool plcaStatus)
+{
+    if (success) {
+        if (plcaStatus != m.lastBeaconState) {
+            m.lastBeaconState = plcaStatus;
+            if (plcaStatus) {
+                PRINT(ESC_GREEN "PLCA Mode active" ESC_RESETCOLOR "\r\n");
+            } else {
+                PRINT(ESC_RED "CSMA/CD fallback" ESC_RESETCOLOR "\r\n");
+            }
+        }
+        m.lastBeaconState = plcaStatus;
+    } else {
+        PRINT(ESC_RED "PLCA status register read failed" ESC_RESETCOLOR "\r\n");
     }
 }
 

@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="65">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <logicalFolder name="src" displayName="src" projectFiles="true">
+        <logicalFolder name="config" displayName="config" projectFiles="true">
+          <itemPath>src/config/lwipopts.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="include" displayName="include" projectFiles="true">
+          <logicalFolder name="compat" displayName="compat" projectFiles="true">
+            <logicalFolder name="posix" displayName="posix" projectFiles="true">
+              <logicalFolder name="arpa" displayName="arpa" projectFiles="true">
+                <itemPath>src/include/compat/posix/arpa/inet.h</itemPath>
+              </logicalFolder>
+              <logicalFolder name="net" displayName="net" projectFiles="true">
+                <itemPath>src/include/compat/posix/net/if.h</itemPath>
+              </logicalFolder>
+              <logicalFolder name="sys" displayName="sys" projectFiles="true">
+                <itemPath>src/include/compat/posix/sys/socket.h</itemPath>
+              </logicalFolder>
+              <itemPath>src/include/compat/posix/netdb.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="stdc" displayName="stdc" projectFiles="true">
+              <itemPath>src/include/compat/stdc/errno.h</itemPath>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="lwip" displayName="lwip" projectFiles="true">
+            <logicalFolder name="apps" displayName="apps" projectFiles="true">
+              <itemPath>src/include/lwip/apps/altcp_proxyconnect.h</itemPath>
+              <itemPath>src/include/lwip/apps/altcp_tls_mbedtls_opts.h</itemPath>
+              <itemPath>src/include/lwip/apps/fs.h</itemPath>
+              <itemPath>src/include/lwip/apps/httpd.h</itemPath>
+              <itemPath>src/include/lwip/apps/httpd_opts.h</itemPath>
+              <itemPath>src/include/lwip/apps/http_client.h</itemPath>
+              <itemPath>src/include/lwip/apps/lwiperf.h</itemPath>
+              <itemPath>src/include/lwip/apps/mdns.h</itemPath>
+              <itemPath>src/include/lwip/apps/mdns_domain.h</itemPath>
+              <itemPath>src/include/lwip/apps/mdns_opts.h</itemPath>
+              <itemPath>src/include/lwip/apps/mdns_out.h</itemPath>
+              <itemPath>src/include/lwip/apps/mdns_priv.h</itemPath>
+              <itemPath>src/include/lwip/apps/mqtt.h</itemPath>
+              <itemPath>src/include/lwip/apps/mqtt_opts.h</itemPath>
+              <itemPath>src/include/lwip/apps/mqtt_priv.h</itemPath>
+              <itemPath>src/include/lwip/apps/netbiosns.h</itemPath>
+              <itemPath>src/include/lwip/apps/netbiosns_opts.h</itemPath>
+              <itemPath>src/include/lwip/apps/smtp.h</itemPath>
+              <itemPath>src/include/lwip/apps/smtp_opts.h</itemPath>
+              <itemPath>src/include/lwip/apps/snmp.h</itemPath>
+              <itemPath>src/include/lwip/apps/snmpv3.h</itemPath>
+              <itemPath>src/include/lwip/apps/snmp_core.h</itemPath>
+              <itemPath>src/include/lwip/apps/snmp_mib2.h</itemPath>
+              <itemPath>src/include/lwip/apps/snmp_opts.h</itemPath>
+              <itemPath>src/include/lwip/apps/snmp_scalar.h</itemPath>
+              <itemPath>src/include/lwip/apps/snmp_snmpv2_framework.h</itemPath>
+              <itemPath>src/include/lwip/apps/snmp_snmpv2_usm.h</itemPath>
+              <itemPath>src/include/lwip/apps/snmp_table.h</itemPath>
+              <itemPath>src/include/lwip/apps/snmp_threadsync.h</itemPath>
+              <itemPath>src/include/lwip/apps/sntp.h</itemPath>
+              <itemPath>src/include/lwip/apps/sntp_opts.h</itemPath>
+              <itemPath>src/include/lwip/apps/tftp_client.h</itemPath>
+              <itemPath>src/include/lwip/apps/tftp_common.h</itemPath>
+              <itemPath>src/include/lwip/apps/tftp_opts.h</itemPath>
+              <itemPath>src/include/lwip/apps/tftp_server.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="priv" displayName="priv" projectFiles="true">
+              <itemPath>src/include/lwip/priv/altcp_priv.h</itemPath>
+              <itemPath>src/include/lwip/priv/api_msg.h</itemPath>
+              <itemPath>src/include/lwip/priv/memp_priv.h</itemPath>
+              <itemPath>src/include/lwip/priv/memp_std.h</itemPath>
+              <itemPath>src/include/lwip/priv/mem_priv.h</itemPath>
+              <itemPath>src/include/lwip/priv/nd6_priv.h</itemPath>
+              <itemPath>src/include/lwip/priv/raw_priv.h</itemPath>
+              <itemPath>src/include/lwip/priv/sockets_priv.h</itemPath>
+              <itemPath>src/include/lwip/priv/tcpip_priv.h</itemPath>
+              <itemPath>src/include/lwip/priv/tcp_priv.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="prot" displayName="prot" projectFiles="true">
+              <itemPath>src/include/lwip/prot/acd.h</itemPath>
+              <itemPath>src/include/lwip/prot/autoip.h</itemPath>
+              <itemPath>src/include/lwip/prot/dhcp.h</itemPath>
+              <itemPath>src/include/lwip/prot/dhcp6.h</itemPath>
+              <itemPath>src/include/lwip/prot/dns.h</itemPath>
+              <itemPath>src/include/lwip/prot/etharp.h</itemPath>
+              <itemPath>src/include/lwip/prot/ethernet.h</itemPath>
+              <itemPath>src/include/lwip/prot/iana.h</itemPath>
+              <itemPath>src/include/lwip/prot/icmp.h</itemPath>
+              <itemPath>src/include/lwip/prot/icmp6.h</itemPath>
+              <itemPath>src/include/lwip/prot/ieee.h</itemPath>
+              <itemPath>src/include/lwip/prot/igmp.h</itemPath>
+              <itemPath>src/include/lwip/prot/ip.h</itemPath>
+              <itemPath>src/include/lwip/prot/ip4.h</itemPath>
+              <itemPath>src/include/lwip/prot/ip6.h</itemPath>
+              <itemPath>src/include/lwip/prot/mld6.h</itemPath>
+              <itemPath>src/include/lwip/prot/nd6.h</itemPath>
+              <itemPath>src/include/lwip/prot/tcp.h</itemPath>
+              <itemPath>src/include/lwip/prot/udp.h</itemPath>
+            </logicalFolder>
+            <itemPath>src/include/lwip/acd.h</itemPath>
+            <itemPath>src/include/lwip/altcp.h</itemPath>
+            <itemPath>src/include/lwip/altcp_tcp.h</itemPath>
+            <itemPath>src/include/lwip/altcp_tls.h</itemPath>
+            <itemPath>src/include/lwip/api.h</itemPath>
+            <itemPath>src/include/lwip/arch.h</itemPath>
+            <itemPath>src/include/lwip/autoip.h</itemPath>
+            <itemPath>src/include/lwip/debug.h</itemPath>
+            <itemPath>src/include/lwip/def.h</itemPath>
+            <itemPath>src/include/lwip/dhcp.h</itemPath>
+            <itemPath>src/include/lwip/dhcp6.h</itemPath>
+            <itemPath>src/include/lwip/dns.h</itemPath>
+            <itemPath>src/include/lwip/err.h</itemPath>
+            <itemPath>src/include/lwip/errno.h</itemPath>
+            <itemPath>src/include/lwip/etharp.h</itemPath>
+            <itemPath>src/include/lwip/ethip6.h</itemPath>
+            <itemPath>src/include/lwip/icmp.h</itemPath>
+            <itemPath>src/include/lwip/icmp6.h</itemPath>
+            <itemPath>src/include/lwip/if_api.h</itemPath>
+            <itemPath>src/include/lwip/igmp.h</itemPath>
+            <itemPath>src/include/lwip/inet.h</itemPath>
+            <itemPath>src/include/lwip/inet_chksum.h</itemPath>
+            <itemPath>src/include/lwip/init.h</itemPath>
+            <itemPath>src/include/lwip/ip.h</itemPath>
+            <itemPath>src/include/lwip/ip4.h</itemPath>
+            <itemPath>src/include/lwip/ip4_addr.h</itemPath>
+            <itemPath>src/include/lwip/ip4_frag.h</itemPath>
+            <itemPath>src/include/lwip/ip6.h</itemPath>
+            <itemPath>src/include/lwip/ip6_addr.h</itemPath>
+            <itemPath>src/include/lwip/ip6_frag.h</itemPath>
+            <itemPath>src/include/lwip/ip6_zone.h</itemPath>
+            <itemPath>src/include/lwip/ip_addr.h</itemPath>
+            <itemPath>src/include/lwip/mem.h</itemPath>
+            <itemPath>src/include/lwip/memp.h</itemPath>
+            <itemPath>src/include/lwip/mld6.h</itemPath>
+            <itemPath>src/include/lwip/nd6.h</itemPath>
+            <itemPath>src/include/lwip/netbuf.h</itemPath>
+            <itemPath>src/include/lwip/netdb.h</itemPath>
+            <itemPath>src/include/lwip/netif.h</itemPath>
+            <itemPath>src/include/lwip/netifapi.h</itemPath>
+            <itemPath>src/include/lwip/opt.h</itemPath>
+            <itemPath>src/include/lwip/pbuf.h</itemPath>
+            <itemPath>src/include/lwip/raw.h</itemPath>
+            <itemPath>src/include/lwip/sio.h</itemPath>
+            <itemPath>src/include/lwip/snmp.h</itemPath>
+            <itemPath>src/include/lwip/sockets.h</itemPath>
+            <itemPath>src/include/lwip/stats.h</itemPath>
+            <itemPath>src/include/lwip/sys.h</itemPath>
+            <itemPath>src/include/lwip/tcp.h</itemPath>
+            <itemPath>src/include/lwip/tcpbase.h</itemPath>
+            <itemPath>src/include/lwip/tcpip.h</itemPath>
+            <itemPath>src/include/lwip/timeouts.h</itemPath>
+            <itemPath>src/include/lwip/udp.h</itemPath>
+          </logicalFolder>
+          <logicalFolder name="netif" displayName="netif" projectFiles="true">
+            <logicalFolder name="ppp" displayName="ppp" projectFiles="true">
+              <logicalFolder name="polarssl" displayName="polarssl" projectFiles="true">
+                <itemPath>src/include/netif/ppp/polarssl/arc4.h</itemPath>
+                <itemPath>src/include/netif/ppp/polarssl/des.h</itemPath>
+                <itemPath>src/include/netif/ppp/polarssl/md4.h</itemPath>
+                <itemPath>src/include/netif/ppp/polarssl/md5.h</itemPath>
+                <itemPath>src/include/netif/ppp/polarssl/sha1.h</itemPath>
+              </logicalFolder>
+              <itemPath>src/include/netif/ppp/ccp.h</itemPath>
+              <itemPath>src/include/netif/ppp/chap-md5.h</itemPath>
+              <itemPath>src/include/netif/ppp/chap-new.h</itemPath>
+              <itemPath>src/include/netif/ppp/chap_ms.h</itemPath>
+              <itemPath>src/include/netif/ppp/eap.h</itemPath>
+              <itemPath>src/include/netif/ppp/ecp.h</itemPath>
+              <itemPath>src/include/netif/ppp/eui64.h</itemPath>
+              <itemPath>src/include/netif/ppp/fsm.h</itemPath>
+              <itemPath>src/include/netif/ppp/ipcp.h</itemPath>
+              <itemPath>src/include/netif/ppp/ipv6cp.h</itemPath>
+              <itemPath>src/include/netif/ppp/lcp.h</itemPath>
+              <itemPath>src/include/netif/ppp/magic.h</itemPath>
+              <itemPath>src/include/netif/ppp/mppe.h</itemPath>
+              <itemPath>src/include/netif/ppp/ppp.h</itemPath>
+              <itemPath>src/include/netif/ppp/pppapi.h</itemPath>
+              <itemPath>src/include/netif/ppp/pppcrypt.h</itemPath>
+              <itemPath>src/include/netif/ppp/pppdebug.h</itemPath>
+              <itemPath>src/include/netif/ppp/pppoe.h</itemPath>
+              <itemPath>src/include/netif/ppp/pppol2tp.h</itemPath>
+              <itemPath>src/include/netif/ppp/pppos.h</itemPath>
+              <itemPath>src/include/netif/ppp/ppp_impl.h</itemPath>
+              <itemPath>src/include/netif/ppp/ppp_opts.h</itemPath>
+              <itemPath>src/include/netif/ppp/upap.h</itemPath>
+              <itemPath>src/include/netif/ppp/vj.h</itemPath>
+            </logicalFolder>
+            <itemPath>src/include/netif/bridgeif.h</itemPath>
+            <itemPath>src/include/netif/bridgeif_opts.h</itemPath>
+            <itemPath>src/include/netif/etharp.h</itemPath>
+            <itemPath>src/include/netif/ethernet.h</itemPath>
+            <itemPath>src/include/netif/ieee802154.h</itemPath>
+            <itemPath>src/include/netif/lowpan6.h</itemPath>
+            <itemPath>src/include/netif/lowpan6_ble.h</itemPath>
+            <itemPath>src/include/netif/lowpan6_common.h</itemPath>
+            <itemPath>src/include/netif/lowpan6_opts.h</itemPath>
+            <itemPath>src/include/netif/slipif.h</itemPath>
+            <itemPath>src/include/netif/zepif.h</itemPath>
+          </logicalFolder>
+        </logicalFolder>
+        <logicalFolder name="port" displayName="port" projectFiles="true">
+          <logicalFolder name="include" displayName="include" projectFiles="true">
+            <logicalFolder name="arch" displayName="arch" projectFiles="true">
+              <itemPath>src/port/include/arch/cc.h</itemPath>
+              <itemPath>src/port/include/arch/perf.h</itemPath>
+            </logicalFolder>
+          </logicalFolder>
+        </logicalFolder>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="true">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+    <logicalFolder name="LinkerScript"
+                   displayName="Linker Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <logicalFolder name="src" displayName="src" projectFiles="true">
+        <logicalFolder name="api" displayName="api" projectFiles="true">
+          <itemPath>src/api/api_lib.c</itemPath>
+          <itemPath>src/api/api_msg.c</itemPath>
+          <itemPath>src/api/err.c</itemPath>
+          <itemPath>src/api/if_api.c</itemPath>
+          <itemPath>src/api/netbuf.c</itemPath>
+          <itemPath>src/api/netdb.c</itemPath>
+          <itemPath>src/api/netifapi.c</itemPath>
+          <itemPath>src/api/sockets.c</itemPath>
+          <itemPath>src/api/tcpip.c</itemPath>
+        </logicalFolder>
+        <logicalFolder name="core" displayName="core" projectFiles="true">
+          <logicalFolder name="ipv4" displayName="ipv4" projectFiles="true">
+            <itemPath>src/core/ipv4/acd.c</itemPath>
+            <itemPath>src/core/ipv4/autoip.c</itemPath>
+            <itemPath>src/core/ipv4/dhcp.c</itemPath>
+            <itemPath>src/core/ipv4/etharp.c</itemPath>
+            <itemPath>src/core/ipv4/icmp.c</itemPath>
+            <itemPath>src/core/ipv4/igmp.c</itemPath>
+            <itemPath>src/core/ipv4/ip4.c</itemPath>
+            <itemPath>src/core/ipv4/ip4_addr.c</itemPath>
+            <itemPath>src/core/ipv4/ip4_frag.c</itemPath>
+          </logicalFolder>
+          <logicalFolder name="ipv6" displayName="ipv6" projectFiles="true">
+            <itemPath>src/core/ipv6/dhcp6.c</itemPath>
+            <itemPath>src/core/ipv6/ethip6.c</itemPath>
+            <itemPath>src/core/ipv6/icmp6.c</itemPath>
+            <itemPath>src/core/ipv6/inet6.c</itemPath>
+            <itemPath>src/core/ipv6/ip6.c</itemPath>
+            <itemPath>src/core/ipv6/ip6_addr.c</itemPath>
+            <itemPath>src/core/ipv6/ip6_frag.c</itemPath>
+            <itemPath>src/core/ipv6/mld6.c</itemPath>
+            <itemPath>src/core/ipv6/nd6.c</itemPath>
+          </logicalFolder>
+          <itemPath>src/core/altcp.c</itemPath>
+          <itemPath>src/core/altcp_alloc.c</itemPath>
+          <itemPath>src/core/altcp_tcp.c</itemPath>
+          <itemPath>src/core/def.c</itemPath>
+          <itemPath>src/core/dns.c</itemPath>
+          <itemPath>src/core/inet_chksum.c</itemPath>
+          <itemPath>src/core/init.c</itemPath>
+          <itemPath>src/core/ip.c</itemPath>
+          <itemPath>src/core/mem.c</itemPath>
+          <itemPath>src/core/memp.c</itemPath>
+          <itemPath>src/core/netif.c</itemPath>
+          <itemPath>src/core/pbuf.c</itemPath>
+          <itemPath>src/core/raw.c</itemPath>
+          <itemPath>src/core/stats.c</itemPath>
+          <itemPath>src/core/sys.c</itemPath>
+          <itemPath>src/core/tcp.c</itemPath>
+          <itemPath>src/core/tcp_in.c</itemPath>
+          <itemPath>src/core/tcp_out.c</itemPath>
+          <itemPath>src/core/timeouts.c</itemPath>
+          <itemPath>src/core/udp.c</itemPath>
+        </logicalFolder>
+        <logicalFolder name="netif" displayName="netif" projectFiles="true">
+          <logicalFolder name="ppp" displayName="ppp" projectFiles="true">
+            <logicalFolder name="polarssl" displayName="polarssl" projectFiles="true">
+              <itemPath>src/netif/ppp/polarssl/arc4.c</itemPath>
+              <itemPath>src/netif/ppp/polarssl/des.c</itemPath>
+              <itemPath>src/netif/ppp/polarssl/md4.c</itemPath>
+              <itemPath>src/netif/ppp/polarssl/md5.c</itemPath>
+              <itemPath>src/netif/ppp/polarssl/sha1.c</itemPath>
+            </logicalFolder>
+            <itemPath>src/netif/ppp/auth.c</itemPath>
+            <itemPath>src/netif/ppp/ccp.c</itemPath>
+            <itemPath>src/netif/ppp/chap-md5.c</itemPath>
+            <itemPath>src/netif/ppp/chap-new.c</itemPath>
+            <itemPath>src/netif/ppp/chap_ms.c</itemPath>
+            <itemPath>src/netif/ppp/demand.c</itemPath>
+            <itemPath>src/netif/ppp/eap.c</itemPath>
+            <itemPath>src/netif/ppp/ecp.c</itemPath>
+            <itemPath>src/netif/ppp/eui64.c</itemPath>
+            <itemPath>src/netif/ppp/fsm.c</itemPath>
+            <itemPath>src/netif/ppp/ipcp.c</itemPath>
+            <itemPath>src/netif/ppp/ipv6cp.c</itemPath>
+            <itemPath>src/netif/ppp/lcp.c</itemPath>
+            <itemPath>src/netif/ppp/magic.c</itemPath>
+            <itemPath>src/netif/ppp/mppe.c</itemPath>
+            <itemPath>src/netif/ppp/multilink.c</itemPath>
+            <itemPath>src/netif/ppp/ppp.c</itemPath>
+            <itemPath>src/netif/ppp/pppapi.c</itemPath>
+            <itemPath>src/netif/ppp/pppcrypt.c</itemPath>
+            <itemPath>src/netif/ppp/pppoe.c</itemPath>
+            <itemPath>src/netif/ppp/pppol2tp.c</itemPath>
+            <itemPath>src/netif/ppp/pppos.c</itemPath>
+            <itemPath>src/netif/ppp/upap.c</itemPath>
+            <itemPath>src/netif/ppp/utils.c</itemPath>
+            <itemPath>src/netif/ppp/vj.c</itemPath>
+          </logicalFolder>
+          <itemPath>src/netif/bridgeif.c</itemPath>
+          <itemPath>src/netif/bridgeif_fdb.c</itemPath>
+          <itemPath>src/netif/ethernet.c</itemPath>
+          <itemPath>src/netif/lowpan6.c</itemPath>
+          <itemPath>src/netif/lowpan6_ble.c</itemPath>
+          <itemPath>src/netif/lowpan6_common.c</itemPath>
+          <itemPath>src/netif/slipif.c</itemPath>
+          <itemPath>src/netif/zepif.c</itemPath>
+        </logicalFolder>
+      </logicalFolder>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>src</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="default" type="3">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>dsPIC33AK512MPS512</targetDevice>
+        <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>noID</platformTool>
+        <languageToolchain>XCDSC</languageToolchain>
+        <languageToolchainVersion>3.21</languageToolchainVersion>
+        <platform>3</platform>
+      </toolsSet>
+      <packs>
+        <pack name="dsPIC33AK-MP_DFP" vendor="Microchip" version="1.0.81"/>
+      </packs>
+      <ScriptingSettings>
+      </ScriptingSettings>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+        <archiverTool>
+        </archiverTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
+        <subordinates>
+        </subordinates>
+      </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeUseCleanTarget>false</makeUseCleanTarget>
+        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
+      </makeCustomizationType>
+      <C30>
+        <property key="cast-align" value="false"/>
+        <property key="code-model" value="default"/>
+        <property key="const-model" value="default"/>
+        <property key="data-model" value="default"/>
+        <property key="disable-instruction-scheduling" value="false"/>
+        <property key="enable-all-warnings" value="true"/>
+        <property key="enable-ansi-std" value="false"/>
+        <property key="enable-ansi-warnings" value="false"/>
+        <property key="enable-fatal-warnings" value="false"/>
+        <property key="enable-large-arrays" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-procedural-abstraction" value="false"/>
+        <property key="enable-short-double" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="expand-pragma-config" value="false"/>
+        <property key="extra-include-directories"
+                  value="src\config;src\include\;src\include\netif;src\port\include"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="keep-inline" value="false"/>
+        <property key="oXC16gcc-cnsts-mauxflash" value="false"/>
+        <property key="oXC16gcc-data-sects" value="false"/>
+        <property key="oXC16gcc-errata" value=""/>
+        <property key="oXC16gcc-fillupper" value=""/>
+        <property key="oXC16gcc-large-aggregate" value="false"/>
+        <property key="oXC16gcc-mauxflash" value="false"/>
+        <property key="oXC16gcc-mpa-lvl" value=""/>
+        <property key="oXC16gcc-name-text-sec" value=""/>
+        <property key="oXC16gcc-near-chars" value="false"/>
+        <property key="oXC16gcc-no-isr-warn" value="false"/>
+        <property key="oXC16gcc-sfr-warn" value="false"/>
+        <property key="oXC16gcc-smar-io-lvl" value="1"/>
+        <property key="oXC16gcc-smart-io-fmt" value=""/>
+        <property key="optimization-level" value="0"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="scalar-model" value="default"/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
+      </C30>
+      <C30-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C30-AR>
+      <C30-AS>
+        <property key="assembler-symbols" value=""/>
+        <property key="expand-macros" value="false"/>
+        <property key="extra-include-directories-for-assembler" value=""/>
+        <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="false-conditionals" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="list-section-info" value="false"/>
+        <property key="list-source" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="oXC16asm-extra-opts" value=""/>
+        <property key="oXC16asm-list-to-file" value="false"/>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="relax" value="false"/>
+        <property key="warning-level" value="emit-warnings"/>
+      </C30-AS>
+      <C30-CO>
+        <property key="coverage-enable" value=""/>
+        <property key="stack-guidance" value="false"/>
+      </C30-CO>
+      <C30-LD>
+        <property key="additional-options-use-response-files" value="false"/>
+        <property key="boot-eeprom" value="no_eeprom"/>
+        <property key="boot-flash" value="no_flash"/>
+        <property key="boot-ram" value="no_ram"/>
+        <property key="boot-write-protect" value="no_write_protect"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="enable-data-init" value="true"/>
+        <property key="enable-default-isr" value="true"/>
+        <property key="enable-handles" value="true"/>
+        <property key="enable-pack-data" value="true"/>
+        <property key="extra-lib-directories" value=""/>
+        <property key="fill-flash-options-addr" value=""/>
+        <property key="fill-flash-options-const" value=""/>
+        <property key="fill-flash-options-how" value="0"/>
+        <property key="fill-flash-options-inc-const" value="1"/>
+        <property key="fill-flash-options-increment" value=""/>
+        <property key="fill-flash-options-seq" value=""/>
+        <property key="fill-flash-options-what" value="0"/>
+        <property key="general-code-protect" value="no_code_protect"/>
+        <property key="general-write-protect" value="no_write_protect"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value=""/>
+        <property key="input-libraries" value=""/>
+        <property key="linker-stack" value="true"/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"/>
+        <property key="no-ivt" value="false"/>
+        <property key="oXC16ld-extra-opts" value=""/>
+        <property key="oXC16ld-fill-upper" value="0"/>
+        <property key="oXC16ld-force-link" value="false"/>
+        <property key="oXC16ld-no-smart-io" value="false"/>
+        <property key="oXC16ld-nostdlib" value="false"/>
+        <property key="oXC16ld-stackguard" value="16"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="psv-override" value="false"/>
+        <property key="remove-unused-sections" value="false"/>
+        <property key="report-memory-usage" value="true"/>
+        <property key="secure-eeprom" value="no_eeprom"/>
+        <property key="secure-flash" value="no_flash"/>
+        <property key="secure-ram" value="no_ram"/>
+        <property key="secure-write-protect" value="no_write_protect"/>
+        <property key="stack-size" value="16"/>
+        <property key="symbol-stripping" value=""/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
+      </C30-LD>
+      <C30Global>
+        <property key="combine-sourcefiles" value="false"/>
+        <property key="common-include-directories" value=""/>
+        <property key="dual-boot-partition" value="0"/>
+        <property key="fast-math" value="false"/>
+        <property key="generic-16-bit" value="false"/>
+        <property key="legacy-libc" value="true"/>
+        <property key="mpreserve-all" value="false"/>
+        <property key="oXC16glb-macros" value=""/>
+        <property key="omit-pack-options" value="1"/>
+        <property key="output-file-format" value="elf"/>
+        <property key="preserve-all" value="false"/>
+        <property key="preserve-file" value=""/>
+        <property key="relaxed-math" value="false"/>
+        <property key="save-temps" value="false"/>
+      </C30Global>
+    </conf>
+  </confs>
+</configurationDescriptor>
