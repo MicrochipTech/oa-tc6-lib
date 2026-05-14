@@ -612,10 +612,10 @@ static void InitChip(TC6_t *pInst)
 
     /* CONFIG PARAMETER 3 */
     cfgParam = initValue3 & 0x000Fu;
-    tempParam = (int16_t)9 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)9 + (int16_t)initOffset1; /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam << 10;
 
-    tempParam = (int16_t)14 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)14 + (int16_t)initOffset1; /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam << 4;
 
     while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x00040084, cfgParam, CONTROL_PROTECTION, NULL, NULL)) {
@@ -624,7 +624,7 @@ static void InitChip(TC6_t *pInst)
 
     /* CONFIG PARAMETER 4 */
     cfgParam = initValue4 & 0x3FFu;
-    tempParam = (int16_t)40 + initOffset2; /* To be MISRA compliant */
+    tempParam = (int16_t)40 + (int16_t)initOffset2; /* To be MISRA compliant */
     cfgParam |= (uint16_t)(tempParam) << 10;
 
     while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x0004008A, cfgParam, CONTROL_PROTECTION, NULL, NULL)) {
@@ -633,10 +633,10 @@ static void InitChip(TC6_t *pInst)
 
     /* CONFIG PARAMETER 5 */
     cfgParam = initValue5 & 0xC0C0u;
-    tempParam = (int16_t)5 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)5 + (int16_t)initOffset1; /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam << 8;
 
-    tempParam = (int16_t)9 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)9 + (int16_t)initOffset1; /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam;
 
     while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x000400AD, cfgParam, CONTROL_PROTECTION, NULL, NULL)) {
@@ -645,10 +645,10 @@ static void InitChip(TC6_t *pInst)
 
     /* CONFIG PARAMETER 6 */
     cfgParam = initValue6 & 0xC0C0u;
-    tempParam = (int16_t)9 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)9 + (int16_t)initOffset1; /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam << 8;
 
-    tempParam = (int16_t)14 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)14 + (int16_t)initOffset1; /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam;
 
     while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x000400AE, cfgParam, CONTROL_PROTECTION, NULL, NULL)) {
@@ -658,10 +658,10 @@ static void InitChip(TC6_t *pInst)
     /* CONFIG PARAMETER 7 */
     cfgParam = initValue7 & 0xC0C0u;
 
-    tempParam = (int16_t)17 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)17 + (int16_t)initOffset1; /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam << 8;
 
-    tempParam = (int16_t)22 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)22 + (int16_t)initOffset1; /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam;
 
     while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x000400AF, cfgParam, CONTROL_PROTECTION, NULL, NULL)) {
