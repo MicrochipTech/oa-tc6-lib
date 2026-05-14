@@ -1,0 +1,6 @@
+format_version: v1.0
+type: UniqueComponent
+attributes: {id: BSP_SAM_D21_Curiosity_Nano, bsp: 'true'}
+children:
+- type: ElementPosition
+  attributes: {x: '720', y: '20', id: BSP_SAM_D21_Curiosity_Nano}

@@ -1,0 +1,5 @@
+Trace1 - PA6  -> EXT2.5
+Trace2 - PC13 -> EXT2.4
+Trace3 - PD11 -> EXT2.6
+Trace4 - PD30 -> EXT2.3
+

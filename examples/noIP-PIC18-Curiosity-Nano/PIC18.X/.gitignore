@@ -1,0 +1,16 @@
+*.o
+*.elf
+*.map
+*.d
+*.log
+*.inx
+*.bak*
+**/nbproject/private
+**/nbproject/Makefile-*
+**/nbproject/Package-*
+**/nbproject/project.properties
+**/debug
+**/dist
+**/build
+**/.generated_files
+**/*.code-workspace
