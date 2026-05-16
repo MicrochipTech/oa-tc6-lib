@@ -68,7 +68,6 @@ typedef struct
     uint8_t burstCount;
     uint8_t burstTimer;
     uint8_t chipRev;
-    bool extBlock;
     bool initialized;
     bool initDone;
     bool enablePlca;
@@ -122,6 +121,9 @@ void TC6Regs_CheckTimers(void)
     /* Find existing entry */
     for (i = 0u; i < TC6_MAX_INSTANCES; i++) {
         TC6Reg_t *pReg = &m_reg[i];
+        if (NULL == pReg->pTC6) {
+            continue;
+        }
         if ((0u != pReg->unlockExtTime) && ((TC6Regs_CB_GetTicksMs() - pReg->unlockExtTime) >= DELAY_UNLOCK_EXT)) {
             pReg->unlockExtTime = 0;
             TC6_UnlockExtendedStatus(pReg->pTC6);
@@ -186,12 +188,21 @@ void TC6_CB_OnExtendedStatus(TC6_t *pInst, void *pGlobalTag)
 {
    (void)pGlobalTag;
     TC6Reg_t *pReg = GetContext(pInst);
-    uint32_t value = 0u;
+    if (NULL == pReg) {
+        return;
+    }
+    uint32_t value0 = 0u;
+    uint32_t value1 = 0u;
     uint8_t i;
+    bool extBlock = false;
     pReg->unlockExtTime = TC6Regs_CB_GetTicksMs();
-    (void)RetryRead(pInst, 0x00000008, &value, TC6_REGS_CONTROL_PROTECTION);
+
+    /* Always read both Status0 and Status1 — they may both have bits set simultaneously. */
+    (void)RetryRead(pInst, 0x00000008, &value0, TC6_REGS_CONTROL_PROTECTION);
+    (void)RetryRead(pInst, 0x00000009, &value1, TC6_REGS_CONTROL_PROTECTION);
+
     for (i = 0u; i < 32u; i++) {
-        if (0u != (value & (1u << i))) {
+        if (0u != (value0 & (1u << i))) {
             switch (i) {
                 case 0:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Transmit_Protocol_Error, pReg->pTag); break;
                 case 1:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Transmit_Buffer_Overflow_Error, pReg->pTag); break;
@@ -210,55 +221,55 @@ void TC6_CB_OnExtendedStatus(TC6_t *pInst, void *pGlobalTag)
             }
         }
     }
-    if (0u == value) {
-        (void)RetryRead(pInst, 0x00000009, &value, TC6_REGS_CONTROL_PROTECTION);
-        bool extBlock = false;
+    if (0u != value0) {
+        /* Write to clear pending flags */
+        (void)RetryWrite(pInst, 0x00000008, value0, TC6_REGS_CONTROL_PROTECTION);
+    }
+
+    for (i = 0u; i < 32u; i++) {
+        if (0u != (value1 & (1u << i))) {
+            switch (i) {
+                case 0:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_RX_Non_Recoverable_Error, pReg->pTag); break;
+                case 1:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Non_Recoverable_Error, pReg->pTag); break;
+                case 17: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_FSM_State_Error, pReg->pTag); break;
+                case 18: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_SRAM_ECC_Error, pReg->pTag); break;
+                case 19: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Undervoltage, pReg->pTag); break;
+                case 20: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Internal_Bus_Error, pReg->pTag); break;
+                case 21: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Timestamp_Capture_Overflow_A, pReg->pTag); break;
+                case 22: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Timestamp_Capture_Overflow_B, pReg->pTag); break;
+                case 23: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Timestamp_Capture_Overflow_C, pReg->pTag); break;
+                case 24: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Timestamp_Capture_Missed_A, pReg->pTag); break;
+                case 25: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Timestamp_Capture_Missed_B, pReg->pTag); break;
+                case 26: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Timestamp_Capture_Missed_C, pReg->pTag); break;
+                case 27: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_MCLK_GEN_Status, pReg->pTag); break;
+                case 28: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_gPTP_PA_TS_EG_Status, pReg->pTag); break;
+                case 29: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Extended_Block_Status, pReg->pTag);
+                    extBlock = true;
+                    break;
+                default: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_UnknownError, pReg->pTag); break;
+            }
+        }
+    }
+    if (0u != value1) {
+        /* Write to clear pending flags */
+        (void)RetryWrite(pInst, 0x00000009, value1, TC6_REGS_CONTROL_PROTECTION);
+    }
+
+    if (extBlock) {
+        uint32_t valueExt = 0u;
+        (void)RetryRead(pInst, 0x000A0087, &valueExt, TC6_REGS_CONTROL_PROTECTION);
         for (i = 0u; i < 32u; i++) {
-            if (0u != (value & (1u << i))) {
+            if (0u != (valueExt & (1u << i))) {
                 switch (i) {
-                    case 0:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_RX_Non_Recoverable_Error, pReg->pTag); break;
-                    case 1:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Non_Recoverable_Error, pReg->pTag); break;
-                    case 17: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_FSM_State_Error, pReg->pTag); break;
-                    case 18: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_SRAM_ECC_Error, pReg->pTag); break;
-                    case 19: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Undervoltage, pReg->pTag); break;
-                    case 20: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Internal_Bus_Error, pReg->pTag); break;
-                    case 21: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Timestamp_Capture_Overflow_A, pReg->pTag); break;
-                    case 22: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Timestamp_Capture_Overflow_B, pReg->pTag); break;
-                    case 23: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Timestamp_Capture_Overflow_C, pReg->pTag); break;
-                    case 24: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Timestamp_Capture_Missed_A, pReg->pTag); break;
-                    case 25: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Timestamp_Capture_Missed_B, pReg->pTag); break;
-                    case 26: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_TX_Timestamp_Capture_Missed_C, pReg->pTag); break;
-                    case 27: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_MCLK_GEN_Status, pReg->pTag); break;
-                    case 28: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_gPTP_PA_TS_EG_Status, pReg->pTag); break;
-                    case 29: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_Extended_Block_Status, pReg->pTag);
-                        extBlock = true;
-                        break;
+                    case 0:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_SPI_Err_Int, pReg->pTag); break;
+                    case 1:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_MAC_BMGR_Int, pReg->pTag); break;
+                    case 2:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_MAC_Int, pReg->pTag); break;
+                    case 3:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_HMX_Int, pReg->pTag); break;
+                    case 31: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_GINT_Mask, pReg->pTag); break;
                     default: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_UnknownError, pReg->pTag); break;
                 }
             }
         }
-        if (0u != value) {
-            /* Write to clear pending flags */
-            (void)RetryWrite(pInst, 0x00000009, value, TC6_REGS_CONTROL_PROTECTION);
-        }
-        if (extBlock) {
-            (void)RetryRead(pInst, 0x000A0087, &value, TC6_REGS_CONTROL_PROTECTION);
-            for (i = 0u; i < 32u; i++) {
-                if (0u != (value & (1u << i))) {
-                    switch (i) {
-                        case 0:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_SPI_Err_Int, pReg->pTag); break;
-                        case 1:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_MAC_BMGR_Int, pReg->pTag); break;
-                        case 2:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_MAC_Int, pReg->pTag); break;
-                        case 3:  TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_HMX_Int, pReg->pTag); break;
-                        case 31: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_GINT_Mask, pReg->pTag); break;
-                        default: TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_UnknownError, pReg->pTag); break;
-                    }
-                }
-            }
-        }
-    } else {
-        /* Write to clear pending flags */
-        (void)RetryWrite(pInst, 0x00000008, value, TC6_REGS_CONTROL_PROTECTION);
     }
 }
 
@@ -459,13 +470,20 @@ static bool ReadIndirectReg(TC6_t *pInst, uint32_t addr, uint32_t *pVal, uint32_
 {
     uint32_t regVal = (addr & 0x000Fu);
     uint32_t value = 0u;
-    (void)RetryWrite(pInst, 0x000400D8, regVal, TC6_REGS_CONTROL_PROTECTION);
-    (void)RetryWrite(pInst, 0x000400DA, 0x0002, TC6_REGS_CONTROL_PROTECTION);
-    (void)RetryRead(pInst, 0x000400D9, &value, TC6_REGS_CONTROL_PROTECTION);
-    if (NULL != pVal) {
+    bool success = true;
+    if (!RetryWrite(pInst, 0x000400D8, regVal, TC6_REGS_CONTROL_PROTECTION)) {
+        success = false;
+    }
+    if (success && !RetryWrite(pInst, 0x000400DA, 0x0002, TC6_REGS_CONTROL_PROTECTION)) {
+        success = false;
+    }
+    if (success && !RetryRead(pInst, 0x000400D9, &value, TC6_REGS_CONTROL_PROTECTION)) {
+        success = false;
+    }
+    if (success && (NULL != pVal)) {
         *pVal = (value & mask);
     }
-    return true;
+    return success;
 }
 
 static int8_t GetSignedVal(uint32_t val)
@@ -510,19 +528,19 @@ static void InitChip(TC6_t *pInst)
     if (pReg->initialized && ReadIndirectReg(pInst, 0x8, &val, 0x1F)) {
         initOffset2 = GetSignedVal(val);
     }
-    if (pReg->initialized && TC6_ReadRegister(pInst, 0x00040084, &val, TC6_REGS_CONTROL_PROTECTION)) {
+    if (pReg->initialized && RetryRead(pInst, 0x00040084, &val, TC6_REGS_CONTROL_PROTECTION)) {
         initValue3 = (uint8_t)val;
     }
-    if (pReg->initialized && TC6_ReadRegister(pInst, 0x0004008A, &val, TC6_REGS_CONTROL_PROTECTION)) {
+    if (pReg->initialized && RetryRead(pInst, 0x0004008A, &val, TC6_REGS_CONTROL_PROTECTION)) {
         initValue4 = (uint8_t)val;
     }
-    if (pReg->initialized && TC6_ReadRegister(pInst, 0x000400AD, &val, TC6_REGS_CONTROL_PROTECTION)) {
+    if (pReg->initialized && RetryRead(pInst, 0x000400AD, &val, TC6_REGS_CONTROL_PROTECTION)) {
         initValue5 = (uint8_t)val;
     }
-    if (pReg->initialized && TC6_ReadRegister(pInst, 0x000400AE, &val, TC6_REGS_CONTROL_PROTECTION)) {
+    if (pReg->initialized && RetryRead(pInst, 0x000400AE, &val, TC6_REGS_CONTROL_PROTECTION)) {
         initValue6 = (uint8_t)val;
     }
-    if (pReg->initialized && TC6_ReadRegister(pInst, 0x000400AF, &val, TC6_REGS_CONTROL_PROTECTION)) {
+    if (pReg->initialized && RetryRead(pInst, 0x000400AF, &val, TC6_REGS_CONTROL_PROTECTION)) {
         initValue7 = (uint8_t)val;
     }
 
