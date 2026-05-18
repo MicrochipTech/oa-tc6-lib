@@ -59,6 +59,8 @@ typedef char tc6_check_chunks_xact[(TC6_CHUNKS_XACT >= 1u) ? 1 : -1];
 
 #define TC6_MAGIC           (0x48423578ul)
 #define TC6_CHUNKS_PER_ISR  (2u)
+#define TC6_SPI_RETRY_MAX   (50u)   /* Max retries for SPI transaction busy-wait loops */
+#define TC6_TXC_RETRY_MAX   (200u)  /* Max iterations waiting for TX credits */
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                    INTERNAL DEFINES AND VARIABLES                    */
@@ -162,7 +164,7 @@ static bool accessRegisters(TC6_t *g, MemoryOp_t op, uint32_t addr, uint32_t *va
 static uint8_t get_parity(const uint8_t *pVal);
 static void addEmptyChunks(TC6_t *g, uint16_t chunkCnt);
 static bool spiDataTransaction(TC6_t *g, uint16_t chunkCnt);
-static void waitForTXC(TC6_t *g, uint16_t waitLen);
+static bool waitForTXC(TC6_t *g, uint16_t waitLen);
 
 /* Protocol Implementation */
 static uint16_t mk_ctrl_req(bool wnr, bool aid, uint32_t addr, uint8_t num_regs, const uint32_t *regs, uint8_t *buff, uint16_t size_of_buff);
@@ -201,7 +203,7 @@ TC6_t *TC6_Init(void *pGlobalTag)
 bool TC6_HandleMacPhyInterrupt(uint8_t tc6instance)
 {
     bool success = false;
-    if (tc6instance < TC6_MAX_INSTANCES) {
+    if ((tc6instance < TC6_MAX_INSTANCES) && m_tc6Valid[tc6instance]) {
         TC6_t *g = &m_tc6[tc6instance];
         success = pollRxData(g, true);
     }
@@ -291,7 +293,9 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
         if (chunks > TC6_CHUNKS_XACT) {
             chunks = TC6_CHUNKS_XACT;
         }
-        waitForTXC(g, totalLen);
+        if (!waitForTXC(g, totalLen)) {
+            success = false;
+        }
         for (i = 0u; success && (i < chunks); i++) {
             uint16_t copyPos = 0u;
             uint16_t toCopyLen;
@@ -344,8 +348,17 @@ bool TC6_SendRawEthernetSegments(TC6_t *g, const TC6_RawTxSegment *pSegments, ui
             SET_VAL(HDR_P, get_parity(pSpi), pSpi);
         }
         if (success) {
-            while(!spiDataTransaction(g, chunks));
-            pollRxData(g, false);
+            uint16_t spiRetry = 0u;
+            while (!spiDataTransaction(g, chunks)) {
+                if (++spiRetry >= TC6_SPI_RETRY_MAX) {
+                    TC6_CB_OnError(g, TC6Error_SpiError, g->gTag);
+                    success = false;
+                    break;
+                }
+            }
+            if (success) {
+                pollRxData(g, false);
+            }
         }
     } else {
         success = false;
@@ -614,17 +627,29 @@ static bool spiDataTransaction(TC6_t *g, uint16_t chunkCnt)
     return success;
 }
 
-static void waitForTXC(TC6_t *g, uint16_t waitLen)
+static bool waitForTXC(TC6_t *g, uint16_t waitLen)
 {
     uint16_t waitChunks = (waitLen / TC6_CHUNK_SIZE);
+    uint16_t retries = 0u;
     TC6_ASSERT(g && (TC6_MAGIC == g->magic));
     if (waitLen % TC6_CHUNK_SIZE) {
         waitChunks++;
     }
     while (waitChunks > g->txc) {
+        uint16_t spiRetry = 0u;
         addEmptyChunks(g, 1u);
-        while(!spiDataTransaction(g, 1));
+        while (!spiDataTransaction(g, 1)) {
+            if (++spiRetry >= TC6_SPI_RETRY_MAX) {
+                TC6_CB_OnError(g, TC6Error_SpiError, g->gTag);
+                return false;
+            }
+        }
+        if (++retries >= TC6_TXC_RETRY_MAX) {
+            TC6_CB_OnError(g, TC6Error_SpiError, g->gTag);
+            return false;
+        }
     }
+    return true;
 }
 
 /* Control Transaction API {{{ */
@@ -863,7 +888,11 @@ static inline void process_rx(TC6_t *g, const uint8_t *buff, uint16_t buf_len)
 
             /* ToDo: adjust length according to length of timestamp (32bit or 64bit) */
             if (0u != rtsa) {
-                len -= 8u;
+                if (len > 8u) {
+                    len -= 8u;
+                } else {
+                    len = 0u;
+                }
             }
 
             if (!twoFrames && ev) {
@@ -885,15 +914,25 @@ static bool pollRxData(TC6_t *g, bool forceEmpty)
     bool success = false;
     if ((TC6_MAGIC == g->magic) && (g->enableData)) {
         uint8_t rca = (forceEmpty ? TC6_CHUNKS_PER_ISR : g->rca);
+        success = true;
         while (0u != rca) {
+            uint16_t spiRetry = 0u;
             if (rca > TC6_CHUNKS_XACT) {
                 rca = TC6_CHUNKS_XACT;
             }
             addEmptyChunks(g, rca);
-            while (!spiDataTransaction(g, rca));
+            while (!spiDataTransaction(g, rca)) {
+                if (++spiRetry >= TC6_SPI_RETRY_MAX) {
+                    TC6_CB_OnError(g, TC6Error_SpiError, g->gTag);
+                    success = false;
+                    break;
+                }
+            }
+            if (!success) {
+                break;
+            }
             rca = g->rca;
         }
-        success = true;
     }
     return success;
 }
