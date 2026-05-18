@@ -542,37 +542,37 @@ static void InitChip(TC6_t *pInst)
 
     /* CONFIG PARAMETER 3 */
     cfgParam = initValue3 & 0x000Fu;
-    tempParam = (int16_t)9 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)(9 + initOffset1); /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam << 10;
 
-    tempParam = (int16_t)14 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)(14 + initOffset1); /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam << 4;
 
     (void)RetryWrite(pReg->pTC6, 0x00040084, cfgParam, TC6_REGS_CONTROL_PROTECTION);
 
     /* CONFIG PARAMETER 4 */
     cfgParam = initValue4 & 0x3FFu;
-    tempParam = (int16_t)40 + initOffset2; /* To be MISRA compliant */
+    tempParam = (int16_t)(40 + initOffset2); /* To be MISRA compliant */
     cfgParam |= (uint16_t)(tempParam) << 10;
 
     (void)RetryWrite(pReg->pTC6, 0x0004008A, cfgParam, TC6_REGS_CONTROL_PROTECTION);
 
     /* CONFIG PARAMETER 5 */
     cfgParam = initValue5 & 0xC0C0u;
-    tempParam = (int16_t)5 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)(5 + initOffset1); /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam << 8;
 
-    tempParam = (int16_t)9 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)(9 + initOffset1); /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam;
 
     (void)RetryWrite(pReg->pTC6, 0x000400AD, cfgParam, TC6_REGS_CONTROL_PROTECTION);
 
     /* CONFIG PARAMETER 6 */
     cfgParam = initValue6 & 0xC0C0u;
-    tempParam = (int16_t)9 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)(9 + initOffset1); /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam << 8;
 
-    tempParam = (int16_t)14 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)(14 + initOffset1); /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam;
 
     (void)RetryWrite(pReg->pTC6, 0x000400AE, cfgParam, TC6_REGS_CONTROL_PROTECTION);
@@ -580,10 +580,10 @@ static void InitChip(TC6_t *pInst)
     /* CONFIG PARAMETER 7 */
     cfgParam = initValue7 & 0xC0C0u;
 
-    tempParam = (int16_t)17 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)(17 + initOffset1); /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam << 8;
 
-    tempParam = (int16_t)22 + initOffset1; /* To be MISRA compliant */
+    tempParam = (int16_t)(22 + initOffset1); /* To be MISRA compliant */
     cfgParam |= (uint16_t)tempParam;
 
     (void)RetryWrite(pReg->pTC6, 0x000400AF, cfgParam, TC6_REGS_CONTROL_PROTECTION);
