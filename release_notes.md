@@ -2,6 +2,20 @@
 
 # OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release Notes
 
+## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.6
+### New Features
+ - Added TC6_SPI_BUF_ALIGNMENT configuration option to support strictly aligned SPI buffers (e.g. Cortex-M7 DMA/cache requirements).
+
+### Bugfixes
+ - Fixed unaligned memory access in parity computation.
+ - Fixed uninitialized instance slots being processed during initialization.
+ - Fixed framing state not being cleared on TC6_Reset, and bounded its SPI wait.
+ - Fixed extended-status read timing in tc6-regs.
+ - Fixed chip revision lookup, init-done success handling, and RX failure callback edge case in tc6-regs.
+ - Fixed short-slice RTSA extraction and added precondition validation to TC6_SendRawEthernetSegments.
+ - Exposed CONTROL_PROTECTION as a tc6-conf.h configuration knob.
+
+
 ## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.5
 ### Bugfixes
  - Updated initial value for LAN865x Rev.B1.
