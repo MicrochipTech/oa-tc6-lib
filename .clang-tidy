@@ -1,0 +1,52 @@
+# clang-tidy config for libtc6 (TC6 protocol driver).
+# Seeded by the `static-analysis` skill on first run. Edit freely — it is
+# not regenerated. Adjust the Checks list rather than ignoring findings
+# one-by-one; if a single call-site is unavoidable, prefer a NOLINT comment
+# right there so the exception is visible in review.
+#
+# Rationale for the disabled checks (the `-name` lines below):
+#   readability-identifier-length     — short names like `i`, `j`, `rc` are
+#                                       idiomatic in embedded C code.
+#   readability-magic-numbers         — libtc6 uses register addresses
+#                                       (0x0004, 0x0100, etc.) from the TC6
+#                                       spec; these are intentional constants,
+#                                       not magic numbers.
+#   readability-implicit-bool-conversion — idiomatic in C99; bool casts
+#                                       from int are standard practice.
+#   bugprone-easily-swappable-params  — callback-heavy API uses many same-
+#                                       typed handles. Fixing would require
+#                                       API redesign, not code fix.
+#   misc-include-cleaner              — noisy on header inclusion patterns.
+#   cppcoreguidelines-*, google-*,    — opinionated style checks not aligned
+#   hicpp-*, llvm-*, fuchsia-*, objc-*  with embedded C; re-enable if wanted.
+
+Checks: >
+    bugprone-*,
+    cert-*,
+    clang-analyzer-*,
+    concurrency-*,
+    misc-*,
+    performance-*,
+    portability-*,
+    readability-*,
+    -readability-identifier-length,
+    -readability-magic-numbers,
+    -readability-implicit-bool-conversion,
+    -readability-function-cognitive-complexity,
+    -misc-include-cleaner,
+    -misc-no-recursion,
+    -bugprone-easily-swappable-parameters,
+    -cert-err58-cpp,
+    -cert-dcl37-c,
+    -cert-dcl51-cpp
+
+WarningsAsErrors: ''
+
+# Lint headers only within libtc6/inc/ to avoid system headers.
+HeaderFilterRegex: '.*(libtc6[\\/]inc[\\/]).*'
+
+FormatStyle: file
+
+CheckOptions:
+    # 4-space indent.
+    readability-braces-around-statements.ShortStatementLines: '2'

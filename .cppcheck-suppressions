@@ -1,0 +1,17 @@
+# cppcheck suppressions for libtc6.
+# Seeded by the `static-analysis` skill on first run. Add lines in the form:
+#   <id>:<path>:<line>
+# or, to suppress globally:
+#   <id>
+# Examples:
+#   unusedFunction:libtc6/src/tc6.c:100
+#   missingIncludeSystem
+#
+# Prefer to FIX findings rather than suppress them. Only suppress when:
+#   (a) the finding is a known cppcheck false positive for this code shape, or
+#   (b) the code uses intentional patterns (e.g., negative-array-size static
+#       asserts for pre-C11 compatibility) that cppcheck flags incorrectly.
+#
+# Keep this file under version control so the team shares one baseline.
+
+# --- entries below ---
