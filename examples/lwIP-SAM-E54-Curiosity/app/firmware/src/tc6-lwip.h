@@ -132,6 +132,22 @@ bool TC6LwIP_SetPlca(int8_t idx, bool plcaEnable, uint8_t nodeId, uint8_t nodeCo
  */
 bool TC6LwIP_ReadTxTimestamp(int8_t idx, uint8_t tsc, TC6Regs_OnTxTimestamp callback, void *pTag);
 
+/** \brief Sends a raw Ethernet frame, optionally requesting a TX timestamp capture.
+ *  \note The buffer is NOT copied - it must stay valid until callback fires.
+ *  \param idx - instance index from TC6LwIP_Init()
+ *  \param pTx - pointer to the full Ethernet frame (dst/src/ethertype + payload)
+ *  \param len - frame length in bytes
+ *  \param tsc - timestamp capture slot 1/2/3, or 0 for no timestamp
+ *  \param callback - raw TX completion callback (may be NULL)
+ *  \param pTag - opaque pointer echoed to the callback
+ *  \return true if the frame was queued */
+bool TC6LwIP_SendRawEthernetPacket(int8_t idx, const uint8_t *pTx, uint16_t len, uint8_t tsc, TC6_RawTxCallback_t callback, void *pTag);
+
+/** \brief Reports whether the MAC-PHY supports frame timestamping.
+ *  \param idx - instance index from TC6LwIP_Init()
+ *  \return true if timestamping hardware is available and enabled */
+bool TC6LwIP_GetTimestampSupported(int8_t idx);
+
 /** \brief Callback invoked with a hardware RX timestamp.
  *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
  *  \param timestamp - The 64-bit hardware RX timestamp of the most recently received packet.

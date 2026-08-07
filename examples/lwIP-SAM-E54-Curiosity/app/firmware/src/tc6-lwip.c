@@ -281,6 +281,26 @@ bool TC6LwIP_ReadTxTimestamp(int8_t idx, uint8_t tsc, TC6Regs_OnTxTimestamp call
     return success;
 }
 
+bool TC6LwIP_SendRawEthernetPacket(int8_t idx, const uint8_t *pTx, uint16_t len, uint8_t tsc, TC6_RawTxCallback_t callback, void *pTag)
+{
+    bool success = false;
+    if ((idx < TC6_MAX_INSTANCES) && (NULL != pTx) && (0u != len)) {
+        TC6LwIP_t *lw = &mlw[idx];
+        success = TC6_SendRawEthernetPacket(lw->tc.tc6, pTx, len, tsc, callback, pTag);
+    }
+    return success;
+}
+
+bool TC6LwIP_GetTimestampSupported(int8_t idx)
+{
+    bool supported = false;
+    if (idx < TC6_MAX_INSTANCES) {
+        TC6LwIP_t *lw = &mlw[idx];
+        supported = TC6Regs_GetTimestampSupported(lw->tc.tc6);
+    }
+    return supported;
+}
+
 void TC6LwIP_SetRxTimestampCallback(int8_t idx, TC6LwIP_OnRxTimestamp callback)
 {
     if (idx < TC6_MAX_INSTANCES) {
