@@ -38,6 +38,7 @@ typedef struct
 {
     int8_t idx;
     bool initialized;
+    bool enabled;                /* gates Sync transmission; scheduler keeps running */
     uint8_t srcMac[6];
     uint8_t clockIdentity[8];
     uint16_t sequenceId;
@@ -199,6 +200,7 @@ bool gPTP_GM_Init(int8_t idx)
                 gm->txSlot = 1u;
                 gm->syncPending = false;
                 gm->nextSyncTick = TC6Stub_GetTick() + GPTP_GM_SYNC_INTERVAL_MS;
+                gm->enabled = true;
                 gm->initialized = true;
                 success = true;
             }
@@ -232,7 +234,7 @@ void gPTP_GM_Service(void)
                 if ((int32_t)(now - gm->nextSyncTick) >= 0) {
                     gm->nextSyncTick = now + GPTP_GM_SYNC_INTERVAL_MS;
                 }
-                if (!gm->syncPending) {
+                if (gm->enabled && !gm->syncPending) {
                     SendSync(gm);
                 }
                 /* If a Sync is still pending (timestamp not yet returned), skip
@@ -259,4 +261,24 @@ void gPTP_GM_OnTxTimestamp(int8_t idx, bool success, uint8_t tsc, uint64_t times
             }
         }
     }
+}
+
+void gPTP_GM_SetEnabled(int8_t idx, bool enable)
+{
+    if ((idx >= 0) && (idx < TC6_MAX_INSTANCES)) {
+        GptpGm_t *gm = &m_gm[idx];
+        if (gm->initialized) {
+            gm->enabled = enable;
+        }
+    }
+}
+
+bool gPTP_GM_IsEnabled(int8_t idx)
+{
+    bool enabled = false;
+    if ((idx >= 0) && (idx < TC6_MAX_INSTANCES)) {
+        GptpGm_t *gm = &m_gm[idx];
+        enabled = (gm->initialized && gm->enabled);
+    }
+    return enabled;
 }

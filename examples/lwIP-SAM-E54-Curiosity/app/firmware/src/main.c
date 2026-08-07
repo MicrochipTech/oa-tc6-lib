@@ -213,6 +213,7 @@ static void PrintMenu()
     PRINT(" r - soft reset\r\n");
     PRINT(" c - clear screen\r\n");
     PRINT(" i - toggle iperf tx test\r\n");
+    PRINT(" p - toggle gPTP Grand Master sync tx\r\n");
     PRINT("======================\r\n");
 }
 
@@ -245,6 +246,11 @@ static void CheckUartInput(void)
                     PRINT("iperf client stop\r\n");
                     iperf_stop_application();
                 }
+                break;
+            case 'P':
+            case 'p':
+                gPTP_GM_SetEnabled(m.idxLwIp, !gPTP_GM_IsEnabled(m.idxLwIp));
+                PRINT("gPTP Grand Master sync tx %s\r\n", gPTP_GM_IsEnabled(m.idxLwIp) ? "ON" : "OFF");
                 break;
             default:
                 PRINT("Unknown key='%c'(0x%X)\r\n", m_rx, m_rx);

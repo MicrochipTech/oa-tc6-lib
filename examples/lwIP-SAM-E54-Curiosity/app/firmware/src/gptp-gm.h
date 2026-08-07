@@ -27,4 +27,17 @@ void gPTP_GM_Service(void);
  *  \param timestamp - 64-bit capture: seconds in high 32 bits, nanoseconds in low 32 */
 void gPTP_GM_OnTxTimestamp(int8_t idx, bool success, uint8_t tsc, uint64_t timestamp);
 
+/** \brief Enables or disables Sync transmission for an instance.
+ *  \note When disabled the periodic scheduler keeps running (timer advances,
+ *        watchdog still runs) but no new Sync is sent. A Sync already in flight
+ *        still gets its Follow_Up. Does not affect the LAN865x 1PPS output.
+ *  \param idx - instance index
+ *  \param enable - true to send Sync frames, false to suppress them */
+void gPTP_GM_SetEnabled(int8_t idx, bool enable);
+
+/** \brief Reports whether Sync transmission is currently enabled.
+ *  \param idx - instance index
+ *  \return true if the instance is initialized and enabled */
+bool gPTP_GM_IsEnabled(int8_t idx);
+
 #endif /* GPTP_GM_H_ */
