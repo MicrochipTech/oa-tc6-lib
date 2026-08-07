@@ -53,6 +53,7 @@ Microchip or any third party.
 
 #include "tc6.h"
 #include "tc6-lwip.h"
+#include "gptp-gm.h"
 #include "udp_perf_client.h"
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -72,7 +73,7 @@ Microchip or any third party.
 #define MAC_PROMISCUOUS_MODE        (false)
 #define MAC_TX_CUT_THROUGH          (false)
 #define MAC_RX_CUT_THROUGH          (false)
-#define MAC_ENABLE_TIMESTAMP        (false)
+#define MAC_ENABLE_TIMESTAMP        (true)
 #define DELAY_BEACON_CHECK          (1000)
 #define DELAY_LED                   (333)
 
@@ -154,6 +155,11 @@ int main(void)
         goto ERROR;
     }
 
+    if (!gPTP_GM_Init(m.idxLwIp)) {
+        PRINT(ESC_RED "Failed to initialize gPTP Grand Master (timestamping unsupported?)" ESC_RESETCOLOR "\r\n");
+        goto ERROR;
+    }
+
     /* iperf */
     lwiperf_start_tcp_server_default(OnIperfResult, NULL);
     iperf_init();
@@ -167,6 +173,7 @@ int main(void)
         SYS_Tasks();
         iperf_service();
         TC6LwIP_Service();
+        gPTP_GM_Service();
 
         now = systick.tickCounter;
         if (now > m.nextBeaconCheck) {

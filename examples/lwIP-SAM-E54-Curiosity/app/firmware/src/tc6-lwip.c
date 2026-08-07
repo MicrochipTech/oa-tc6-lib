@@ -54,6 +54,7 @@ Microchip or any third party.
 #include "tc6.h"
 #include "tc6-stub.h"
 #include "tc6-lwip.h"
+#include "gptp-gm.h"
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                          USER ADJUSTABLE                             */
@@ -753,12 +754,15 @@ static void OnPlcaStatus(TC6_t *pInst, bool success, uint32_t addr, uint32_t val
 
 static void OnTxTimestamp(TC6_t *pInst, bool success, uint8_t tsc, uint64_t timestamp, void *pTag)
 {
-    (void)pInst;
+    TC6LwIP_t *lw = GetContextTC6(pInst);
     (void)pTag;
     if (success) {
         PRINT(ESC_GREEN "TxTimestamp[tsc=%d]=%llu" ESC_RESETCOLOR "\r\n", tsc, timestamp);
     } else {
         PRINT(ESC_RED "TxTimestamp[tsc=%d] read failed" ESC_RESETCOLOR "\r\n", tsc);
+    }
+    if (NULL != lw) {
+        gPTP_GM_OnTxTimestamp(lw->idx, success, tsc, timestamp);
     }
 }
 
