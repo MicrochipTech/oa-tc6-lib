@@ -646,15 +646,14 @@ uint32_t TC6Regs_CB_GetTicksMs(void)
         PRINT(ESC_GREEN "PHY_Interrupt" ESC_RESETCOLOR "\r\n");
         break;
     case TC6Regs_Event_Transmit_Timestamp_Capture_Available_A:
-        PRINT(ESC_GREEN "Transmit_Timestamp_Capture_Available_A" ESC_RESETCOLOR "\r\n");
+        /* Capture-available events fire per Sync; the brief Sync(x)= line in
+           OnTxTimestamp is the only per-Sync output to keep the UART quiet. */
         (void)TC6Regs_ReadTxTimestamp(pInst, 1u, OnTxTimestamp, pTag);
         break;
     case TC6Regs_Event_Transmit_Timestamp_Capture_Available_B:
-        PRINT(ESC_GREEN "Transmit_Timestamp_Capture_Available_B" ESC_RESETCOLOR "\r\n");
         (void)TC6Regs_ReadTxTimestamp(pInst, 2u, OnTxTimestamp, pTag);
         break;
     case TC6Regs_Event_Transmit_Timestamp_Capture_Available_C:
-        PRINT(ESC_GREEN "Transmit_Timestamp_Capture_Available_C" ESC_RESETCOLOR "\r\n");
         (void)TC6Regs_ReadTxTimestamp(pInst, 3u, OnTxTimestamp, pTag);
         break;
     case TC6Regs_Event_Transmit_Frame_Check_Sequence_Error:
@@ -757,9 +756,17 @@ static void OnTxTimestamp(TC6_t *pInst, bool success, uint8_t tsc, uint64_t time
     TC6LwIP_t *lw = GetContextTC6(pInst);
     (void)pTag;
     if (success) {
-        PRINT(ESC_GREEN "TxTimestamp[tsc=%d]=%llu" ESC_RESETCOLOR "\r\n", tsc, timestamp);
+        /* Brief per-Sync line: slot letter (A/B/C) + nanoseconds-within-second.
+           At the 125 ms Automotive rate 8 Syncs/sec overruns the UART rate
+           limiter, so print only every 8th (~1/sec) to avoid "[skipped N]"
+           while still showing liveness and the slot rotating. */
+        static uint32_t tsPrintDiv = 0u;
+        if (0u == (tsPrintDiv++ & 0x7u)) {
+            char slot = (char)('A' + (((tsc >= 1u) && (tsc <= 3u)) ? (tsc - 1u) : 0u));
+            PRINT("Sync(%c)=%09lu\r\n", slot, (unsigned long)(timestamp & 0xFFFFFFFFu));
+        }
     } else {
-        PRINT(ESC_RED "TxTimestamp[tsc=%d] read failed" ESC_RESETCOLOR "\r\n", tsc);
+        PRINT(ESC_RED "Sync(tsc=%d) ts read failed" ESC_RESETCOLOR "\r\n", tsc);
     }
     if (NULL != lw) {
         gPTP_GM_OnTxTimestamp(lw->idx, success, tsc, timestamp);
