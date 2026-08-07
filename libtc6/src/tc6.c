@@ -224,6 +224,7 @@ static bool modify(TC6_t *g, uint32_t value);
 static bool accessRegisters(TC6_t *g, enum register_op_type op, uint32_t addr, uint32_t value,
                             bool secure, uint32_t modifyMask, TC6_RegCallback_t callback, void *tag);
 static void processDataRx(TC6_t *g);
+static uint8_t get_bit_parity(uint32_t v);
 
 /* Protocol Implementation */
 static uint16_t mk_ctrl_req(bool wnr, bool aid, uint32_t addr, uint8_t num_regs, const uint32_t *regs, uint8_t *tx_buf, uint16_t tx_buf_size);
@@ -925,8 +926,6 @@ static void on_rx_slice(TC6_t *g, const uint8_t *pBuf, uint16_t offset, uint16_t
 {
     const uint8_t *buff = pBuf; /* Because of MISRA warning */
     uint16_t buf_len = bufLen;  /* Because of MISRA warning */
-    /* TODO: handle timestamp (RTSP) */
-    (void)rtsp;
 
     if (offset == 0u) {
         g->buf_len = 0;
@@ -936,14 +935,15 @@ static void on_rx_slice(TC6_t *g, const uint8_t *pBuf, uint16_t offset, uint16_t
     /* handle timestamp (RTSA) */
     /* ToDo: get timestamp according to selected timestamp length (32bit or 64bit) */
     if (rtsa && (buf_len >= 8u)) {
-        g->ts = ((uint64_t)buff[0] << 56) |
-                ((uint64_t)buff[1] << 48) |
-                ((uint64_t)buff[2] << 40) |
-                ((uint64_t)buff[3] << 32) |
-                ((uint64_t)buff[4] << 24) |
-                ((uint64_t)buff[5] << 16) |
-                ((uint64_t)buff[6] << 8)  |
-                ((uint64_t)buff[7]);
+        uint32_t tsHigh = ((uint32_t)buff[0] << 24) | ((uint32_t)buff[1] << 16) | ((uint32_t)buff[2] << 8) | (uint32_t)buff[3];
+        uint32_t tsLow  = ((uint32_t)buff[4] << 24) | ((uint32_t)buff[5] << 16) | ((uint32_t)buff[6] << 8) | (uint32_t)buff[7];
+        uint8_t odd_parity = get_bit_parity(tsHigh ^ tsLow);
+
+        if (odd_parity == (uint8_t)(rtsp ? 1u : 0u)) {
+            g->ts = ((uint64_t)tsHigh << 32) | (uint64_t)tsLow;
+        } else {
+            g->ts = 0;
+        }
 
         buff = &buff[8];
         buf_len -= 8u;
@@ -1016,6 +1016,17 @@ static uint8_t get_parity(const uint8_t *pVal)
 #endif
 
     return val;
+}
+
+static uint8_t get_bit_parity(uint32_t v)
+{
+    v ^= v >> 16;
+    v ^= v >> 8;
+    v ^= v >> 4;
+    v ^= v >> 2;
+    v ^= v >> 1;
+
+    return (uint8_t)(~v & 1u); /* odd parity */
 }
 
 /* Control Transaction API {{{ */

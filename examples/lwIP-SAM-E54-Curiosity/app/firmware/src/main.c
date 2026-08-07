@@ -72,6 +72,7 @@ Microchip or any third party.
 #define MAC_PROMISCUOUS_MODE        (false)
 #define MAC_TX_CUT_THROUGH          (false)
 #define MAC_RX_CUT_THROUGH          (false)
+#define MAC_ENABLE_TIMESTAMP        (false)
 #define DELAY_BEACON_CHECK          (1000)
 #define DELAY_LED                   (333)
 
@@ -146,7 +147,7 @@ int main(void)
 
     m.idxLwIp = TC6LwIP_Init(m_ip, T1S_PLCA_ENABLE, T1S_PLCA_NODE_ID, T1S_PLCA_NODE_COUNT,
         T1S_PLCA_BURST_COUNT, T1S_PLCA_BURST_TIMER, MAC_PROMISCUOUS_MODE,
-        MAC_TX_CUT_THROUGH, MAC_RX_CUT_THROUGH);
+        MAC_TX_CUT_THROUGH, MAC_RX_CUT_THROUGH, MAC_ENABLE_TIMESTAMP);
 
     if (m.idxLwIp < 0) {
         PRINT(ESC_RED "Failed to initialize TC6 lwIP Driver" ESC_RESETCOLOR "\r\n");

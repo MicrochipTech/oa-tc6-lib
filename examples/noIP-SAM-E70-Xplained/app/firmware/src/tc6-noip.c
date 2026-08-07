@@ -128,7 +128,7 @@ int8_t TC6NoIP_Init(bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t 
         }
     }
     if (success) {
-        success = TC6Regs_Init(lw->tc.tc6, lw, lw->tc.mac, enablePlca, nodeId, nodeCount, burstCount, burstTimer, promiscuous, txCutThrough, rxCutThrough);
+        success = TC6Regs_Init(lw->tc.tc6, lw, lw->tc.mac, enablePlca, nodeId, nodeCount, burstCount, burstTimer, promiscuous, txCutThrough, rxCutThrough, false);
         if (!success) {
             PRINT_FORCE(ESC_RED "[%d]TC6Regs_Init() failed" ESC_RESETCOLOR "\r\n", lw->idx);
         }

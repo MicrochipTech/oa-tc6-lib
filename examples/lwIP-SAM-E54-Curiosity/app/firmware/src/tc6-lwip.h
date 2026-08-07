@@ -44,6 +44,7 @@ Microchip or any third party.
 #include <stdint.h>
 #include <stdbool.h>
 #include "tc6.h"
+#include "tc6-regs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,9 +75,10 @@ extern "C" {
  *  \promiscuous - true, when RX MAC filter shall be turned off, then all messages are getting received (sniffing). false, filter is active, only messages with matching MACs (and broadcast/multicast) are getting received.
  *  \txCutThrough - true, when TX cut through shall be active, this helps improving speed further. Note that in that case the MCU/MPU must be able to send at full network speed. false, activates TX store and forward mode.
  *  \rxCutThrough - true, when RX cut through shall be active, this helps improving speed further. Note that in that case the MCU/MPU must be able to receive at full network speed. false, activates RX store and forward mode.
+ *  \enableTimestamp - true, if hardware TX/RX timestamping shall be enabled (when the PHY supports it). false, timestamping stays off.
  *  \return The instance number of the current TC6LwIP driver. Starting at 0 and incrementing by one for any further call. Returns -1 when a instance can not be initialized, increase TC6_MAX_INSTANCES.
  */
-int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough);
+int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough, bool enableTimestamp);
 
 /** \brief Services the hardware and the protocol stack.
  *  \note Must be called cyclic. The faster the better.
@@ -120,6 +122,27 @@ void TC6LwIP_GetMac(int8_t idx, uint8_t *mac[6]);
  *  \return true, if request could be enqueued, the PLCA parameters will be changed soon. false, request failed, no change.
  */
 bool TC6LwIP_SetPlca(int8_t idx, bool plcaEnable, uint8_t nodeId, uint8_t nodeCount);
+
+/** \brief Reads back a hardware TX timestamp capture slot.
+ *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
+ *  \param tsc - The capture slot (1=A, 2=B, 3=C) as used with TC6_SendRawEthernetPacket()'s tsc argument.
+ *  \param callback - Callback which holds the result. Must not be NULL.
+ *  \param pTag - Opaque pointer passed back unchanged into the callback.
+ *  \return true, if request could be enqueued, the given callback will be called later. false, queue is full or idx invalid, callback will not be called, try again later.
+ */
+bool TC6LwIP_ReadTxTimestamp(int8_t idx, uint8_t tsc, TC6Regs_OnTxTimestamp callback, void *pTag);
+
+/** \brief Callback invoked with a hardware RX timestamp.
+ *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
+ *  \param timestamp - The 64-bit hardware RX timestamp of the most recently received packet.
+ */
+typedef void (*TC6LwIP_OnRxTimestamp)(int8_t idx, uint64_t timestamp);
+
+/** \brief Registers a callback that is invoked with the hardware RX timestamp of every received packet.
+ *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
+ *  \param callback - The callback to invoke, or NULL to unregister.
+ */
+void TC6LwIP_SetRxTimestampCallback(int8_t idx, TC6LwIP_OnRxTimestamp callback);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                 Callback implementations from TC6 library            */

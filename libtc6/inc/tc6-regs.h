@@ -94,9 +94,10 @@ typedef enum
  *  \param pInst - The pointer returned by TC6_Init.
  *  \param pTag - This pointer will be returned back with any callback of this component. Maybe set to NULL.
  *  \param mac - The 6 Byte public visible MAC address of the TC6 MAC.
+ *  \param enableTimestamp - true, enables hardware TX/RX timestamping (FTSE, 64 Bit format), if the attached MAC/PHY supports it. false, timestamping stays disabled.
  *  \return True, if initial register settings and given parameters have been written into the LAN865x. false, initialization error, try again later with TC6Regs_Reinit().
  */
-bool TC6Regs_Init(TC6_t *pInst, void *pTag, const uint8_t mac[6], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough);
+bool TC6Regs_Init(TC6_t *pInst, void *pTag, const uint8_t mac[6], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough, bool enableTimestamp);
 
 /** \brief Checks internal timers and trigger corresponding actions
  *  \note Must be called cyclic (slow delay is fine (< 1 second))
@@ -129,6 +130,33 @@ bool TC6Regs_SetPlca(TC6_t *pInst, bool plcaEnable, uint8_t nodeId, uint8_t node
  *  \return 0, in case of error. Otherwise, Chip Revision.
  */
 uint8_t TC6Regs_GetChipRevision(TC6_t *pTC6);
+
+/** \brief Checks if the attached MAC/PHY supports hardware TX/RX timestamping.
+ *  \param pTC6 - The pointer returned by TC6_Init.
+ *  \return true, if the attached hardware supports timestamping (STDCAP). false, otherwise or on error.
+ */
+bool TC6Regs_GetTimestampSupported(TC6_t *pTC6);
+
+/**
+ * \brief Callback with the result of a TC6Regs_ReadTxTimestamp() request.
+ * \param pInst - The pointer returned by TC6_Init.
+ * \param success - true, if the timestamp could be read. false, otherwise.
+ * \param tsc - The timestamp capture slot (1=A, 2=B, 3=C), as given along with TC6Regs_ReadTxTimestamp().
+ * \param timestamp - The 64 Bit (seconds:nanoseconds) TX timestamp. Only valid if success is true.
+ * \param pTag - The exact same pointer, which was given along with TC6Regs_ReadTxTimestamp().
+ */
+typedef void (*TC6Regs_OnTxTimestamp)(TC6_t *pInst, bool success, uint8_t tsc, uint64_t timestamp, void *pTag);
+
+/** \brief Reads back a previously captured TX timestamp from the given capture slot.
+ *  \note Intended to be called on demand, e.g. once TC6Regs_CB_OnEvent() reports a
+ *        Transmit_Timestamp_Capture_Available_{A,B,C} event for the matching slot.
+ *  \param pInst - The pointer returned by TC6_Init.
+ *  \param tsc - The timestamp capture slot to read back (1=A, 2=B, 3=C).
+ *  \param callback - Pointer to a callback handler, invoked with the result. May not be left NULL.
+ *  \param pTag - Any pointer. Will be given back in the given callback. May left NULL.
+ *  \return true, if the request could be enqueued. false, otherwise (invalid slot or queue full).
+ */
+bool TC6Regs_ReadTxTimestamp(TC6_t *pInst, uint8_t tsc, TC6Regs_OnTxTimestamp callback, void *pTag);
 
 /**
  * \brief Fetch the string for the given event value.

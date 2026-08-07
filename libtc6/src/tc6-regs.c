@@ -57,6 +57,19 @@ Microchip or any third party.
 #define LAN865X_OUI     (0x1F0u)
 #define LAN865X_MODEL   (0x1Bu)
 
+/* Hardware TX/RX timestamping (OPEN Alliance TC6 frame timestamping) */
+#define REG_STDCAP          (0x00000002u)
+#define STDCAP_FTSE_MASK    (1u << 6u)  /* Frame timestamp capability */
+
+#define REG_CONFIG0         (0x00000004u)
+#define CONFIG0_FTSE_MASK   (1u << 7u)  /* Frame Timestamp Enable */
+#define CONFIG0_FTSS_MASK   (1u << 6u)  /* Frame Timestamp Select: 1 = 64 Bit */
+
+#define REG_IMASK0          (0x0000000Cu)
+#define IMASK0_TTSCA_MASK   (1u << 8u)  /* TX Timestamp Capture A interrupt mask */
+
+#define REG_TTSCA_HIGH      (0x00000010u) /* TTSCA_HIGH, TTSCA_LOW, TTSCB_HIGH, TTSCB_LOW, TTSCC_HIGH, TTSCC_LOW */
+
 static const char* TC6_events[] = {
     "Unknown_Error",
     "Transmit_Protocol_Error",
@@ -127,6 +140,12 @@ typedef struct
     bool promiscuous;
     bool txCutThrough;
     bool rxCutThrough;
+    bool enableTimestamp;
+    bool tsCapable;
+    uint8_t tsReadTsc;
+    uint32_t tsHighValue;
+    TC6Regs_OnTxTimestamp tsReadCallback;
+    void *tsReadTag;
 } TC6Reg_t;
 
 static TC6Reg_t m_reg[TC6_MAX_INSTANCES] = {{{ 0 }}};
@@ -154,12 +173,14 @@ static void OnClearStatus1(TC6_t *pInst, bool success, uint32_t addr, uint32_t v
 static void OnStatus1(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag);
 static void OnClearStatus0(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag);
 static void OnStatus0(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag);
+static void OnTxTimestampHigh(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag);
+static void OnTxTimestampLow(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                         PUBLIC FUNCTIONS                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-bool TC6Regs_Init(TC6_t *pTC6, void *pTag, const uint8_t mac[6], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough)
+bool TC6Regs_Init(TC6_t *pTC6, void *pTag, const uint8_t mac[6], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough, bool enableTimestamp)
 {
     TC6Reg_t *pReg = GetContext(pTC6);
     if (NULL != pReg) {
@@ -172,6 +193,7 @@ bool TC6Regs_Init(TC6_t *pTC6, void *pTag, const uint8_t mac[6], bool enablePlca
         pReg->promiscuous = promiscuous;
         pReg->txCutThrough = txCutThrough;
         pReg->rxCutThrough = rxCutThrough;
+        pReg->enableTimestamp = enableTimestamp;
         (void)memcpy(pReg->mac, mac, 6);
 
         DoInitialization(pReg);
@@ -242,6 +264,30 @@ uint8_t TC6Regs_GetChipRevision(TC6_t *pTC6)
         chipRev = pReg->chipRev;
     }
     return chipRev;
+}
+
+bool TC6Regs_GetTimestampSupported(TC6_t *pTC6)
+{
+    bool supported = false;
+    TC6Reg_t *pReg = GetContext(pTC6);
+    if (NULL != pReg) {
+        supported = pReg->tsCapable;
+    }
+    return supported;
+}
+
+bool TC6Regs_ReadTxTimestamp(TC6_t *pTC6, uint8_t tsc, TC6Regs_OnTxTimestamp callback, void *pTag)
+{
+    bool success = false;
+    TC6Reg_t *pReg = GetContext(pTC6);
+    if ((NULL != pReg) && (NULL != callback) && (tsc >= 1u) && (tsc <= 3u)) {
+        uint32_t addr = REG_TTSCA_HIGH + (uint32_t)(2u * (uint32_t)(tsc - 1u));
+        pReg->tsReadTsc = tsc;
+        pReg->tsReadCallback = callback;
+        pReg->tsReadTag = pTag;
+        success = TC6_ReadRegister(pTC6, addr, CONTROL_PROTECTION, OnTxTimestampHigh, NULL);
+    }
+    return success;
 }
 
 const char *TC6Regs_GetEventStr(TC6Regs_Event_t event)
@@ -363,12 +409,21 @@ static void DoInitialization(TC6Reg_t *pReg)
             /* Wait until Chip Revision is reported back */
             TC6_Service(pReg->pTC6, true);
         }
-        /* Start with default settings */
+        /* Start with default settings. The first entry (CONFIG0 = 0x26) is an
+           unprotected write that sets PROTE (control-transaction protection enable);
+           every entry after it is a protected write. */
         while (pReg->initialized && (i < TC6_MEMMAP_LENGTH)) {
             i += TC6_MultipleRegisterAccess(pReg->pTC6, &TC6_MEMMAP[i], (TC6_MEMMAP_LENGTH - i), OnInitialRegCB, NULL);
             if (i != TC6_MEMMAP_LENGTH) {
                 TC6_Service(pReg->pTC6, true);
             }
+        }
+        /* Probe frame-timestamp capability. This MUST run after the MEMMAP loop:
+           ReadReg() issues a protected read, and the MAC-PHY only honors protected
+           control transactions once the CONFIG0 write above has enabled PROTE. */
+        pReg->tsCapable = false;
+        if (pReg->initialized && ReadReg(pReg->pTC6, REG_STDCAP, &regVal)) {
+            pReg->tsCapable = (0u != (regVal & STDCAP_FTSE_MASK));
         }
         /* MAC address setting */
         regVal = ((uint32_t)pReg->mac[3] << 24) | ((uint32_t)pReg->mac[2] << 16) | ((uint32_t)pReg->mac[1] << 8) | (uint32_t)pReg->mac[0];
@@ -404,8 +459,17 @@ static void DoInitialization(TC6Reg_t *pReg)
         if (pReg->rxCutThrough) {
             regVal |= 0x100u;
         }
-        while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x00000004 /* CONFIG0 */, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+        if (pReg->enableTimestamp && pReg->tsCapable) {
+            regVal |= (CONFIG0_FTSE_MASK | CONFIG0_FTSS_MASK);
+        }
+        while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, REG_CONFIG0 /* CONFIG0 */, regVal, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
             TC6_Service(pReg->pTC6, true);
+        }
+        if (pReg->initialized && pReg->enableTimestamp && pReg->tsCapable) {
+            /* Unmask TX Timestamp Capture A interrupt (B/C are unmasked by default) */
+            while (pReg->initialized && !TC6_ReadModifyWriteRegister(pReg->pTC6, REG_IMASK0, 0x00000000u, IMASK0_TTSCA_MASK, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+                TC6_Service(pReg->pTC6, true);
+            }
         }
         while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, 0x00010000 /* NETWORK_CONTROL */, 0xCu, CONTROL_PROTECTION, OnInitDone, NULL)) {
             TC6_Service(pReg->pTC6, true);
@@ -821,5 +885,33 @@ static void OnStatus0(TC6_t *pInst, bool success, uint32_t addr, uint32_t value,
         }
     } else {
         TC6Regs_CB_OnEvent(pInst, TC6Regs_Event_UnknownError, pReg->pTag);
+    }
+}
+
+static void OnTxTimestampHigh(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag)
+{
+    TC6Reg_t *pReg = GetContext(pInst);
+    (void)tag;
+    (void)pGlobalTag;
+    if (success) {
+        pReg->tsHighValue = value;
+        if (!TC6_ReadRegister(pInst, addr + 1u, CONTROL_PROTECTION, OnTxTimestampLow, NULL)) {
+            success = false;
+        }
+    }
+    if (!success && (NULL != pReg->tsReadCallback)) {
+        pReg->tsReadCallback(pInst, false, pReg->tsReadTsc, 0u, pReg->tsReadTag);
+    }
+}
+
+static void OnTxTimestampLow(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag)
+{
+    TC6Reg_t *pReg = GetContext(pInst);
+    (void)addr;
+    (void)tag;
+    (void)pGlobalTag;
+    if (NULL != pReg->tsReadCallback) {
+        uint64_t timestamp = ((uint64_t)pReg->tsHighValue << 32) | (uint64_t)value;
+        pReg->tsReadCallback(pInst, success, pReg->tsReadTsc, timestamp, pReg->tsReadTag);
     }
 }
