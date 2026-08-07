@@ -1,0 +1,73 @@
+configVersion: 1.0.0
+componentName: drv_i2c_0
+coreVersion: 5.9.0
+device: ATSAME54P20A
+library: []
+dependency:
+- dependencyPackage: class com.microchip.mcc.harmony.HarmonyModule
+  name: drv_i2c_0
+  type: module
+  version: ''
+- dependencyPackage: ''
+  name: CMSIS_5
+  type: package
+  version: 5.9.1-dev
+- dependencyPackage: ''
+  name: core
+  type: package
+  version: v3.13.1
+- dependencyPackage: ''
+  name: csp
+  type: package
+  version: v3.17.0
+customDataClassName: com.microchip.utils_mh3.utils.persistence.CustomModuleData
+data:
+  attachments:
+    children:
+    - children:
+      - attributes:
+          id: drv_i2c_I2C_dependency
+        children:
+        - children:
+          - attributes:
+              id: targetComponentID
+            children:
+            - type: Value
+              value: sercom6
+            type: String
+          - attributes:
+              id: targetAttachmentID
+            children:
+            - type: Value
+              value: SERCOM6_I2C
+            type: String
+          type: Attributes
+        type: DirectDependency
+      type: Attachments
+    type: drv_i2c_0
+  elementPosition: {}
+  symbols:
+    DRV_I2C_PLIB:
+      attributes:
+        id: DRV_I2C_PLIB
+        label: PLIB Used
+      children:
+      - children:
+        - attributes:
+            id: drv_i2c_0
+            value: SERCOM6
+          type: Dynamic
+        type: Values
+      type: String
+    DRV_I2C_QUEUE_SIZE:
+      attributes:
+        id: DRV_I2C_QUEUE_SIZE
+        label: Transfer Queue Size
+      children:
+      - children:
+        - attributes:
+            value: '1'
+          type: User
+        type: Values
+      type: Integer
+  userData: {}

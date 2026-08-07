@@ -256,9 +256,35 @@
         <itemPath>../src/config/default/default.mhc/sercom6.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/settings.yml</itemPath>
       </logicalFolder>
+      <logicalFolder name="demo_default"
+                     displayName="demo_default"
+                     projectFiles="true">
+        <logicalFolder name="components" displayName="components" projectFiles="true">
+          <itemPath>demo_default/components/core.yml</itemPath>
+          <itemPath>demo_default/components/cmsis.yml</itemPath>
+          <itemPath>demo_default/components/drv_spi.yml</itemPath>
+          <itemPath>demo_default/components/HarmonyCore.yml</itemPath>
+          <itemPath>demo_default/components/sercom6.yml</itemPath>
+          <itemPath>demo_default/components/nvmctrl.yml</itemPath>
+          <itemPath>demo_default/components/drv_usart.yml</itemPath>
+          <itemPath>demo_default/components/drv_i2c.yml</itemPath>
+          <itemPath>demo_default/components/sercom0.yml</itemPath>
+          <itemPath>demo_default/components/drv_spi_0.yml</itemPath>
+          <itemPath>demo_default/components/drv_usart_0.yml</itemPath>
+          <itemPath>demo_default/components/sercom1.yml</itemPath>
+          <itemPath>demo_default/components/drv_i2c_0.yml</itemPath>
+          <itemPath>demo_default/components/evsys.yml</itemPath>
+          <itemPath>demo_default/components/eic.yml</itemPath>
+          <itemPath>demo_default/components/dfp.yml</itemPath>
+        </logicalFolder>
+        <itemPath>demo_default/mcc-config.mc4</itemPath>
+      </logicalFolder>
       <itemPath>Makefile</itemPath>
       <itemPath>../src/config/default/harmony-manifest-success.yml</itemPath>
-      <itemPath>demo.mc3</itemPath>
+    </logicalFolder>
+    <logicalFolder name="LibraryFiles"
+                   displayName="LibraryFiles"
+                   projectFiles="true">
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -374,7 +400,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>noID</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>4.09</languageToolchainVersion>
+        <languageToolchainVersion>6.00</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
@@ -592,13 +618,20 @@
         <property key="use-indirect-calls" value="false"/>
       </C32CPP>
       <C32Global>
+        <property key="combine-sourcefiles" value="false"/>
         <property key="common-include-directories" value=""/>
+        <property key="common-macros" value=""/>
+        <property key="dual-boot-partition" value="0"/>
+        <property key="generic-16-bit" value="false"/>
         <property key="gp-relative-option" value=""/>
         <property key="legacy-libc" value="false"/>
         <property key="mdtcm" value=""/>
         <property key="mitcm" value=""/>
+        <property key="mpreserve-all" value="false"/>
         <property key="mstacktcm" value="false"/>
         <property key="omit-pack-options" value="1"/>
+        <property key="preserve-all" value="false"/>
+        <property key="preserve-file" value=""/>
         <property key="relaxed-math" value="false"/>
         <property key="save-temps" value="false"/>
         <property key="stack-smashing" value=""/>
@@ -1210,7 +1243,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>EdbgTool</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>4.09</languageToolchainVersion>
+        <languageToolchainVersion>6.00</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
@@ -1427,19 +1460,6 @@
         <property key="use-iar" value="false"/>
         <property key="use-indirect-calls" value="false"/>
       </C32CPP>
-      <C32Global>
-        <property key="common-include-directories" value=""/>
-        <property key="gp-relative-option" value=""/>
-        <property key="legacy-libc" value="false"/>
-        <property key="mdtcm" value=""/>
-        <property key="mitcm" value=""/>
-        <property key="mstacktcm" value="false"/>
-        <property key="omit-pack-options" value="1"/>
-        <property key="relaxed-math" value="false"/>
-        <property key="save-temps" value="false"/>
-        <property key="stack-smashing" value=""/>
-        <property key="wpo-lto" value="false"/>
-      </C32Global>
       <EdbgTool>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="communication.activationmode" value="nohv"/>
@@ -2032,7 +2052,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>EdbgTool</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>4.09</languageToolchainVersion>
+        <languageToolchainVersion>6.00</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
@@ -2249,19 +2269,6 @@
         <property key="use-iar" value="false"/>
         <property key="use-indirect-calls" value="false"/>
       </C32CPP>
-      <C32Global>
-        <property key="common-include-directories" value=""/>
-        <property key="gp-relative-option" value=""/>
-        <property key="legacy-libc" value="false"/>
-        <property key="mdtcm" value=""/>
-        <property key="mitcm" value=""/>
-        <property key="mstacktcm" value="false"/>
-        <property key="omit-pack-options" value="1"/>
-        <property key="relaxed-math" value="false"/>
-        <property key="save-temps" value="false"/>
-        <property key="stack-smashing" value=""/>
-        <property key="wpo-lto" value="false"/>
-      </C32Global>
       <EdbgTool>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="communication.activationmode" value="nohv"/>
@@ -2854,7 +2861,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>EdbgTool</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>4.09</languageToolchainVersion>
+        <languageToolchainVersion>6.00</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
@@ -3071,19 +3078,6 @@
         <property key="use-iar" value="false"/>
         <property key="use-indirect-calls" value="false"/>
       </C32CPP>
-      <C32Global>
-        <property key="common-include-directories" value=""/>
-        <property key="gp-relative-option" value=""/>
-        <property key="legacy-libc" value="false"/>
-        <property key="mdtcm" value=""/>
-        <property key="mitcm" value=""/>
-        <property key="mstacktcm" value="false"/>
-        <property key="omit-pack-options" value="1"/>
-        <property key="relaxed-math" value="false"/>
-        <property key="save-temps" value="false"/>
-        <property key="stack-smashing" value=""/>
-        <property key="wpo-lto" value="false"/>
-      </C32Global>
       <EdbgTool>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="communication.activationmode" value="nohv"/>
@@ -3676,7 +3670,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>EdbgTool</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>4.09</languageToolchainVersion>
+        <languageToolchainVersion>6.00</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
@@ -3893,19 +3887,6 @@
         <property key="use-iar" value="false"/>
         <property key="use-indirect-calls" value="false"/>
       </C32CPP>
-      <C32Global>
-        <property key="common-include-directories" value=""/>
-        <property key="gp-relative-option" value=""/>
-        <property key="legacy-libc" value="false"/>
-        <property key="mdtcm" value=""/>
-        <property key="mitcm" value=""/>
-        <property key="mstacktcm" value="false"/>
-        <property key="omit-pack-options" value="1"/>
-        <property key="relaxed-math" value="false"/>
-        <property key="save-temps" value="false"/>
-        <property key="stack-smashing" value=""/>
-        <property key="wpo-lto" value="false"/>
-      </C32Global>
       <EdbgTool>
         <property key="AutoSelectMemRanges" value="auto"/>
         <property key="communication.activationmode" value="nohv"/>

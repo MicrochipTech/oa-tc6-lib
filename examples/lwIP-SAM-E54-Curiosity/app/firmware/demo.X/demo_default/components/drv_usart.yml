@@ -1,0 +1,75 @@
+configVersion: 1.0.0
+componentName: drv_usart
+coreVersion: 5.9.0
+device: ATSAME54P20A
+library: []
+dependency:
+- dependencyPackage: class com.microchip.mcc.harmony.HarmonyModule
+  name: drv_usart
+  type: module
+  version: ''
+- dependencyPackage: ''
+  name: CMSIS_5
+  type: package
+  version: 5.9.1-dev
+- dependencyPackage: ''
+  name: core
+  type: package
+  version: v3.13.1
+- dependencyPackage: ''
+  name: csp
+  type: package
+  version: v3.17.0
+customDataClassName: com.microchip.utils_mh3.utils.persistence.CustomModuleData
+data:
+  attachments: {}
+  elementPosition:
+    attributes:
+      id: __ROOTVIEW
+    children:
+    - children:
+      - attributes:
+          id: drv_usart
+          x: '339'
+          y: '237'
+        type: ElementPosition
+      type: ElementPositions
+    type: ComponentGraph
+  symbols:
+    DRV_USART_SYS_DMA_CODE_ENABLE:
+      attributes:
+        id: DRV_USART_SYS_DMA_CODE_ENABLE
+        label: DRV_USART_SYS_DMA_CODE_ENABLE
+      children:
+      - children:
+        - attributes:
+            id: drv_usart
+            value: 'true'
+          type: Dynamic
+        type: Values
+      type: Boolean
+    DRV_USART_SYS_DMA_ENABLE:
+      attributes:
+        id: DRV_USART_SYS_DMA_ENABLE
+        label: DRV_USART_SYS_DMA_ENABLE
+      children:
+      - children:
+        - attributes:
+            id: drv_usart
+            value: 'true'
+          type: Dynamic
+        type: Values
+      type: Boolean
+    DRV_USART_SYS_DMA_ENABLE_CNTR:
+      attributes:
+        id: DRV_USART_SYS_DMA_ENABLE_CNTR
+        label: DRV_USART_SYS_DMA_ENABLE_CNTR
+      children:
+      - children:
+        - attributes:
+            id: drv_usart
+            value: '1'
+          type: Dynamic
+        type: Values
+      type: Integer
+  userData: {}
