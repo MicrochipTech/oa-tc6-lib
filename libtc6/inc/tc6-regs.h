@@ -42,6 +42,14 @@ Microchip or any third party.
 /*                            DEFINITIONS                               */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
+/** \brief PHC seed value (whole seconds) written to the LAN865x internal 1588
+ *         timer once during TC6Regs_Init(). Integrators may override this.
+ *         Default = 2026-08-07 00:00:00 UTC (seconds since 1970-01-01).
+ *         Value fits in 32 bits, so MAC_TSH (seconds high) seeds to 0. */
+#ifndef TC6Regs_PTP_EPOCH_SEC
+#define TC6Regs_PTP_EPOCH_SEC   (1786060800u)
+#endif
+
 typedef enum
 {
     TC6Regs_Event_UnknownError = 0,

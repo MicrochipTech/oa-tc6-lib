@@ -70,6 +70,23 @@ Microchip or any third party.
 
 #define REG_TTSCA_HIGH      (0x00000010u) /* TTSCA_HIGH, TTSCA_LOW, TTSCB_HIGH, TTSCB_LOW, TTSCC_HIGH, TTSCC_LOW */
 
+/* PTP Hardware Clock (PHC / 1588 timer), MMS1. Semantics verified against the
+   LAN865x Linux driver lan865x_ptp.c (lan865x_ptp_clock_set/get) and lan865x.h. */
+#define REG_MAC_TSH         (0x00010070u) /* 1588 timer seconds HIGH (upper 32 bits) */
+#define REG_MAC_TSL         (0x00010074u) /* 1588 timer seconds LOW  (lower 32 bits) */
+#define REG_MAC_TN          (0x00010075u) /* 1588 timer NANOSECONDS (write commits time) */
+
+/* 1PPS output pin config, MMS10. Encodings verified against lan865x.h:
+   PADCTRL_A4SEL = GENMASK(9,8), selector 1 = 1PPS -> 0x100.
+   PPSCTL_PPSPW = GENMASK(6,2), pulse width = 640ns * (PPSPW + 1);
+   1280 ns -> PPSPW code 1 -> (1 << 2) = 0x04. PPSEN = BIT(0). */
+#define REG_PADCTRL         (0x000A0088u)
+#define PADCTRL_A4SEL_MASK  (0x00000300u) /* DIOA4 function select field, bits[9:8] */
+#define PADCTRL_A4SEL_1PPS  (0x00000100u) /* DIOA4 = 1PPS output (selector 1 << 8) */
+#define REG_PPSCTL          (0x000A0239u)
+#define PPSCTL_PPSEN        (0x00000001u) /* W1S: start 1PPS generation */
+#define PPSCTL_PPSPW_1280NS (0x00000004u) /* pulse width = 640*(1+1) = 1280 ns */
+
 static const char* TC6_events[] = {
     "Unknown_Error",
     "Transmit_Protocol_Error",
@@ -468,6 +485,28 @@ static void DoInitialization(TC6Reg_t *pReg)
         if (pReg->initialized && pReg->enableTimestamp && pReg->tsCapable) {
             /* Unmask TX Timestamp Capture A interrupt (B/C are unmasked by default) */
             while (pReg->initialized && !TC6_ReadModifyWriteRegister(pReg->pTC6, REG_IMASK0, 0x00000000u, IMASK0_TTSCA_MASK, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+                TC6_Service(pReg->pTC6, true);
+            }
+        }
+        /* Seed the PHC (1588 timer) with the configured epoch before enabling data.
+           Order/semantics match lan865x_ptp.c: TSH=seconds high, TSL=seconds low,
+           TN=nanoseconds (the TN write commits the new time). */
+        while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, REG_MAC_TSH, (uint32_t)((uint64_t)TC6Regs_PTP_EPOCH_SEC >> 32), CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+            TC6_Service(pReg->pTC6, true);
+        }
+        while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, REG_MAC_TSL, (uint32_t)((uint64_t)TC6Regs_PTP_EPOCH_SEC & 0xFFFFFFFFu), CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+            TC6_Service(pReg->pTC6, true);
+        }
+        while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, REG_MAC_TN, 0x00000000u, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+            TC6_Service(pReg->pTC6, true);
+        }
+        if (pReg->initialized && pReg->enableTimestamp && pReg->tsCapable) {
+            /* Route DIOA4 to the 1PPS output and enable a 1280ns pulse (derived from the seeded PHC).
+               Kept gated so boards that do not enable timestamping leave DIOA4 untouched. */
+            while (pReg->initialized && !TC6_ReadModifyWriteRegister(pReg->pTC6, REG_PADCTRL, PADCTRL_A4SEL_1PPS, PADCTRL_A4SEL_MASK, CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
+                TC6_Service(pReg->pTC6, true);
+            }
+            while (pReg->initialized && !TC6_WriteRegister(pReg->pTC6, REG_PPSCTL, (PPSCTL_PPSEN | PPSCTL_PPSPW_1280NS), CONTROL_PROTECTION, OnInitialRegCB, NULL)) {
                 TC6_Service(pReg->pTC6, true);
             }
         }
