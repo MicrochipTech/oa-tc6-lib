@@ -73,7 +73,7 @@ Microchip or any third party.
 #define MAC_PROMISCUOUS_MODE        (false)
 #define MAC_TX_CUT_THROUGH          (false)
 #define MAC_RX_CUT_THROUGH          (false)
-#define MAC_ENABLE_TIMESTAMP        (true)
+#define MAC_ENABLE_TIMESTAMP        (false)
 #define DELAY_BEACON_CHECK          (1000)
 #define DELAY_LED                   (333)
 

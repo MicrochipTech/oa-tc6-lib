@@ -985,19 +985,10 @@ static inline uint32_t net2value(const uint8_t *buf)
 
 static uint8_t get_parity(const uint8_t *pVal)
 {
-    uint8_t val = 0u;
-
 #if UINT_MAX == UINT32_MAX
     /* 32 Bit machine */
     uint32_t v = pVal[0] | (pVal[1] << 8) | (pVal[2] << 16) | (pVal[3] << 24);
-    v ^= v >> 16;
-    v ^= v >> 8;
-    v ^= v >> 4;
-    v ^= v >> 2;
-    v ^= v >> 1;
-
-    v = ~v & 1u;       /* odd parity */
-    val = (uint8_t)v;  /* MISRA c2012-10.3 */
+    return get_bit_parity(v);
 #else
     /* 16 Bit machine */
     uint16_t h = (uint16_t)pVal[0] | ((uint16_t)pVal[1] << 8);
@@ -1013,9 +1004,8 @@ static uint8_t get_parity(const uint8_t *pVal)
     l ^= l >> 1;
 
     val =  ~(h ^ l) & 1u;
-#endif
-
     return val;
+#endif
 }
 
 static uint8_t get_bit_parity(uint32_t v)
@@ -1025,7 +1015,6 @@ static uint8_t get_bit_parity(uint32_t v)
     v ^= v >> 4;
     v ^= v >> 2;
     v ^= v >> 1;
-
     return (uint8_t)(~v & 1u); /* odd parity */
 }
 
