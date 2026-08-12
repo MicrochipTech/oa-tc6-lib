@@ -65,7 +65,7 @@ extern "C" {
  *  \rxCutThrough - true, when RX cut through shall be active, this helps improving speed further. Note that in that case the MCU/MPU must be able to receive at full network speed. false, activates RX store and forward mode.
  *  \return The instance number of the current TC6NoIP driver. Starting at 0 and incrementing by one for any further call. Returns -1 when a instance can not be initialized, increase TC6_MAX_INSTANCES.
  */
-int8_t TC6NoIP_Init(bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough);
+int8_t TC6NoIP_Init(bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough, bool enableTimestamp);
 
 /** \brief Services the hardware and the protocol stack.
  *  \note Must be called cyclic. The faster the better.

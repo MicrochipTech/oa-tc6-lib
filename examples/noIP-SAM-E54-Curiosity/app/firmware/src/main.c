@@ -353,7 +353,7 @@ int main(void)
 
     m.idxNoIp = TC6NoIP_Init(T1S_PLCA_ENABLE, T1S_PLCA_NODE_ID, T1S_PLCA_NODE_COUNT,
         T1S_PLCA_BURST_COUNT, T1S_PLCA_BURST_TIMER, MAC_PROMISCUOUS_MODE,
-        MAC_TX_CUT_THROUGH, MAC_RX_CUT_THROUGH);
+        MAC_TX_CUT_THROUGH, MAC_RX_CUT_THROUGH, false);
 
     if (m.idxNoIp < 0) {
         PRINT(ESC_RED "%sFailed to initialize TC6 noIP Driver" ESC_RESETCOLOR "\r\n", MoveCursor(true));
