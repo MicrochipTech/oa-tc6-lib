@@ -54,6 +54,7 @@ Microchip or any third party.
 #include "tc6.h"
 #include "tc6-stub.h"
 #include "tc6-lwip.h"
+#include "gptp-gm.h"
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                          USER ADJUSTABLE                             */
@@ -711,7 +712,7 @@ uint32_t TC6Regs_CB_GetTicksMs(void)
 
 static void OnTxTimestamp(TC6_t *pInst, bool success, uint8_t tsc, uint64_t timestamp, void *pTag)
 {
-    (void)pInst;
+    TC6LwIP_t *lw = GetContextTC6(pInst);
     (void)pTag;
     if (success) {
         /* Brief per-Sync line: slot letter (A/B/C) + nanoseconds-within-second.
@@ -725,6 +726,9 @@ static void OnTxTimestamp(TC6_t *pInst, bool success, uint8_t tsc, uint64_t time
         }
     } else {
         PRINT(ESC_RED "Sync(tsc=%d) ts read failed" ESC_RESETCOLOR "\r\n", tsc);
+    }
+    if (NULL != lw) {
+        gPTP_GM_OnTxTimestamp(lw->idx, success, tsc, timestamp);
     }
 }
 
