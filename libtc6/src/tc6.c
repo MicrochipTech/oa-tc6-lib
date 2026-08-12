@@ -162,6 +162,7 @@ static bool accessRegisters(TC6_t *g, MemoryOp_t op, uint32_t addr, uint32_t *va
                             bool secure, uint32_t modifyMask);
 
 static uint8_t get_parity(const uint8_t *pVal);
+static uint8_t get_bit_parity(uint32_t v);
 static void addEmptyChunks(TC6_t *g, uint16_t chunkCnt);
 static bool spiDataTransaction(TC6_t *g, uint16_t chunkCnt);
 static bool waitForTXC(TC6_t *g, uint16_t waitLen);
@@ -508,25 +509,24 @@ static void on_rx_slice(TC6_t *g, const uint8_t *pBuf, uint16_t offset, uint16_t
 {
     const uint8_t *buff = pBuf; /* Because of MISRA warning */
     uint16_t buf_len = bufLen;  /* Because of MISRA warning */
-    /* TODO: handle timestamp (RTSP) */
-    (void)rtsp;
 
     if (offset == 0u) {
         g->buf_len = 0;
         g->ts = 0;
     }
 
-    /* handle timestamp (RTSA) */
+    /* handle timestamp (RTSA), validated against the RTSP parity bit */
     /* ToDo: get timestamp according to selected timestamp length (32bit or 64bit) */
     if (rtsa && (buf_len >= 8u)) {
-        g->ts = ((uint64_t)buff[0] << 56) |
-                ((uint64_t)buff[1] << 48) |
-                ((uint64_t)buff[2] << 40) |
-                ((uint64_t)buff[3] << 32) |
-                ((uint64_t)buff[4] << 24) |
-                ((uint64_t)buff[5] << 16) |
-                ((uint64_t)buff[6] << 8)  |
-                ((uint64_t)buff[7]);
+        uint32_t tsHigh = ((uint32_t)buff[0] << 24) | ((uint32_t)buff[1] << 16) | ((uint32_t)buff[2] << 8) | (uint32_t)buff[3];
+        uint32_t tsLow  = ((uint32_t)buff[4] << 24) | ((uint32_t)buff[5] << 16) | ((uint32_t)buff[6] << 8) | (uint32_t)buff[7];
+        uint8_t parity = get_bit_parity(tsHigh) ^ get_bit_parity(tsLow);
+
+        if (parity == (uint8_t)(rtsp ? 1u : 0u)) {
+            g->ts = ((uint64_t)tsHigh << 32) | (uint64_t)tsLow;
+        } else {
+            g->ts = 0;
+        }
 
         buff = &buff[8];
         buf_len -= 8u;
@@ -598,6 +598,16 @@ static uint8_t get_parity(const uint8_t *pVal)
 #endif
 
     return val;
+}
+
+static uint8_t get_bit_parity(uint32_t v)
+{
+    v ^= v >> 16;
+    v ^= v >> 8;
+    v ^= v >> 4;
+    v ^= v >> 2;
+    v ^= v >> 1;
+    return (uint8_t)(~v & 1u); /* odd parity */
 }
 
 static void addEmptyChunks(TC6_t *g, uint16_t chunkCnt)

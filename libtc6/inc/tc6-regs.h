@@ -42,6 +42,14 @@ Microchip or any third party.
 /*                            DEFINITIONS                               */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
+/** \brief PHC seed value (whole seconds) written to the LAN865x internal 1588
+ *         timer once during TC6Regs_Init(). Integrators may override this.
+ *         Default = 2026-08-07 00:00:00 UTC (seconds since 1970-01-01).
+ *         Value fits in 32 bits, so MAC_TSH (seconds high) seeds to 0. */
+#ifndef TC6Regs_PTP_EPOCH_SEC
+#define TC6Regs_PTP_EPOCH_SEC   (1786060800u)
+#endif
+
 typedef enum
 {
     TC6Regs_Event_UnknownError = 0,
@@ -92,9 +100,10 @@ typedef enum
  *  \param pInst - The pointer returned by TC6_Init.
  *  \param pTag - This pointer will be returned back with any callback of this component. Maybe set to NULL.
  *  \param mac - The 6 Byte public visible MAC address of the TC6 MAC.
+ *  \param enableTimestamp - true, if hardware TX/RX frame timestamping shall be enabled (requires a timestamp-capable MAC-PHY, see TC6Regs_GetTimestampSupported()).
  *  \return True, if initial register settings and given parameters have been written into the LAN865x. false, initialization error, try again later with TC6Regs_Reinit().
  */
-bool TC6Regs_Init(TC6_t *pInst, void *pTag, const uint8_t mac[6], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough);
+bool TC6Regs_Init(TC6_t *pInst, void *pTag, const uint8_t mac[6], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough, bool enableTimestamp);
 
 /** \brief Checks internal timers and trigger corresponding actions
  *  \note Must be called cyclic (slow delay is fine (< 1 second))
@@ -127,6 +136,20 @@ bool TC6Regs_SetPlca(TC6_t *pInst, bool plcaEnable, uint8_t nodeId, uint8_t node
  *  \return 0, in case of error. Otherwise, Chip Revision.
  */
 uint8_t TC6Regs_GetChipRevision(TC6_t *pInst);
+
+/** \brief Returns whether the attached MAC-PHY supports hardware TX/RX frame timestamping.
+ *  \param pInst - The pointer returned by TC6_Init.
+ *  \return true, if the MAC-PHY is timestamp-capable and TC6Regs_Init() was called with enableTimestamp = true.
+ */
+bool TC6Regs_GetTimestampSupported(TC6_t *pInst);
+
+/** \brief Reads a captured TX timestamp for the given timestamp-capture slot (TSC 1..3).
+ *  \param pInst - The pointer returned by TC6_Init.
+ *  \param tsc - The timestamp-capture slot (1, 2 or 3), matching the tsc argument given at send time.
+ *  \param pTimestamp - Out: the composed 64-bit timestamp (32-bit seconds, 32-bit nanoseconds), valid only if this function returns true.
+ *  \return true, if the timestamp was read successfully. false, on register-access failure or invalid arguments.
+ */
+bool TC6Regs_ReadTxTimestamp(TC6_t *pInst, uint8_t tsc, uint64_t *pTimestamp);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                   Implementation of TC6 Callback                     */

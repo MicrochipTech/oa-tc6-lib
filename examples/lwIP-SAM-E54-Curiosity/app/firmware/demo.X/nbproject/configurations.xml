@@ -327,6 +327,8 @@
       </logicalFolder>
       <itemPath>../src/app.c</itemPath>
       <itemPath>../src/app.h</itemPath>
+      <itemPath>../src/gptp-gm.c</itemPath>
+      <itemPath>../src/gptp-gm.h</itemPath>
       <itemPath>../src/main.c</itemPath>
       <itemPath>../src/tc6-lwip.h</itemPath>
       <itemPath>../src/tc6-stub.c</itemPath>
