@@ -54,6 +54,7 @@ Microchip or any third party.
 #include "tc6.h"
 #include "tc6-stub.h"
 #include "tc6-lwip.h"
+#include "gptp-gm.h"
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                          USER ADJUSTABLE                             */
@@ -85,6 +86,7 @@ typedef struct
     TC6_t *tc6;
     struct pbuf *pbuf;
     TC6LwIP_On_PlcaStatus pStatusCallback;
+    TC6LwIP_OnRxTimestamp pRxTimestampCallback;
     uint16_t rxLen;
     bool rxInvalid;
     bool tc6NeedService;
@@ -117,6 +119,7 @@ static TC6LwIP_t *GetContextNetif(struct netif *intf);
 static TC6LwIP_t *GetContextTC6(TC6_t *pTC6);
 
 static void OnPlcaStatus(TC6_t *pInst, bool success, uint32_t addr, uint32_t value, void *tag, void *pGlobalTag);
+static void OnTxTimestamp(TC6_t *pInst, bool success, uint8_t tsc, uint64_t timestamp, void *pTag);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                  CALLBACK FUNCTIONS FROM TCP/IP STACK                */
@@ -130,7 +133,7 @@ static void OnRawTx(TC6_t *pInst, const uint8_t *pTx, uint16_t len, void *pTag, 
 /*                         PUBLIC FUNCTIONS                             */
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough)
+int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough, bool enableTimestamp)
 {
     TC6LwIP_t *lw = NULL;
     uint8_t i;
@@ -165,7 +168,7 @@ int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_
         success = (NULL != lw->tc.tc6);
     }
     if (success) {
-        success = TC6Regs_Init(lw->tc.tc6, lw, lw->ip.mac, enablePlca, nodeId, nodeCount, burstCount, burstTimer, promiscuous, txCutThrough, rxCutThrough);
+        success = TC6Regs_Init(lw->tc.tc6, lw, lw->ip.mac, enablePlca, nodeId, nodeCount, burstCount, burstTimer, promiscuous, txCutThrough, rxCutThrough, enableTimestamp);
     }
     if (success) {
         while(!TC6Regs_GetInitDone(lw->tc.tc6)) {
@@ -267,6 +270,44 @@ bool TC6LwIP_SetPlca(int8_t idx, bool plcaEnable, uint8_t nodeId, uint8_t nodeCo
         success = TC6Regs_SetPlca(lw->tc.tc6, plcaEnable, nodeId, nodeCount);
     }
     return success;
+}
+
+bool TC6LwIP_ReadTxTimestamp(int8_t idx, uint8_t tsc, TC6Regs_OnTxTimestamp callback, void *pTag)
+{
+    bool success = false;
+    if ((idx < TC6_MAX_INSTANCES) && (NULL != callback)) {
+        TC6LwIP_t *lw = &mlw[idx];
+        success = TC6Regs_ReadTxTimestamp(lw->tc.tc6, tsc, callback, pTag);
+    }
+    return success;
+}
+
+bool TC6LwIP_SendRawEthernetPacket(int8_t idx, const uint8_t *pTx, uint16_t len, uint8_t tsc, TC6_RawTxCallback_t callback, void *pTag)
+{
+    bool success = false;
+    if ((idx < TC6_MAX_INSTANCES) && (NULL != pTx) && (0u != len)) {
+        TC6LwIP_t *lw = &mlw[idx];
+        success = TC6_SendRawEthernetPacket(lw->tc.tc6, pTx, len, tsc, callback, pTag);
+    }
+    return success;
+}
+
+bool TC6LwIP_GetTimestampSupported(int8_t idx)
+{
+    bool supported = false;
+    if (idx < TC6_MAX_INSTANCES) {
+        TC6LwIP_t *lw = &mlw[idx];
+        supported = TC6Regs_GetTimestampSupported(lw->tc.tc6);
+    }
+    return supported;
+}
+
+void TC6LwIP_SetRxTimestampCallback(int8_t idx, TC6LwIP_OnRxTimestamp callback)
+{
+    if (idx < TC6_MAX_INSTANCES) {
+        TC6LwIP_t *lw = &mlw[idx];
+        lw->tc.pRxTimestampCallback = callback;
+    }
 }
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -464,12 +505,14 @@ void TC6_CB_OnRxEthernetPacket(TC6_t *pInst, bool success, uint16_t len, uint64_
     uint16_t ethType;
     struct eth_hdr *ethhdr;
     (void)pInst;
-    (void)rxTimestamp;
     (void)pGlobalTag;
     TC6_ASSERT(lw->tc.tc6 == pInst);
     bool result = true;
     if (!success || lw->tc.rxInvalid || !lw->tc.pbuf || !lw->tc.rxLen) {
         result = false;
+    }
+    if (result && success && (NULL != rxTimestamp) && (NULL != lw->tc.pRxTimestampCallback)) {
+        lw->tc.pRxTimestampCallback(lw->idx, *rxTimestamp);
     }
     if (result && (lw->tc.rxLen != len)) {
         PrintRateLimited("on_rx_eth_ready: size mismatch", 0u);
@@ -603,13 +646,15 @@ uint32_t TC6Regs_CB_GetTicksMs(void)
         PRINT(ESC_GREEN "PHY_Interrupt" ESC_RESETCOLOR "\r\n");
         break;
     case TC6Regs_Event_Transmit_Timestamp_Capture_Available_A:
-        PRINT(ESC_GREEN "Transmit_Timestamp_Capture_Available_A" ESC_RESETCOLOR "\r\n");
+        /* Capture-available events fire per Sync; the brief Sync(x)= line in
+           OnTxTimestamp is the only per-Sync output to keep the UART quiet. */
+        (void)TC6Regs_ReadTxTimestamp(pInst, 1u, OnTxTimestamp, pTag);
         break;
     case TC6Regs_Event_Transmit_Timestamp_Capture_Available_B:
-        PRINT(ESC_GREEN "Transmit_Timestamp_Capture_Available_B" ESC_RESETCOLOR "\r\n");
+        (void)TC6Regs_ReadTxTimestamp(pInst, 2u, OnTxTimestamp, pTag);
         break;
     case TC6Regs_Event_Transmit_Timestamp_Capture_Available_C:
-        PRINT(ESC_GREEN "Transmit_Timestamp_Capture_Available_C" ESC_RESETCOLOR "\r\n");
+        (void)TC6Regs_ReadTxTimestamp(pInst, 3u, OnTxTimestamp, pTag);
         break;
     case TC6Regs_Event_Transmit_Frame_Check_Sequence_Error:
         PRINT(ESC_RED "Transmit_Frame_Check_Sequence_Error" ESC_RESETCOLOR "\r\n");
@@ -703,6 +748,28 @@ static void OnPlcaStatus(TC6_t *pInst, bool success, uint32_t addr, uint32_t val
             status = (0u != ((1u << 15) & value));
         }
         lw->tc.pStatusCallback(lw->idx, success, status);
+    }
+}
+
+static void OnTxTimestamp(TC6_t *pInst, bool success, uint8_t tsc, uint64_t timestamp, void *pTag)
+{
+    TC6LwIP_t *lw = GetContextTC6(pInst);
+    (void)pTag;
+    if (success) {
+        /* Brief per-Sync line: slot letter (A/B/C) + nanoseconds-within-second.
+           At the 125 ms Automotive rate 8 Syncs/sec overruns the UART rate
+           limiter, so print only every 8th (~1/sec) to avoid "[skipped N]"
+           while still showing liveness and the slot rotating. */
+        static uint32_t tsPrintDiv = 0u;
+        if (0u == (tsPrintDiv++ & 0x7u)) {
+            char slot = (char)('A' + (((tsc >= 1u) && (tsc <= 3u)) ? (tsc - 1u) : 0u));
+            PRINT("Sync(%c)=%09lu\r\n", slot, (unsigned long)(timestamp & 0xFFFFFFFFu));
+        }
+    } else {
+        PRINT(ESC_RED "Sync(tsc=%d) ts read failed" ESC_RESETCOLOR "\r\n", tsc);
+    }
+    if (NULL != lw) {
+        gPTP_GM_OnTxTimestamp(lw->idx, success, tsc, timestamp);
     }
 }
 

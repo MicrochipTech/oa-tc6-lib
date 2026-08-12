@@ -2,6 +2,11 @@
 
 # OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release Notes
 
+## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.7
+### New Features
+ - Added Support for PTP hardware timestamping
+ - SAM E54 example now has a PTP Automotive Profile Grand Master (SYNC-only).  See MAC_ENABLE_TIMESTAMP.
+
 ## OPEN Alliance TC6 Protocol Driver for LAN8650/1 Release v3.1.6
 ### New Features
  - Added TC6_SPI_BUF_ALIGNMENT configuration option to support strictly aligned SPI buffers (e.g. Cortex-M7 DMA/cache requirements).

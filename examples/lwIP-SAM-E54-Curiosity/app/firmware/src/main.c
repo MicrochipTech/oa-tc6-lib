@@ -53,6 +53,7 @@ Microchip or any third party.
 
 #include "tc6.h"
 #include "tc6-lwip.h"
+#include "gptp-gm.h"
 #include "udp_perf_client.h"
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -72,6 +73,7 @@ Microchip or any third party.
 #define MAC_PROMISCUOUS_MODE        (false)
 #define MAC_TX_CUT_THROUGH          (false)
 #define MAC_RX_CUT_THROUGH          (false)
+#define MAC_ENABLE_TIMESTAMP        (false)
 #define DELAY_BEACON_CHECK          (1000)
 #define DELAY_LED                   (333)
 
@@ -146,10 +148,15 @@ int main(void)
 
     m.idxLwIp = TC6LwIP_Init(m_ip, T1S_PLCA_ENABLE, T1S_PLCA_NODE_ID, T1S_PLCA_NODE_COUNT,
         T1S_PLCA_BURST_COUNT, T1S_PLCA_BURST_TIMER, MAC_PROMISCUOUS_MODE,
-        MAC_TX_CUT_THROUGH, MAC_RX_CUT_THROUGH);
+        MAC_TX_CUT_THROUGH, MAC_RX_CUT_THROUGH, MAC_ENABLE_TIMESTAMP);
 
     if (m.idxLwIp < 0) {
         PRINT(ESC_RED "Failed to initialize TC6 lwIP Driver" ESC_RESETCOLOR "\r\n");
+        goto ERROR;
+    }
+
+    if (!gPTP_GM_Init(m.idxLwIp)) {
+        PRINT(ESC_RED "Failed to initialize gPTP Grand Master (timestamping unsupported?)" ESC_RESETCOLOR "\r\n");
         goto ERROR;
     }
 
@@ -166,6 +173,7 @@ int main(void)
         SYS_Tasks();
         iperf_service();
         TC6LwIP_Service();
+        gPTP_GM_Service();
 
         now = systick.tickCounter;
         if (now > m.nextBeaconCheck) {
@@ -205,6 +213,7 @@ static void PrintMenu()
     PRINT(" r - soft reset\r\n");
     PRINT(" c - clear screen\r\n");
     PRINT(" i - toggle iperf tx test\r\n");
+    PRINT(" p - toggle gPTP Grand Master sync tx\r\n");
     PRINT("======================\r\n");
 }
 
@@ -237,6 +246,11 @@ static void CheckUartInput(void)
                     PRINT("iperf client stop\r\n");
                     iperf_stop_application();
                 }
+                break;
+            case 'P':
+            case 'p':
+                gPTP_GM_SetEnabled(m.idxLwIp, !gPTP_GM_IsEnabled(m.idxLwIp));
+                PRINT("gPTP Grand Master sync tx %s\r\n", gPTP_GM_IsEnabled(m.idxLwIp) ? "ON" : "OFF");
                 break;
             default:
                 PRINT("Unknown key='%c'(0x%X)\r\n", m_rx, m_rx);

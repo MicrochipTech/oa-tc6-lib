@@ -1,0 +1,136 @@
+configVersion: 1.0.0
+componentName: drv_usart_0
+coreVersion: 5.9.0
+device: ATSAME54P20A
+library: []
+dependency:
+- dependencyPackage: class com.microchip.mcc.harmony.HarmonyModule
+  name: drv_usart_0
+  type: module
+  version: ''
+- dependencyPackage: ''
+  name: CMSIS_5
+  type: package
+  version: 5.9.1-dev
+- dependencyPackage: ''
+  name: core
+  type: package
+  version: v3.13.1
+- dependencyPackage: ''
+  name: csp
+  type: package
+  version: v3.17.0
+customDataClassName: com.microchip.utils_mh3.utils.persistence.CustomModuleData
+data:
+  attachments:
+    children:
+    - children:
+      - attributes:
+          id: drv_usart_UART_dependency
+        children:
+        - children:
+          - attributes:
+              id: targetComponentID
+            children:
+            - type: Value
+              value: sercom1
+            type: String
+          - attributes:
+              id: targetAttachmentID
+            children:
+            - type: Value
+              value: SERCOM1_UART
+            type: String
+          type: Attributes
+        type: DirectDependency
+      type: Attachments
+    type: drv_usart_0
+  elementPosition: {}
+  symbols:
+    DRV_USART_PLIB:
+      attributes:
+        id: DRV_USART_PLIB
+        label: PLIB Used
+      children:
+      - children:
+        - attributes:
+            id: drv_usart_0
+            value: SERCOM1
+          type: Dynamic
+        type: Values
+      type: String
+    DRV_USART_QUEUE_SIZE:
+      attributes:
+        id: DRV_USART_QUEUE_SIZE
+        label: Transfer Queue Size
+      children:
+      - children:
+        - attributes:
+            value: '16'
+          type: User
+        type: Values
+      type: Integer
+    DRV_USART_RX_DMA_CHANNEL:
+      attributes:
+        id: DRV_USART_RX_DMA_CHANNEL
+        label: DMA Channel For Receive
+      children:
+      - children:
+        - attributes:
+            id: drv_usart_0
+            value: '-1'
+          type: Dynamic
+        type: Values
+      type: Integer
+    DRV_USART_TX_DMA:
+      attributes:
+        id: DRV_USART_TX_DMA
+        label: Use DMA for Transmit ?
+      children:
+      - children:
+        - attributes:
+            id: readOnly
+          children:
+          - type: Value
+            value: 'false'
+          type: Boolean
+        type: Attributes
+      - children:
+        - attributes:
+            value: 'true'
+          type: User
+        type: Values
+      type: Boolean
+    DRV_USART_TX_DMA_CHANNEL:
+      attributes:
+        id: DRV_USART_TX_DMA_CHANNEL
+        label: DMA Channel For Transmit
+      children:
+      - children:
+        - attributes:
+            id: visible
+          children:
+          - type: Value
+            value: 'true'
+          type: Boolean
+        type: Attributes
+      - children:
+        - attributes:
+            id: drv_usart_0
+            value: '2'
+          type: Dynamic
+        type: Values
+      type: Integer
+    DRV_USART_TX_DMA_EN:
+      attributes:
+        id: DRV_USART_TX_DMA_EN
+        label: DRV_USART_TX_DMA_EN
+      children:
+      - children:
+        - attributes:
+            id: drv_usart_0
+            value: 'true'
+          type: Dynamic
+        type: Values
+      type: Boolean
+  userData: {}

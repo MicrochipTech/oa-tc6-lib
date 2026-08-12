@@ -165,7 +165,7 @@ int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_
         success = (NULL != lw->tc.tc6);
     }
     if (success) {
-        success = TC6Regs_Init(lw->tc.tc6, lw, lw->ip.mac, enablePlca, nodeId, nodeCount, burstCount, burstTimer, promiscuous, txCutThrough, rxCutThrough);
+        success = TC6Regs_Init(lw->tc.tc6, lw, lw->ip.mac, enablePlca, nodeId, nodeCount, burstCount, burstTimer, promiscuous, txCutThrough, rxCutThrough, false);
     }
     if (success) {
         while(!TC6Regs_GetInitDone(lw->tc.tc6)) {
