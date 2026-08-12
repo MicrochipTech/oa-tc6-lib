@@ -44,6 +44,7 @@ Microchip or any third party.
 #include <stdint.h>
 #include <stdbool.h>
 #include "tc6.h"
+#include "tc6-regs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,9 +75,10 @@ extern "C" {
  *  \promiscuous - true, when RX MAC filter shall be turned off, then all messages are getting received (sniffing). false, filter is active, only messages with matching MACs (and broadcast/multicast) are getting received.
  *  \txCutThrough - true, when TX cut through shall be active, this helps improving speed further. Note that in that case the MCU/MPU must be able to send at full network speed. false, activates TX store and forward mode.
  *  \rxCutThrough - true, when RX cut through shall be active, this helps improving speed further. Note that in that case the MCU/MPU must be able to receive at full network speed. false, activates RX store and forward mode.
+ *  \enableTimestamp - true, if hardware TX/RX timestamping shall be enabled (when the PHY supports it). false, timestamping stays off.
  *  \return The instance number of the current TC6LwIP driver. Starting at 0 and incrementing by one for any further call. Returns -1 when a instance can not be initialized, increase TC6_MAX_INSTANCES.
  */
-int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough);
+int8_t TC6LwIP_Init(const uint8_t ip[4], bool enablePlca, uint8_t nodeId, uint8_t nodeCount, uint8_t burstCount, uint8_t burstTimer, bool promiscuous, bool txCutThrough, bool rxCutThrough, bool enableTimestamp);
 
 /** \brief Services the hardware and the protocol stack.
  *  \note Must be called cyclic. The faster the better.
@@ -104,6 +106,42 @@ void TC6LwIP_GetMacAddress(int8_t idx, uint8_t *mac[6]);
  *  \return true, if request could be enqueued, the PLCA parameters will be changed soon. false, request failed, no change.
  */
 bool TC6LwIP_SetPlca(int8_t idx, bool plcaEnable, uint8_t nodeId, uint8_t nodeCount);
+
+/** \brief Sends a raw Ethernet frame, optionally requesting a TX timestamp capture.
+ *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
+ *  \param pTx - Pointer to the full Ethernet frame (dst/src/ethertype + payload).
+ *  \param len - Frame length in bytes.
+ *  \param tsc - Timestamp capture slot 1/2/3, or 0 for no timestamp.
+ *  \return true, if the frame was sent.
+ */
+bool TC6LwIP_SendRawEthernetPacket(int8_t idx, const uint8_t *pTx, uint16_t len, uint8_t tsc);
+
+/** \brief Reports whether the MAC-PHY supports hardware TX/RX frame timestamping.
+ *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
+ *  \return true, if timestamping hardware is available and enabled.
+ */
+bool TC6LwIP_GetTimestampSupported(int8_t idx);
+
+/** \brief Reads back a hardware TX timestamp capture slot.
+ *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
+ *  \param tsc - The capture slot (1=A, 2=B, 3=C) as used with TC6LwIP_SendRawEthernetPacket()'s tsc argument.
+ *  \param pTimestamp - Out: the 64-bit timestamp, valid only if this function returns true.
+ *  \return true, if the timestamp was read successfully.
+ */
+bool TC6LwIP_ReadTxTimestamp(int8_t idx, uint8_t tsc, uint64_t *pTimestamp);
+
+/**
+ * \brief Callback invoked with a hardware RX timestamp.
+ * \param idx - The instance number as returned from the TC6LwIP_Init() function.
+ * \param timestamp - The 64-bit hardware RX timestamp of the most recently received packet.
+ */
+typedef void (*TC6LwIP_OnRxTimestamp)(int8_t idx, uint64_t timestamp);
+
+/** \brief Registers a callback that is invoked with the hardware RX timestamp of every received packet.
+ *  \param idx - The instance number as returned from the TC6LwIP_Init() function.
+ *  \param callback - The callback to invoke, or NULL to unregister.
+ */
+void TC6LwIP_SetRxTimestampCallback(int8_t idx, TC6LwIP_OnRxTimestamp callback);
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 /*                 Callback implementations from TC6 library            */
