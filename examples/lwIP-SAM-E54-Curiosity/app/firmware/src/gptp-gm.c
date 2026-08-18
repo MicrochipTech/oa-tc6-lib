@@ -14,6 +14,7 @@
 #define PTP_MSGTYPE_FOLLOW_UP    (0x8u)
 #define PTP_VERSION              (0x02u)
 #define PTP_FLAG_TWO_STEP        (0x0200u) /* flagField, big-endian: twoStepFlag */
+#define PTP_TIMESCALE            (0x0008u)
 #define PTP_CONTROL_SYNC         (0x00u)
 #define PTP_CONTROL_FOLLOW_UP    (0x02u)
 #define PTP_HEADER_LEN           (34u)
@@ -111,7 +112,7 @@ static uint16_t BuildPtpHeader(uint8_t *buf, const GptpGm_t *gm, uint8_t msgType
     WriteBE16(&h[2], msgLen);
     h[4]  = GPTP_GM_DOMAIN_NUMBER;
     /* h[5] reserved = 0 */
-    WriteBE16(&h[6], (PTP_MSGTYPE_SYNC == msgType) ? PTP_FLAG_TWO_STEP : 0x0000u);
+    WriteBE16(&h[6], (PTP_MSGTYPE_SYNC == msgType) ? (PTP_FLAG_TWO_STEP | PTP_TIMESCALE) : PTP_TIMESCALE);
     /* h[8..15] correctionField = 0; h[16..19] reserved = 0 */
     (void)memcpy(&h[20], gm->clockIdentity, 8); /* sourcePortIdentity.clockIdentity */
     WriteBE16(&h[28], 1u);                       /* sourcePortIdentity.portNumber = 1 */
