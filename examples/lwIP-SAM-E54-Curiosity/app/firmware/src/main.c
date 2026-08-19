@@ -155,9 +155,11 @@ int main(void)
         goto ERROR;
     }
 
-    if (!gPTP_GM_Init(m.idxLwIp)) {
-        PRINT(ESC_RED "Failed to initialize gPTP Grand Master (timestamping unsupported?)" ESC_RESETCOLOR "\r\n");
-        goto ERROR;
+    if (MAC_ENABLE_TIMESTAMP) {
+        if (!gPTP_GM_Init(m.idxLwIp)) {
+            PRINT(ESC_RED "Failed to initialize gPTP Grand Master (timestamping unsupported?)" ESC_RESETCOLOR "\r\n");
+            goto ERROR;
+        }
     }
 
     /* iperf */
@@ -213,7 +215,9 @@ static void PrintMenu()
     PRINT(" r - soft reset\r\n");
     PRINT(" c - clear screen\r\n");
     PRINT(" i - toggle iperf tx test\r\n");
-    PRINT(" p - toggle gPTP Grand Master sync tx\r\n");
+    if (MAC_ENABLE_TIMESTAMP) {
+        PRINT(" p - toggle gPTP Grand Master sync tx\r\n");
+    }
     PRINT("======================\r\n");
 }
 
@@ -249,8 +253,12 @@ static void CheckUartInput(void)
                 break;
             case 'P':
             case 'p':
-                gPTP_GM_SetEnabled(m.idxLwIp, !gPTP_GM_IsEnabled(m.idxLwIp));
-                PRINT("gPTP Grand Master sync tx %s\r\n", gPTP_GM_IsEnabled(m.idxLwIp) ? "ON" : "OFF");
+                if (MAC_ENABLE_TIMESTAMP) {
+                    gPTP_GM_SetEnabled(m.idxLwIp, !gPTP_GM_IsEnabled(m.idxLwIp));
+                    PRINT("gPTP Grand Master sync tx %s\r\n", gPTP_GM_IsEnabled(m.idxLwIp) ? "ON" : "OFF");
+                } else {
+                    PRINT("Unknown key='%c'(0x%X)\r\n", m_rx, m_rx);
+                }
                 break;
             default:
                 PRINT("Unknown key='%c'(0x%X)\r\n", m_rx, m_rx);
